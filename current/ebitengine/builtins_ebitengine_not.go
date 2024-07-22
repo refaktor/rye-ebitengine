@@ -1,10 +1,10 @@
-//go:build !b_fyne
-// +build !b_fyne
+//go:build !b_ebiten
+// +build !b_ebiten
 
-package fyne
+package ebiten
 
 import (
 	"github.com/refaktor/rye/env"
 )
 
-var Builtins_ebitengine = map[string]*env.Builtin{}
+var Builtins_ebiten = map[string]*env.Builtin{}
