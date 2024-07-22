@@ -4,7 +4,7 @@
 package main
 
 import (
-	"github.com/refaktor/rye-front/current"
+	"github.com/refaktor/rye-ebitengine/current"
 	"github.com/refaktor/rye/env"
 	"github.com/refaktor/rye/runner"
 )

@@ -3,6 +3,7 @@ package main
 type Config struct {
 	Package        string      `toml:"package"`
 	Version        string      `toml:"version"`
+	OutFile        string      `toml:"outfile"`
 	CutNew         bool        `toml:"cut-new"`
 	NoPrefix       []string    `toml:"no-prefix,omitempty"`
 	CustomPrefixes [][2]string `toml:"custom-prefixes,omitempty"` // {prefix, package}
@@ -27,4 +28,7 @@ cut-new = true
 #custom-prefixes = [
 #  ["my-fyne", "fyne.io/fyne/v2"],
 #  ["my-widget", "fyne.io/fyne/v2/widget"],
-#]`
+#]
+
+outfile = "current/fyne/builtins_fyne.go"
+`

@@ -334,7 +334,6 @@ func makeCompareModulePaths(preferPkg string) func(a, b string) int {
 }
 
 func main() {
-	outFile := "../current/fyne/builtins_fyne.go"
 
 	configPath := "config.toml"
 	if _, err := os.Stat(configPath); err != nil {
@@ -789,6 +788,8 @@ func main() {
 	//code := []byte(cb.String())
 
 	log.Printf("Generated bindings containing %v functions in %v", len(bindingFuncs), time.Since(startTime))
+
+	outFile := cfg.OutFile
 
 	if err := os.WriteFile(outFile, code, 0666); err != nil {
 		panic(err)

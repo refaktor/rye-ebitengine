@@ -1,7 +1,7 @@
-//go:build !b_ebitengine
-// +build !b_ebitengine
+//go:build !b_fyne
+// +build !b_fyne
 
-package ebitengine
+package fyne
 
 import (
 	"github.com/refaktor/rye/env"
