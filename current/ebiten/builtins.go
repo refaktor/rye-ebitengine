@@ -165,38 +165,6 @@ func (self *ryegen_blocks_Scene) Draw(arg0 *ebiten.Image) {
 	self.fn_Draw(self.self, arg0)
 }
 
-type ryegen_ebiten_FinalScreen struct {
-	self env.RyeCtx
-	fn_Bounds func(self env.RyeCtx) (image.Rectangle)
-	fn_DrawImage func(self env.RyeCtx, arg0 *ebiten.Image, arg1 *ebiten.DrawImageOptions)
-	fn_DrawTriangles func(self env.RyeCtx, arg0 []ebiten.Vertex, arg1 []uint16, arg2 *ebiten.Image, arg3 *ebiten.DrawTrianglesOptions)
-	fn_DrawRectShader func(self env.RyeCtx, arg0 int, arg1 int, arg2 *ebiten.Shader, arg3 *ebiten.DrawRectShaderOptions)
-	fn_DrawTrianglesShader func(self env.RyeCtx, arg0 []ebiten.Vertex, arg1 []uint16, arg2 *ebiten.Shader, arg3 *ebiten.DrawTrianglesShaderOptions)
-	fn_Clear func(self env.RyeCtx)
-	fn_Fill func(self env.RyeCtx, arg0 color.Color)
-}
-func (self *ryegen_ebiten_FinalScreen) Bounds() (image.Rectangle) {
-	return self.fn_Bounds(self.self)
-}
-func (self *ryegen_ebiten_FinalScreen) DrawImage(arg0 *ebiten.Image, arg1 *ebiten.DrawImageOptions) {
-	self.fn_DrawImage(self.self, arg0, arg1)
-}
-func (self *ryegen_ebiten_FinalScreen) DrawTriangles(arg0 []ebiten.Vertex, arg1 []uint16, arg2 *ebiten.Image, arg3 *ebiten.DrawTrianglesOptions) {
-	self.fn_DrawTriangles(self.self, arg0, arg1, arg2, arg3)
-}
-func (self *ryegen_ebiten_FinalScreen) DrawRectShader(arg0 int, arg1 int, arg2 *ebiten.Shader, arg3 *ebiten.DrawRectShaderOptions) {
-	self.fn_DrawRectShader(self.self, arg0, arg1, arg2, arg3)
-}
-func (self *ryegen_ebiten_FinalScreen) DrawTrianglesShader(arg0 []ebiten.Vertex, arg1 []uint16, arg2 *ebiten.Shader, arg3 *ebiten.DrawTrianglesShaderOptions) {
-	self.fn_DrawTrianglesShader(self.self, arg0, arg1, arg2, arg3)
-}
-func (self *ryegen_ebiten_FinalScreen) Clear() {
-	self.fn_Clear(self.self)
-}
-func (self *ryegen_ebiten_FinalScreen) Fill(arg0 color.Color) {
-	self.fn_Fill(self.self, arg0)
-}
-
 type ryegen_ebiten_FinalScreenDrawer struct {
 	self env.RyeCtx
 	fn_DrawFinalScreen func(self env.RyeCtx, arg0 ebiten.FinalScreen, arg1 *ebiten.Image, arg2 ebiten.GeoM)
@@ -317,14 +285,6 @@ func (self *ryegen_io_Seeker) Seek(arg0 int64, arg1 int) (int64, error) {
 	return self.fn_Seek(self.self, arg0, arg1)
 }
 
-type ryegen_text_1_Face struct {
-	self env.RyeCtx
-	fn_Metrics func(self env.RyeCtx) (text_1.Metrics)
-}
-func (self *ryegen_text_1_Face) Metrics() (text_1.Metrics) {
-	return self.fn_Metrics(self.self)
-}
-
 var Builtins = map[string]*env.Builtin{
 	"nil": {
 		Doc: "nil value for go types",
@@ -437,7 +397,7 @@ var Builtins = map[string]*env.Builtin{
 			return resObj
 		},
 	},
-	"infinite-loop": {
+	"audio-infinite-loop": {
 		Doc: "audio.NewInfiniteLoop",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
@@ -458,124 +418,210 @@ var Builtins = map[string]*env.Builtin{
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_io_ReadSeeker{
+				impl := &ryegen_io_ReadSeeker{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["read"]; !ok {
+				ctxObj0, ok := wordToObj["read"]
+				if !ok {
 					ps.FailureFlag = true
-return env.NewError("infinite-loop: arg 1: context to io.ReadSeeker: expected context to have function read")
+return env.NewError("audio-infinite-loop: arg 1: context to io.ReadSeeker: expected context to have function read")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("infinite-loop: arg 1: context to io.ReadSeeker: context fn read: function has invalid number of arguments (expected 2)")
+return env.NewError("audio-infinite-loop: arg 1: context to io.ReadSeeker: context fn read: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Read = func(arg0 env.RyeCtx, arg1 []byte) (int, error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
+					impl.fn_Read = func(ctx env.RyeCtx, arg0 []byte) (int, error) {
+						var arg0Val env.Object
 						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
+							items := make([]env.Object, len(arg0))
+							for i, it := range arg0 {
 								items[i] = *env.NewNative(ps.Idx, it, "byte")
 							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
+							arg0Val = *env.NewBlock(*env.NewTSeries(items))
 						}
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-						var res int
-						if v, ok := ps.Res.(env.Integer); ok {
-							res = int(v.Value)
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
+						var res0 int
+						var res1 error
+						res, ok := ps.Res.(env.Block)
+						if !ok {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"audio-infinite-loop: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if len(res.Series.S) != 2 {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"audio-infinite-loop: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if v, ok := res.Series.S[0].(env.Integer); ok {
+							res0 = int(v.Value)
 						} else {
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"infinite-loop: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"audio-infinite-loop: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("infinite-loop: arg 1: context to io.ReadSeeker: context fn read: expected integer to be 0 or nil")
-					}
-					impl.fn_Read = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("infinite-loop: arg 1: context to io.ReadSeeker: context fn read: expected function or nil")
-				}
-				if ctxObj1, ok := wordToObj["seek"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("infinite-loop: arg 1: context to io.ReadSeeker: expected context to have function seek")
-				}
-				switch fn := ctxObj1.(type) {
-				case env.Function:
-					if fn.Argsn != 3 {
-						ps.FailureFlag = true
-return env.NewError("infinite-loop: arg 1: context to io.ReadSeeker: context fn seek: function has invalid number of arguments (expected 3)")
-					}
-					impl.fn_Seek = func(arg0 env.RyeCtx, arg1 int64, arg2 int) (int64, error) {
-						var arg0Val, arg1Val, arg2Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewInteger(int64(arg1))
-						arg2Val = *env.NewInteger(int64(arg2))
-						evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-						var res int64
-						if v, ok := ps.Res.(env.Integer); ok {
-							res = int64(v.Value)
-						} else {
+						switch v := res.Series.S[1].(type) {
+						case env.String:
+							res1 = errors.New(v.Value)
+						case env.Error:
+							res1 = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"audio-infinite-loop: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							res1 = nil
+						default:
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"infinite-loop: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"audio-infinite-loop: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
 						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
+					case env.Integer:
+						if fn.Value != 0 {
+							ps.FailureFlag = true
+return env.NewError("audio-infinite-loop: arg 1: context to io.ReadSeeker: context fn read: expected integer to be 0 or nil")
+						}
+						impl.fn_Read = nil
+					default:
 						ps.FailureFlag = true
-return env.NewError("infinite-loop: arg 1: context to io.ReadSeeker: context fn seek: expected integer to be 0 or nil")
+return env.NewError("audio-infinite-loop: arg 1: context to io.ReadSeeker: context fn read: expected function or nil")
 					}
-					impl.fn_Seek = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("infinite-loop: arg 1: context to io.ReadSeeker: context fn seek: expected function or nil")
-				}
-				arg0Val = impl
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(io.ReadSeeker)
-				if !ok {
-					ps.FailureFlag = true
-return env.NewError("infinite-loop: arg 1: expected native of type io.ReadSeeker")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-return env.NewError("infinite-loop: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-return env.NewError("infinite-loop: arg 1: expected native")
-			}
-			var arg1Val int64
-			if v, ok := arg1.(env.Integer); ok {
-				arg1Val = int64(v.Value)
-			} else {
-				ps.FailureFlag = true
-return env.NewError("infinite-loop: arg 2: expected integer")
-			}
-			res0 := audio.NewInfiniteLoop(arg0Val, arg1Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-audio-infinite-loop")
-			return res0Obj
+					ctxObj1, ok := wordToObj["seek"]
+					if !ok {
+						ps.FailureFlag = true
+return env.NewError("audio-infinite-loop: arg 1: context to io.ReadSeeker: expected context to have function seek")
+					}
+					switch fn := ctxObj1.(type) {
+					case env.Function:
+						if fn.Argsn != 2 {
+							ps.FailureFlag = true
+return env.NewError("audio-infinite-loop: arg 1: context to io.ReadSeeker: context fn seek: function has invalid number of arguments (expected 2)")
+						}
+						impl.fn_Seek = func(ctx env.RyeCtx, arg0 int64, arg1 int) (int64, error) {
+							var arg0Val, arg1Val env.Object
+							arg0Val = *env.NewInteger(int64(arg0))
+							arg1Val = *env.NewInteger(int64(arg1))
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val)
+							var res0 int64
+							var res1 error
+							res, ok := ps.Res.(env.Block)
+							if !ok {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"audio-infinite-loop: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if len(res.Series.S) != 2 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"audio-infinite-loop: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if v, ok := res.Series.S[0].(env.Integer); ok {
+								res0 = int64(v.Value)
+							} else {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"audio-infinite-loop: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							switch v := res.Series.S[1].(type) {
+							case env.String:
+								res1 = errors.New(v.Value)
+							case env.Error:
+								res1 = errors.New(v.Print(*ps.Idx))
+							case env.Integer:
+								if v.Value != 0 {
+									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"audio-infinite-loop: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+								}
+								res1 = nil
+							default:
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"audio-infinite-loop: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+								}
+								return res0, res1
+							}
+						case env.Integer:
+							if fn.Value != 0 {
+								ps.FailureFlag = true
+return env.NewError("audio-infinite-loop: arg 1: context to io.ReadSeeker: context fn seek: expected integer to be 0 or nil")
+							}
+							impl.fn_Seek = nil
+						default:
+							ps.FailureFlag = true
+return env.NewError("audio-infinite-loop: arg 1: context to io.ReadSeeker: context fn seek: expected function or nil")
+						}
+						arg0Val = impl
+					case env.Native:
+						var ok bool
+						arg0Val, ok = v.Value.(io.ReadSeeker)
+						if !ok {
+							ps.FailureFlag = true
+return env.NewError("audio-infinite-loop: arg 1: expected native of type io.ReadSeeker")
+						}
+					case env.Integer:
+						if v.Value != 0 {
+							ps.FailureFlag = true
+return env.NewError("audio-infinite-loop: arg 1: expected integer to be 0 or nil")
+						}
+						arg0Val = nil
+					default:
+						ps.FailureFlag = true
+return env.NewError("audio-infinite-loop: arg 1: expected native")
+					}
+					var arg1Val int64
+					if v, ok := arg1.(env.Integer); ok {
+						arg1Val = int64(v.Value)
+					} else {
+						ps.FailureFlag = true
+return env.NewError("audio-infinite-loop: arg 2: expected integer")
+					}
+					res0 := audio.NewInfiniteLoop(arg0Val, arg1Val)
+					var res0Obj env.Object
+					res0Obj = *env.NewNative(ps.Idx, res0, "ptr-audio-infinite-loop")
+					return res0Obj
 		},
 	},
-	"infinite-loop-with-intro": {
+	"audio-infinite-loop-with-intro": {
 		Doc: "audio.NewInfiniteLoopWithIntro",
 		Argsn: 3,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
@@ -596,128 +642,214 @@ return env.NewError("infinite-loop: arg 2: expected integer")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_io_ReadSeeker{
+				impl := &ryegen_io_ReadSeeker{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["read"]; !ok {
+				ctxObj0, ok := wordToObj["read"]
+				if !ok {
 					ps.FailureFlag = true
-return env.NewError("infinite-loop-with-intro: arg 1: context to io.ReadSeeker: expected context to have function read")
+return env.NewError("audio-infinite-loop-with-intro: arg 1: context to io.ReadSeeker: expected context to have function read")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("infinite-loop-with-intro: arg 1: context to io.ReadSeeker: context fn read: function has invalid number of arguments (expected 2)")
+return env.NewError("audio-infinite-loop-with-intro: arg 1: context to io.ReadSeeker: context fn read: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Read = func(arg0 env.RyeCtx, arg1 []byte) (int, error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
+					impl.fn_Read = func(ctx env.RyeCtx, arg0 []byte) (int, error) {
+						var arg0Val env.Object
 						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
+							items := make([]env.Object, len(arg0))
+							for i, it := range arg0 {
 								items[i] = *env.NewNative(ps.Idx, it, "byte")
 							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
+							arg0Val = *env.NewBlock(*env.NewTSeries(items))
 						}
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-						var res int
-						if v, ok := ps.Res.(env.Integer); ok {
-							res = int(v.Value)
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
+						var res0 int
+						var res1 error
+						res, ok := ps.Res.(env.Block)
+						if !ok {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"audio-infinite-loop-with-intro: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if len(res.Series.S) != 2 {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"audio-infinite-loop-with-intro: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if v, ok := res.Series.S[0].(env.Integer); ok {
+							res0 = int(v.Value)
 						} else {
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"infinite-loop-with-intro: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"audio-infinite-loop-with-intro: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("infinite-loop-with-intro: arg 1: context to io.ReadSeeker: context fn read: expected integer to be 0 or nil")
-					}
-					impl.fn_Read = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("infinite-loop-with-intro: arg 1: context to io.ReadSeeker: context fn read: expected function or nil")
-				}
-				if ctxObj1, ok := wordToObj["seek"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("infinite-loop-with-intro: arg 1: context to io.ReadSeeker: expected context to have function seek")
-				}
-				switch fn := ctxObj1.(type) {
-				case env.Function:
-					if fn.Argsn != 3 {
-						ps.FailureFlag = true
-return env.NewError("infinite-loop-with-intro: arg 1: context to io.ReadSeeker: context fn seek: function has invalid number of arguments (expected 3)")
-					}
-					impl.fn_Seek = func(arg0 env.RyeCtx, arg1 int64, arg2 int) (int64, error) {
-						var arg0Val, arg1Val, arg2Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewInteger(int64(arg1))
-						arg2Val = *env.NewInteger(int64(arg2))
-						evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-						var res int64
-						if v, ok := ps.Res.(env.Integer); ok {
-							res = int64(v.Value)
-						} else {
+						switch v := res.Series.S[1].(type) {
+						case env.String:
+							res1 = errors.New(v.Value)
+						case env.Error:
+							res1 = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"audio-infinite-loop-with-intro: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							res1 = nil
+						default:
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"infinite-loop-with-intro: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"audio-infinite-loop-with-intro: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
 						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
+					case env.Integer:
+						if fn.Value != 0 {
+							ps.FailureFlag = true
+return env.NewError("audio-infinite-loop-with-intro: arg 1: context to io.ReadSeeker: context fn read: expected integer to be 0 or nil")
+						}
+						impl.fn_Read = nil
+					default:
 						ps.FailureFlag = true
-return env.NewError("infinite-loop-with-intro: arg 1: context to io.ReadSeeker: context fn seek: expected integer to be 0 or nil")
+return env.NewError("audio-infinite-loop-with-intro: arg 1: context to io.ReadSeeker: context fn read: expected function or nil")
 					}
-					impl.fn_Seek = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("infinite-loop-with-intro: arg 1: context to io.ReadSeeker: context fn seek: expected function or nil")
-				}
-				arg0Val = impl
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(io.ReadSeeker)
-				if !ok {
-					ps.FailureFlag = true
-return env.NewError("infinite-loop-with-intro: arg 1: expected native of type io.ReadSeeker")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-return env.NewError("infinite-loop-with-intro: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-return env.NewError("infinite-loop-with-intro: arg 1: expected native")
-			}
-			var arg1Val int64
-			if v, ok := arg1.(env.Integer); ok {
-				arg1Val = int64(v.Value)
-			} else {
-				ps.FailureFlag = true
-return env.NewError("infinite-loop-with-intro: arg 2: expected integer")
-			}
-			var arg2Val int64
-			if v, ok := arg2.(env.Integer); ok {
-				arg2Val = int64(v.Value)
-			} else {
-				ps.FailureFlag = true
-return env.NewError("infinite-loop-with-intro: arg 3: expected integer")
-			}
-			res0 := audio.NewInfiniteLoopWithIntro(arg0Val, arg1Val, arg2Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-audio-infinite-loop")
-			return res0Obj
+					ctxObj1, ok := wordToObj["seek"]
+					if !ok {
+						ps.FailureFlag = true
+return env.NewError("audio-infinite-loop-with-intro: arg 1: context to io.ReadSeeker: expected context to have function seek")
+					}
+					switch fn := ctxObj1.(type) {
+					case env.Function:
+						if fn.Argsn != 2 {
+							ps.FailureFlag = true
+return env.NewError("audio-infinite-loop-with-intro: arg 1: context to io.ReadSeeker: context fn seek: function has invalid number of arguments (expected 2)")
+						}
+						impl.fn_Seek = func(ctx env.RyeCtx, arg0 int64, arg1 int) (int64, error) {
+							var arg0Val, arg1Val env.Object
+							arg0Val = *env.NewInteger(int64(arg0))
+							arg1Val = *env.NewInteger(int64(arg1))
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val)
+							var res0 int64
+							var res1 error
+							res, ok := ps.Res.(env.Block)
+							if !ok {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"audio-infinite-loop-with-intro: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if len(res.Series.S) != 2 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"audio-infinite-loop-with-intro: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if v, ok := res.Series.S[0].(env.Integer); ok {
+								res0 = int64(v.Value)
+							} else {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"audio-infinite-loop-with-intro: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							switch v := res.Series.S[1].(type) {
+							case env.String:
+								res1 = errors.New(v.Value)
+							case env.Error:
+								res1 = errors.New(v.Print(*ps.Idx))
+							case env.Integer:
+								if v.Value != 0 {
+									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"audio-infinite-loop-with-intro: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+								}
+								res1 = nil
+							default:
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"audio-infinite-loop-with-intro: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+								}
+								return res0, res1
+							}
+						case env.Integer:
+							if fn.Value != 0 {
+								ps.FailureFlag = true
+return env.NewError("audio-infinite-loop-with-intro: arg 1: context to io.ReadSeeker: context fn seek: expected integer to be 0 or nil")
+							}
+							impl.fn_Seek = nil
+						default:
+							ps.FailureFlag = true
+return env.NewError("audio-infinite-loop-with-intro: arg 1: context to io.ReadSeeker: context fn seek: expected function or nil")
+						}
+						arg0Val = impl
+					case env.Native:
+						var ok bool
+						arg0Val, ok = v.Value.(io.ReadSeeker)
+						if !ok {
+							ps.FailureFlag = true
+return env.NewError("audio-infinite-loop-with-intro: arg 1: expected native of type io.ReadSeeker")
+						}
+					case env.Integer:
+						if v.Value != 0 {
+							ps.FailureFlag = true
+return env.NewError("audio-infinite-loop-with-intro: arg 1: expected integer to be 0 or nil")
+						}
+						arg0Val = nil
+					default:
+						ps.FailureFlag = true
+return env.NewError("audio-infinite-loop-with-intro: arg 1: expected native")
+					}
+					var arg1Val int64
+					if v, ok := arg1.(env.Integer); ok {
+						arg1Val = int64(v.Value)
+					} else {
+						ps.FailureFlag = true
+return env.NewError("audio-infinite-loop-with-intro: arg 2: expected integer")
+					}
+					var arg2Val int64
+					if v, ok := arg2.(env.Integer); ok {
+						arg2Val = int64(v.Value)
+					} else {
+						ps.FailureFlag = true
+return env.NewError("audio-infinite-loop-with-intro: arg 3: expected integer")
+					}
+					res0 := audio.NewInfiniteLoopWithIntro(arg0Val, arg1Val, arg2Val)
+					var res0Obj env.Object
+					res0Obj = *env.NewNative(ps.Idx, res0, "ptr-audio-infinite-loop")
+					return res0Obj
 		},
 	},
 	"blend-dest-png": {
@@ -1119,47 +1251,49 @@ return env.NewError("blocks-game-state//scene-manager?: arg 1: expected native")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_blocks_Scene{
+				impl := &ryegen_blocks_Scene{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["update"]; !ok {
+				ctxObj0, ok := wordToObj["update"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("blocks-scene//draw: arg 1: context to blocks.Scene: expected context to have function update")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("blocks-scene//draw: arg 1: context to blocks.Scene: context fn update: function has invalid number of arguments (expected 2)")
+return env.NewError("blocks-scene//draw: arg 1: context to blocks.Scene: context fn update: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Update = func(arg0 env.RyeCtx, arg1 *blocks.GameState) (error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-blocks-game-state")
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
+					impl.fn_Update = func(ctx env.RyeCtx, arg0 *blocks.GameState) (error) {
+						var arg0Val env.Object
+						arg0Val = *env.NewNative(ps.Idx, arg0, "ptr-blocks-game-state")
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 						var res error
 						switch v := ps.Res.(type) {
-							case env.String:
-								res = errors.New(v.Value)
-							case env.Error:
-								res = errors.New(v.Print(*ps.Idx))
-							case env.Integer:
-								if v.Value != 0 {
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"blocks-scene//draw: arg 1: callback result: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								res = nil
-							default:
+						case env.String:
+							res = errors.New(v.Value)
+						case env.Error:
+							res = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"blocks-scene//draw: arg 1: callback result: expected error, string or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"blocks-scene//draw: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
+							}
+							res = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"blocks-scene//draw: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 							}
 							return res
 						}
@@ -1173,21 +1307,23 @@ return env.NewError("blocks-scene//draw: arg 1: context to blocks.Scene: context
 						ps.FailureFlag = true
 return env.NewError("blocks-scene//draw: arg 1: context to blocks.Scene: context fn update: expected function or nil")
 					}
-					if ctxObj1, ok := wordToObj["draw"]; !ok {
+					ctxObj1, ok := wordToObj["draw"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("blocks-scene//draw: arg 1: context to blocks.Scene: expected context to have function draw")
 					}
 					switch fn := ctxObj1.(type) {
 					case env.Function:
-						if fn.Argsn != 2 {
+						if fn.Argsn != 1 {
 							ps.FailureFlag = true
-return env.NewError("blocks-scene//draw: arg 1: context to blocks.Scene: context fn draw: function has invalid number of arguments (expected 2)")
+return env.NewError("blocks-scene//draw: arg 1: context to blocks.Scene: context fn draw: function has invalid number of arguments (expected 1)")
 						}
-						impl.fn_Draw = func(arg0 env.RyeCtx, arg1 *ebiten.Image) {
-							var arg0Val, arg1Val env.Object
-							arg0Val = arg0
-							arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-							evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
+						impl.fn_Draw = func(ctx env.RyeCtx, arg0 *ebiten.Image) {
+							var arg0Val env.Object
+							arg0Val = *env.NewNative(ps.Idx, arg0, "ptr-ebiten-image")
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -1261,47 +1397,49 @@ return env.NewError("blocks-scene//draw: arg 2: expected native")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_blocks_Scene{
+				impl := &ryegen_blocks_Scene{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["update"]; !ok {
+				ctxObj0, ok := wordToObj["update"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("blocks-scene//update: arg 1: context to blocks.Scene: expected context to have function update")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("blocks-scene//update: arg 1: context to blocks.Scene: context fn update: function has invalid number of arguments (expected 2)")
+return env.NewError("blocks-scene//update: arg 1: context to blocks.Scene: context fn update: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Update = func(arg0 env.RyeCtx, arg1 *blocks.GameState) (error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-blocks-game-state")
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
+					impl.fn_Update = func(ctx env.RyeCtx, arg0 *blocks.GameState) (error) {
+						var arg0Val env.Object
+						arg0Val = *env.NewNative(ps.Idx, arg0, "ptr-blocks-game-state")
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 						var res error
 						switch v := ps.Res.(type) {
-							case env.String:
-								res = errors.New(v.Value)
-							case env.Error:
-								res = errors.New(v.Print(*ps.Idx))
-							case env.Integer:
-								if v.Value != 0 {
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"blocks-scene//update: arg 1: callback result: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								res = nil
-							default:
+						case env.String:
+							res = errors.New(v.Value)
+						case env.Error:
+							res = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"blocks-scene//update: arg 1: callback result: expected error, string or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"blocks-scene//update: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
+							}
+							res = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"blocks-scene//update: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 							}
 							return res
 						}
@@ -1315,21 +1453,23 @@ return env.NewError("blocks-scene//update: arg 1: context to blocks.Scene: conte
 						ps.FailureFlag = true
 return env.NewError("blocks-scene//update: arg 1: context to blocks.Scene: context fn update: expected function or nil")
 					}
-					if ctxObj1, ok := wordToObj["draw"]; !ok {
+					ctxObj1, ok := wordToObj["draw"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("blocks-scene//update: arg 1: context to blocks.Scene: expected context to have function draw")
 					}
 					switch fn := ctxObj1.(type) {
 					case env.Function:
-						if fn.Argsn != 2 {
+						if fn.Argsn != 1 {
 							ps.FailureFlag = true
-return env.NewError("blocks-scene//update: arg 1: context to blocks.Scene: context fn draw: function has invalid number of arguments (expected 2)")
+return env.NewError("blocks-scene//update: arg 1: context to blocks.Scene: context fn draw: function has invalid number of arguments (expected 1)")
 						}
-						impl.fn_Draw = func(arg0 env.RyeCtx, arg1 *ebiten.Image) {
-							var arg0Val, arg1Val env.Object
-							arg0Val = arg0
-							arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-							evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
+						impl.fn_Draw = func(ctx env.RyeCtx, arg0 *ebiten.Image) {
+							var arg0Val env.Object
+							arg0Val = *env.NewNative(ps.Idx, arg0, "ptr-ebiten-image")
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -4028,24 +4168,24 @@ return env.NewError("ebiten-draw-triangles-options//filter?: arg 1: expected nat
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_ebiten_FinalScreenDrawer{
+				impl := &ryegen_ebiten_FinalScreenDrawer{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["draw-final-screen"]; !ok {
+				ctxObj0, ok := wordToObj["draw-final-screen"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 1: context to ebiten.FinalScreenDrawer: expected context to have function draw-final-screen")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 4 {
+					if fn.Argsn != 3 {
 						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 1: context to ebiten.FinalScreenDrawer: context fn draw-final-screen: function has invalid number of arguments (expected 4)")
+return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 1: context to ebiten.FinalScreenDrawer: context fn draw-final-screen: function has invalid number of arguments (expected 3)")
 					}
-					impl.fn_DrawFinalScreen = func(arg0 env.RyeCtx, arg1 ebiten.FinalScreen, arg2 *ebiten.Image, arg3 ebiten.GeoM) {
-						var arg0Val, arg1Val, arg2Val, arg3Val env.Object
-						arg0Val = arg0
+					impl.fn_DrawFinalScreen = func(ctx env.RyeCtx, arg0 ebiten.FinalScreen, arg1 *ebiten.Image, arg2 ebiten.GeoM) {
+						var arg0Val, arg1Val, arg2Val env.Object
 						{
-							typ := reflect.TypeOf(arg1)
+							typ := reflect.TypeOf(arg0)
 							var typPfx string
 							if typ.Kind() == reflect.Pointer {
 								typPfx = "*"
@@ -4053,14 +4193,16 @@ return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 1: conte
 							}
 							typRyeName, ok := ryeStructNameLookup[typ.PkgPath() + "." + typPfx + typ.Name()]
 							if ok {
-								arg1Val = *env.NewNative(ps.Idx, arg1, typRyeName)
+								arg0Val = *env.NewNative(ps.Idx, arg0, typRyeName)
 							} else {
-								arg1Val = *env.NewNative(ps.Idx, arg1, "ebiten-final-screen")
+								arg0Val = *env.NewNative(ps.Idx, arg0, "ebiten-final-screen")
 							}
 						}
-						arg2Val = *env.NewNative(ps.Idx, arg2, "ptr-ebiten-image")
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ebiten-geo-m")
-						evaldo.CallFunctionArgs4(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, ps.Ctx)
+						arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
+						arg2Val = *env.NewNative(ps.Idx, arg2, "ebiten-geo-m")
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val, arg2Val)
 					}
 				case env.Integer:
 					if fn.Value != 0 {
@@ -4092,261 +4234,6 @@ return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 1: expec
 			}
 			var arg1Val ebiten.FinalScreen
 			switch v := arg1.(type) {
-			case env.RyeCtx:
-				words := v.GetWords(*ps.Idx).Series.S
-				wordToObj := make(map[string]env.Object, len(words))
-				for _, word := range words {
-					name := word.(env.String).Value
-					idx, ok := ps.Idx.GetIndex(name)
-					if !ok {
-						panic("expected valid word")
-					}
-					obj, ok := v.Get(idx)
-					if !ok {
-						panic("expected valid index")
-					}
-					wordToObj[name] = obj
-				}
-				impl := ryegen_ebiten_FinalScreen{
-					self: v,
-				}
-				if ctxObj0, ok := wordToObj["bounds"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: expected context to have function bounds")
-				}
-				switch fn := ctxObj0.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn bounds: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Bounds = func(arg0 env.RyeCtx) (image.Rectangle) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-						var res image.Rectangle
-						switch v := ps.Res.(type) {
-						case env.Native:
-							var ok bool
-							res, ok = v.Value.(image.Rectangle)
-							if !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-final-screen-drawer//draw-final-screen: arg 2: callback result: expected native of type image.Rectangle",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-						default:
-							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-final-screen-drawer//draw-final-screen: arg 2: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn bounds: expected integer to be 0 or nil")
-					}
-					impl.fn_Bounds = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn bounds: expected function or nil")
-				}
-				if ctxObj1, ok := wordToObj["draw-image"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: expected context to have function draw-image")
-				}
-				switch fn := ctxObj1.(type) {
-				case env.Function:
-					if fn.Argsn != 3 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn draw-image: function has invalid number of arguments (expected 3)")
-					}
-					impl.fn_DrawImage = func(arg0 env.RyeCtx, arg1 *ebiten.Image, arg2 *ebiten.DrawImageOptions) {
-						var arg0Val, arg1Val, arg2Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-						arg2Val = *env.NewNative(ps.Idx, arg2, "ptr-ebiten-draw-image-options")
-						evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn draw-image: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawImage = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn draw-image: expected function or nil")
-				}
-				if ctxObj2, ok := wordToObj["draw-triangles"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: expected context to have function draw-triangles")
-				}
-				switch fn := ctxObj2.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn draw-triangles: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawTriangles = func(arg0 env.RyeCtx, arg1 []ebiten.Vertex, arg2 []uint16, arg3 *ebiten.Image, arg4 *ebiten.DrawTrianglesOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
-								items[i] = *env.NewNative(ps.Idx, it, "ebiten-vertex")
-							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						{
-							items := make([]env.Object, len(arg2))
-							for i, it := range arg2 {
-								items[i] = *env.NewInteger(int64(it))
-							}
-							arg2Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-image")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-triangles-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn draw-triangles: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawTriangles = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn draw-triangles: expected function or nil")
-				}
-				if ctxObj3, ok := wordToObj["draw-rect-shader"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: expected context to have function draw-rect-shader")
-				}
-				switch fn := ctxObj3.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn draw-rect-shader: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawRectShader = func(arg0 env.RyeCtx, arg1 int, arg2 int, arg3 *ebiten.Shader, arg4 *ebiten.DrawRectShaderOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewInteger(int64(arg1))
-						arg2Val = *env.NewInteger(int64(arg2))
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-shader")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-rect-shader-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn draw-rect-shader: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawRectShader = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn draw-rect-shader: expected function or nil")
-				}
-				if ctxObj4, ok := wordToObj["draw-triangles-shader"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: expected context to have function draw-triangles-shader")
-				}
-				switch fn := ctxObj4.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn draw-triangles-shader: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawTrianglesShader = func(arg0 env.RyeCtx, arg1 []ebiten.Vertex, arg2 []uint16, arg3 *ebiten.Shader, arg4 *ebiten.DrawTrianglesShaderOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
-								items[i] = *env.NewNative(ps.Idx, it, "ebiten-vertex")
-							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						{
-							items := make([]env.Object, len(arg2))
-							for i, it := range arg2 {
-								items[i] = *env.NewInteger(int64(it))
-							}
-							arg2Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-shader")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-triangles-shader-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn draw-triangles-shader: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawTrianglesShader = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn draw-triangles-shader: expected function or nil")
-				}
-				if ctxObj5, ok := wordToObj["clear"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: expected context to have function clear")
-				}
-				switch fn := ctxObj5.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn clear: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Clear = func(arg0 env.RyeCtx) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn clear: expected integer to be 0 or nil")
-					}
-					impl.fn_Clear = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn clear: expected function or nil")
-				}
-				if ctxObj6, ok := wordToObj["fill"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: expected context to have function fill")
-				}
-				switch fn := ctxObj6.(type) {
-				case env.Function:
-					if fn.Argsn != 2 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn fill: function has invalid number of arguments (expected 2)")
-					}
-					impl.fn_Fill = func(arg0 env.RyeCtx, arg1 color.Color) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "color-color")
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn fill: expected integer to be 0 or nil")
-					}
-					impl.fn_Fill = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 2: context to ebiten.FinalScreen: context fn fill: expected function or nil")
-				}
-				arg1Val = impl
 			case env.Native:
 				var ok bool
 				arg1Val, ok = v.Value.(ebiten.FinalScreen)
@@ -4406,261 +4293,6 @@ return env.NewError("ebiten-final-screen-drawer//draw-final-screen: arg 4: expec
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var arg0Val ebiten.FinalScreen
 			switch v := arg0.(type) {
-			case env.RyeCtx:
-				words := v.GetWords(*ps.Idx).Series.S
-				wordToObj := make(map[string]env.Object, len(words))
-				for _, word := range words {
-					name := word.(env.String).Value
-					idx, ok := ps.Idx.GetIndex(name)
-					if !ok {
-						panic("expected valid word")
-					}
-					obj, ok := v.Get(idx)
-					if !ok {
-						panic("expected valid index")
-					}
-					wordToObj[name] = obj
-				}
-				impl := ryegen_ebiten_FinalScreen{
-					self: v,
-				}
-				if ctxObj0, ok := wordToObj["bounds"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: expected context to have function bounds")
-				}
-				switch fn := ctxObj0.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn bounds: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Bounds = func(arg0 env.RyeCtx) (image.Rectangle) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-						var res image.Rectangle
-						switch v := ps.Res.(type) {
-						case env.Native:
-							var ok bool
-							res, ok = v.Value.(image.Rectangle)
-							if !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-final-screen//bounds: arg 1: callback result: expected native of type image.Rectangle",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-						default:
-							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-final-screen//bounds: arg 1: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn bounds: expected integer to be 0 or nil")
-					}
-					impl.fn_Bounds = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn bounds: expected function or nil")
-				}
-				if ctxObj1, ok := wordToObj["draw-image"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: expected context to have function draw-image")
-				}
-				switch fn := ctxObj1.(type) {
-				case env.Function:
-					if fn.Argsn != 3 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn draw-image: function has invalid number of arguments (expected 3)")
-					}
-					impl.fn_DrawImage = func(arg0 env.RyeCtx, arg1 *ebiten.Image, arg2 *ebiten.DrawImageOptions) {
-						var arg0Val, arg1Val, arg2Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-						arg2Val = *env.NewNative(ps.Idx, arg2, "ptr-ebiten-draw-image-options")
-						evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn draw-image: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawImage = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn draw-image: expected function or nil")
-				}
-				if ctxObj2, ok := wordToObj["draw-triangles"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: expected context to have function draw-triangles")
-				}
-				switch fn := ctxObj2.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawTriangles = func(arg0 env.RyeCtx, arg1 []ebiten.Vertex, arg2 []uint16, arg3 *ebiten.Image, arg4 *ebiten.DrawTrianglesOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
-								items[i] = *env.NewNative(ps.Idx, it, "ebiten-vertex")
-							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						{
-							items := make([]env.Object, len(arg2))
-							for i, it := range arg2 {
-								items[i] = *env.NewInteger(int64(it))
-							}
-							arg2Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-image")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-triangles-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawTriangles = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: expected function or nil")
-				}
-				if ctxObj3, ok := wordToObj["draw-rect-shader"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: expected context to have function draw-rect-shader")
-				}
-				switch fn := ctxObj3.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawRectShader = func(arg0 env.RyeCtx, arg1 int, arg2 int, arg3 *ebiten.Shader, arg4 *ebiten.DrawRectShaderOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewInteger(int64(arg1))
-						arg2Val = *env.NewInteger(int64(arg2))
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-shader")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-rect-shader-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawRectShader = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: expected function or nil")
-				}
-				if ctxObj4, ok := wordToObj["draw-triangles-shader"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: expected context to have function draw-triangles-shader")
-				}
-				switch fn := ctxObj4.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawTrianglesShader = func(arg0 env.RyeCtx, arg1 []ebiten.Vertex, arg2 []uint16, arg3 *ebiten.Shader, arg4 *ebiten.DrawTrianglesShaderOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
-								items[i] = *env.NewNative(ps.Idx, it, "ebiten-vertex")
-							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						{
-							items := make([]env.Object, len(arg2))
-							for i, it := range arg2 {
-								items[i] = *env.NewInteger(int64(it))
-							}
-							arg2Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-shader")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-triangles-shader-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawTrianglesShader = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: expected function or nil")
-				}
-				if ctxObj5, ok := wordToObj["clear"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: expected context to have function clear")
-				}
-				switch fn := ctxObj5.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn clear: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Clear = func(arg0 env.RyeCtx) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn clear: expected integer to be 0 or nil")
-					}
-					impl.fn_Clear = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn clear: expected function or nil")
-				}
-				if ctxObj6, ok := wordToObj["fill"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: expected context to have function fill")
-				}
-				switch fn := ctxObj6.(type) {
-				case env.Function:
-					if fn.Argsn != 2 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn fill: function has invalid number of arguments (expected 2)")
-					}
-					impl.fn_Fill = func(arg0 env.RyeCtx, arg1 color.Color) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "color-color")
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn fill: expected integer to be 0 or nil")
-					}
-					impl.fn_Fill = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//bounds: arg 1: context to ebiten.FinalScreen: context fn fill: expected function or nil")
-				}
-				arg0Val = impl
 			case env.Native:
 				var ok bool
 				arg0Val, ok = v.Value.(ebiten.FinalScreen)
@@ -4690,261 +4322,6 @@ return env.NewError("ebiten-final-screen//bounds: arg 1: expected native")
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var arg0Val ebiten.FinalScreen
 			switch v := arg0.(type) {
-			case env.RyeCtx:
-				words := v.GetWords(*ps.Idx).Series.S
-				wordToObj := make(map[string]env.Object, len(words))
-				for _, word := range words {
-					name := word.(env.String).Value
-					idx, ok := ps.Idx.GetIndex(name)
-					if !ok {
-						panic("expected valid word")
-					}
-					obj, ok := v.Get(idx)
-					if !ok {
-						panic("expected valid index")
-					}
-					wordToObj[name] = obj
-				}
-				impl := ryegen_ebiten_FinalScreen{
-					self: v,
-				}
-				if ctxObj0, ok := wordToObj["bounds"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: expected context to have function bounds")
-				}
-				switch fn := ctxObj0.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn bounds: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Bounds = func(arg0 env.RyeCtx) (image.Rectangle) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-						var res image.Rectangle
-						switch v := ps.Res.(type) {
-						case env.Native:
-							var ok bool
-							res, ok = v.Value.(image.Rectangle)
-							if !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-final-screen//clear: arg 1: callback result: expected native of type image.Rectangle",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-						default:
-							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-final-screen//clear: arg 1: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn bounds: expected integer to be 0 or nil")
-					}
-					impl.fn_Bounds = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn bounds: expected function or nil")
-				}
-				if ctxObj1, ok := wordToObj["draw-image"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: expected context to have function draw-image")
-				}
-				switch fn := ctxObj1.(type) {
-				case env.Function:
-					if fn.Argsn != 3 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn draw-image: function has invalid number of arguments (expected 3)")
-					}
-					impl.fn_DrawImage = func(arg0 env.RyeCtx, arg1 *ebiten.Image, arg2 *ebiten.DrawImageOptions) {
-						var arg0Val, arg1Val, arg2Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-						arg2Val = *env.NewNative(ps.Idx, arg2, "ptr-ebiten-draw-image-options")
-						evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn draw-image: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawImage = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn draw-image: expected function or nil")
-				}
-				if ctxObj2, ok := wordToObj["draw-triangles"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: expected context to have function draw-triangles")
-				}
-				switch fn := ctxObj2.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawTriangles = func(arg0 env.RyeCtx, arg1 []ebiten.Vertex, arg2 []uint16, arg3 *ebiten.Image, arg4 *ebiten.DrawTrianglesOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
-								items[i] = *env.NewNative(ps.Idx, it, "ebiten-vertex")
-							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						{
-							items := make([]env.Object, len(arg2))
-							for i, it := range arg2 {
-								items[i] = *env.NewInteger(int64(it))
-							}
-							arg2Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-image")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-triangles-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawTriangles = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: expected function or nil")
-				}
-				if ctxObj3, ok := wordToObj["draw-rect-shader"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: expected context to have function draw-rect-shader")
-				}
-				switch fn := ctxObj3.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawRectShader = func(arg0 env.RyeCtx, arg1 int, arg2 int, arg3 *ebiten.Shader, arg4 *ebiten.DrawRectShaderOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewInteger(int64(arg1))
-						arg2Val = *env.NewInteger(int64(arg2))
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-shader")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-rect-shader-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawRectShader = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: expected function or nil")
-				}
-				if ctxObj4, ok := wordToObj["draw-triangles-shader"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: expected context to have function draw-triangles-shader")
-				}
-				switch fn := ctxObj4.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawTrianglesShader = func(arg0 env.RyeCtx, arg1 []ebiten.Vertex, arg2 []uint16, arg3 *ebiten.Shader, arg4 *ebiten.DrawTrianglesShaderOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
-								items[i] = *env.NewNative(ps.Idx, it, "ebiten-vertex")
-							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						{
-							items := make([]env.Object, len(arg2))
-							for i, it := range arg2 {
-								items[i] = *env.NewInteger(int64(it))
-							}
-							arg2Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-shader")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-triangles-shader-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawTrianglesShader = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: expected function or nil")
-				}
-				if ctxObj5, ok := wordToObj["clear"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: expected context to have function clear")
-				}
-				switch fn := ctxObj5.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn clear: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Clear = func(arg0 env.RyeCtx) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn clear: expected integer to be 0 or nil")
-					}
-					impl.fn_Clear = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn clear: expected function or nil")
-				}
-				if ctxObj6, ok := wordToObj["fill"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: expected context to have function fill")
-				}
-				switch fn := ctxObj6.(type) {
-				case env.Function:
-					if fn.Argsn != 2 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn fill: function has invalid number of arguments (expected 2)")
-					}
-					impl.fn_Fill = func(arg0 env.RyeCtx, arg1 color.Color) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "color-color")
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn fill: expected integer to be 0 or nil")
-					}
-					impl.fn_Fill = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//clear: arg 1: context to ebiten.FinalScreen: context fn fill: expected function or nil")
-				}
-				arg0Val = impl
 			case env.Native:
 				var ok bool
 				arg0Val, ok = v.Value.(ebiten.FinalScreen)
@@ -4972,261 +4349,6 @@ return env.NewError("ebiten-final-screen//clear: arg 1: expected native")
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var arg0Val ebiten.FinalScreen
 			switch v := arg0.(type) {
-			case env.RyeCtx:
-				words := v.GetWords(*ps.Idx).Series.S
-				wordToObj := make(map[string]env.Object, len(words))
-				for _, word := range words {
-					name := word.(env.String).Value
-					idx, ok := ps.Idx.GetIndex(name)
-					if !ok {
-						panic("expected valid word")
-					}
-					obj, ok := v.Get(idx)
-					if !ok {
-						panic("expected valid index")
-					}
-					wordToObj[name] = obj
-				}
-				impl := ryegen_ebiten_FinalScreen{
-					self: v,
-				}
-				if ctxObj0, ok := wordToObj["bounds"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: expected context to have function bounds")
-				}
-				switch fn := ctxObj0.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn bounds: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Bounds = func(arg0 env.RyeCtx) (image.Rectangle) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-						var res image.Rectangle
-						switch v := ps.Res.(type) {
-						case env.Native:
-							var ok bool
-							res, ok = v.Value.(image.Rectangle)
-							if !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-final-screen//draw-image: arg 1: callback result: expected native of type image.Rectangle",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-						default:
-							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-final-screen//draw-image: arg 1: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn bounds: expected integer to be 0 or nil")
-					}
-					impl.fn_Bounds = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn bounds: expected function or nil")
-				}
-				if ctxObj1, ok := wordToObj["draw-image"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: expected context to have function draw-image")
-				}
-				switch fn := ctxObj1.(type) {
-				case env.Function:
-					if fn.Argsn != 3 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn draw-image: function has invalid number of arguments (expected 3)")
-					}
-					impl.fn_DrawImage = func(arg0 env.RyeCtx, arg1 *ebiten.Image, arg2 *ebiten.DrawImageOptions) {
-						var arg0Val, arg1Val, arg2Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-						arg2Val = *env.NewNative(ps.Idx, arg2, "ptr-ebiten-draw-image-options")
-						evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn draw-image: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawImage = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn draw-image: expected function or nil")
-				}
-				if ctxObj2, ok := wordToObj["draw-triangles"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: expected context to have function draw-triangles")
-				}
-				switch fn := ctxObj2.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawTriangles = func(arg0 env.RyeCtx, arg1 []ebiten.Vertex, arg2 []uint16, arg3 *ebiten.Image, arg4 *ebiten.DrawTrianglesOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
-								items[i] = *env.NewNative(ps.Idx, it, "ebiten-vertex")
-							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						{
-							items := make([]env.Object, len(arg2))
-							for i, it := range arg2 {
-								items[i] = *env.NewInteger(int64(it))
-							}
-							arg2Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-image")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-triangles-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawTriangles = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: expected function or nil")
-				}
-				if ctxObj3, ok := wordToObj["draw-rect-shader"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: expected context to have function draw-rect-shader")
-				}
-				switch fn := ctxObj3.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawRectShader = func(arg0 env.RyeCtx, arg1 int, arg2 int, arg3 *ebiten.Shader, arg4 *ebiten.DrawRectShaderOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewInteger(int64(arg1))
-						arg2Val = *env.NewInteger(int64(arg2))
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-shader")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-rect-shader-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawRectShader = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: expected function or nil")
-				}
-				if ctxObj4, ok := wordToObj["draw-triangles-shader"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: expected context to have function draw-triangles-shader")
-				}
-				switch fn := ctxObj4.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawTrianglesShader = func(arg0 env.RyeCtx, arg1 []ebiten.Vertex, arg2 []uint16, arg3 *ebiten.Shader, arg4 *ebiten.DrawTrianglesShaderOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
-								items[i] = *env.NewNative(ps.Idx, it, "ebiten-vertex")
-							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						{
-							items := make([]env.Object, len(arg2))
-							for i, it := range arg2 {
-								items[i] = *env.NewInteger(int64(it))
-							}
-							arg2Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-shader")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-triangles-shader-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawTrianglesShader = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: expected function or nil")
-				}
-				if ctxObj5, ok := wordToObj["clear"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: expected context to have function clear")
-				}
-				switch fn := ctxObj5.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn clear: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Clear = func(arg0 env.RyeCtx) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn clear: expected integer to be 0 or nil")
-					}
-					impl.fn_Clear = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn clear: expected function or nil")
-				}
-				if ctxObj6, ok := wordToObj["fill"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: expected context to have function fill")
-				}
-				switch fn := ctxObj6.(type) {
-				case env.Function:
-					if fn.Argsn != 2 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn fill: function has invalid number of arguments (expected 2)")
-					}
-					impl.fn_Fill = func(arg0 env.RyeCtx, arg1 color.Color) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "color-color")
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn fill: expected integer to be 0 or nil")
-					}
-					impl.fn_Fill = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-image: arg 1: context to ebiten.FinalScreen: context fn fill: expected function or nil")
-				}
-				arg0Val = impl
 			case env.Native:
 				var ok bool
 				arg0Val, ok = v.Value.(ebiten.FinalScreen)
@@ -5292,261 +4414,6 @@ return env.NewError("ebiten-final-screen//draw-image: arg 3: expected native")
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var arg0Val ebiten.FinalScreen
 			switch v := arg0.(type) {
-			case env.RyeCtx:
-				words := v.GetWords(*ps.Idx).Series.S
-				wordToObj := make(map[string]env.Object, len(words))
-				for _, word := range words {
-					name := word.(env.String).Value
-					idx, ok := ps.Idx.GetIndex(name)
-					if !ok {
-						panic("expected valid word")
-					}
-					obj, ok := v.Get(idx)
-					if !ok {
-						panic("expected valid index")
-					}
-					wordToObj[name] = obj
-				}
-				impl := ryegen_ebiten_FinalScreen{
-					self: v,
-				}
-				if ctxObj0, ok := wordToObj["bounds"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: expected context to have function bounds")
-				}
-				switch fn := ctxObj0.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn bounds: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Bounds = func(arg0 env.RyeCtx) (image.Rectangle) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-						var res image.Rectangle
-						switch v := ps.Res.(type) {
-						case env.Native:
-							var ok bool
-							res, ok = v.Value.(image.Rectangle)
-							if !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-final-screen//draw-rect-shader: arg 1: callback result: expected native of type image.Rectangle",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-						default:
-							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-final-screen//draw-rect-shader: arg 1: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn bounds: expected integer to be 0 or nil")
-					}
-					impl.fn_Bounds = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn bounds: expected function or nil")
-				}
-				if ctxObj1, ok := wordToObj["draw-image"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: expected context to have function draw-image")
-				}
-				switch fn := ctxObj1.(type) {
-				case env.Function:
-					if fn.Argsn != 3 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn draw-image: function has invalid number of arguments (expected 3)")
-					}
-					impl.fn_DrawImage = func(arg0 env.RyeCtx, arg1 *ebiten.Image, arg2 *ebiten.DrawImageOptions) {
-						var arg0Val, arg1Val, arg2Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-						arg2Val = *env.NewNative(ps.Idx, arg2, "ptr-ebiten-draw-image-options")
-						evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn draw-image: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawImage = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn draw-image: expected function or nil")
-				}
-				if ctxObj2, ok := wordToObj["draw-triangles"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: expected context to have function draw-triangles")
-				}
-				switch fn := ctxObj2.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawTriangles = func(arg0 env.RyeCtx, arg1 []ebiten.Vertex, arg2 []uint16, arg3 *ebiten.Image, arg4 *ebiten.DrawTrianglesOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
-								items[i] = *env.NewNative(ps.Idx, it, "ebiten-vertex")
-							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						{
-							items := make([]env.Object, len(arg2))
-							for i, it := range arg2 {
-								items[i] = *env.NewInteger(int64(it))
-							}
-							arg2Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-image")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-triangles-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawTriangles = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: expected function or nil")
-				}
-				if ctxObj3, ok := wordToObj["draw-rect-shader"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: expected context to have function draw-rect-shader")
-				}
-				switch fn := ctxObj3.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawRectShader = func(arg0 env.RyeCtx, arg1 int, arg2 int, arg3 *ebiten.Shader, arg4 *ebiten.DrawRectShaderOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewInteger(int64(arg1))
-						arg2Val = *env.NewInteger(int64(arg2))
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-shader")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-rect-shader-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawRectShader = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: expected function or nil")
-				}
-				if ctxObj4, ok := wordToObj["draw-triangles-shader"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: expected context to have function draw-triangles-shader")
-				}
-				switch fn := ctxObj4.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawTrianglesShader = func(arg0 env.RyeCtx, arg1 []ebiten.Vertex, arg2 []uint16, arg3 *ebiten.Shader, arg4 *ebiten.DrawTrianglesShaderOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
-								items[i] = *env.NewNative(ps.Idx, it, "ebiten-vertex")
-							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						{
-							items := make([]env.Object, len(arg2))
-							for i, it := range arg2 {
-								items[i] = *env.NewInteger(int64(it))
-							}
-							arg2Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-shader")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-triangles-shader-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawTrianglesShader = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: expected function or nil")
-				}
-				if ctxObj5, ok := wordToObj["clear"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: expected context to have function clear")
-				}
-				switch fn := ctxObj5.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn clear: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Clear = func(arg0 env.RyeCtx) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn clear: expected integer to be 0 or nil")
-					}
-					impl.fn_Clear = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn clear: expected function or nil")
-				}
-				if ctxObj6, ok := wordToObj["fill"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: expected context to have function fill")
-				}
-				switch fn := ctxObj6.(type) {
-				case env.Function:
-					if fn.Argsn != 2 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn fill: function has invalid number of arguments (expected 2)")
-					}
-					impl.fn_Fill = func(arg0 env.RyeCtx, arg1 color.Color) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "color-color")
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn fill: expected integer to be 0 or nil")
-					}
-					impl.fn_Fill = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-rect-shader: arg 1: context to ebiten.FinalScreen: context fn fill: expected function or nil")
-				}
-				arg0Val = impl
 			case env.Native:
 				var ok bool
 				arg0Val, ok = v.Value.(ebiten.FinalScreen)
@@ -5626,261 +4493,6 @@ return env.NewError("ebiten-final-screen//draw-rect-shader: arg 5: expected nati
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var arg0Val ebiten.FinalScreen
 			switch v := arg0.(type) {
-			case env.RyeCtx:
-				words := v.GetWords(*ps.Idx).Series.S
-				wordToObj := make(map[string]env.Object, len(words))
-				for _, word := range words {
-					name := word.(env.String).Value
-					idx, ok := ps.Idx.GetIndex(name)
-					if !ok {
-						panic("expected valid word")
-					}
-					obj, ok := v.Get(idx)
-					if !ok {
-						panic("expected valid index")
-					}
-					wordToObj[name] = obj
-				}
-				impl := ryegen_ebiten_FinalScreen{
-					self: v,
-				}
-				if ctxObj0, ok := wordToObj["bounds"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: expected context to have function bounds")
-				}
-				switch fn := ctxObj0.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn bounds: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Bounds = func(arg0 env.RyeCtx) (image.Rectangle) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-						var res image.Rectangle
-						switch v := ps.Res.(type) {
-						case env.Native:
-							var ok bool
-							res, ok = v.Value.(image.Rectangle)
-							if !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-final-screen//draw-triangles: arg 1: callback result: expected native of type image.Rectangle",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-						default:
-							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-final-screen//draw-triangles: arg 1: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn bounds: expected integer to be 0 or nil")
-					}
-					impl.fn_Bounds = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn bounds: expected function or nil")
-				}
-				if ctxObj1, ok := wordToObj["draw-image"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: expected context to have function draw-image")
-				}
-				switch fn := ctxObj1.(type) {
-				case env.Function:
-					if fn.Argsn != 3 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn draw-image: function has invalid number of arguments (expected 3)")
-					}
-					impl.fn_DrawImage = func(arg0 env.RyeCtx, arg1 *ebiten.Image, arg2 *ebiten.DrawImageOptions) {
-						var arg0Val, arg1Val, arg2Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-						arg2Val = *env.NewNative(ps.Idx, arg2, "ptr-ebiten-draw-image-options")
-						evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn draw-image: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawImage = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn draw-image: expected function or nil")
-				}
-				if ctxObj2, ok := wordToObj["draw-triangles"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: expected context to have function draw-triangles")
-				}
-				switch fn := ctxObj2.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawTriangles = func(arg0 env.RyeCtx, arg1 []ebiten.Vertex, arg2 []uint16, arg3 *ebiten.Image, arg4 *ebiten.DrawTrianglesOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
-								items[i] = *env.NewNative(ps.Idx, it, "ebiten-vertex")
-							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						{
-							items := make([]env.Object, len(arg2))
-							for i, it := range arg2 {
-								items[i] = *env.NewInteger(int64(it))
-							}
-							arg2Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-image")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-triangles-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawTriangles = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: expected function or nil")
-				}
-				if ctxObj3, ok := wordToObj["draw-rect-shader"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: expected context to have function draw-rect-shader")
-				}
-				switch fn := ctxObj3.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawRectShader = func(arg0 env.RyeCtx, arg1 int, arg2 int, arg3 *ebiten.Shader, arg4 *ebiten.DrawRectShaderOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewInteger(int64(arg1))
-						arg2Val = *env.NewInteger(int64(arg2))
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-shader")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-rect-shader-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawRectShader = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: expected function or nil")
-				}
-				if ctxObj4, ok := wordToObj["draw-triangles-shader"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: expected context to have function draw-triangles-shader")
-				}
-				switch fn := ctxObj4.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawTrianglesShader = func(arg0 env.RyeCtx, arg1 []ebiten.Vertex, arg2 []uint16, arg3 *ebiten.Shader, arg4 *ebiten.DrawTrianglesShaderOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
-								items[i] = *env.NewNative(ps.Idx, it, "ebiten-vertex")
-							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						{
-							items := make([]env.Object, len(arg2))
-							for i, it := range arg2 {
-								items[i] = *env.NewInteger(int64(it))
-							}
-							arg2Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-shader")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-triangles-shader-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawTrianglesShader = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: expected function or nil")
-				}
-				if ctxObj5, ok := wordToObj["clear"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: expected context to have function clear")
-				}
-				switch fn := ctxObj5.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn clear: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Clear = func(arg0 env.RyeCtx) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn clear: expected integer to be 0 or nil")
-					}
-					impl.fn_Clear = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn clear: expected function or nil")
-				}
-				if ctxObj6, ok := wordToObj["fill"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: expected context to have function fill")
-				}
-				switch fn := ctxObj6.(type) {
-				case env.Function:
-					if fn.Argsn != 2 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn fill: function has invalid number of arguments (expected 2)")
-					}
-					impl.fn_Fill = func(arg0 env.RyeCtx, arg1 color.Color) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "color-color")
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn fill: expected integer to be 0 or nil")
-					}
-					impl.fn_Fill = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles: arg 1: context to ebiten.FinalScreen: context fn fill: expected function or nil")
-				}
-				arg0Val = impl
 			case env.Native:
 				var ok bool
 				arg0Val, ok = v.Value.(ebiten.FinalScreen)
@@ -6010,261 +4622,6 @@ return env.NewError("ebiten-final-screen//draw-triangles: arg 5: expected native
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var arg0Val ebiten.FinalScreen
 			switch v := arg0.(type) {
-			case env.RyeCtx:
-				words := v.GetWords(*ps.Idx).Series.S
-				wordToObj := make(map[string]env.Object, len(words))
-				for _, word := range words {
-					name := word.(env.String).Value
-					idx, ok := ps.Idx.GetIndex(name)
-					if !ok {
-						panic("expected valid word")
-					}
-					obj, ok := v.Get(idx)
-					if !ok {
-						panic("expected valid index")
-					}
-					wordToObj[name] = obj
-				}
-				impl := ryegen_ebiten_FinalScreen{
-					self: v,
-				}
-				if ctxObj0, ok := wordToObj["bounds"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: expected context to have function bounds")
-				}
-				switch fn := ctxObj0.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn bounds: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Bounds = func(arg0 env.RyeCtx) (image.Rectangle) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-						var res image.Rectangle
-						switch v := ps.Res.(type) {
-						case env.Native:
-							var ok bool
-							res, ok = v.Value.(image.Rectangle)
-							if !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-final-screen//draw-triangles-shader: arg 1: callback result: expected native of type image.Rectangle",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-						default:
-							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-final-screen//draw-triangles-shader: arg 1: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn bounds: expected integer to be 0 or nil")
-					}
-					impl.fn_Bounds = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn bounds: expected function or nil")
-				}
-				if ctxObj1, ok := wordToObj["draw-image"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: expected context to have function draw-image")
-				}
-				switch fn := ctxObj1.(type) {
-				case env.Function:
-					if fn.Argsn != 3 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn draw-image: function has invalid number of arguments (expected 3)")
-					}
-					impl.fn_DrawImage = func(arg0 env.RyeCtx, arg1 *ebiten.Image, arg2 *ebiten.DrawImageOptions) {
-						var arg0Val, arg1Val, arg2Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-						arg2Val = *env.NewNative(ps.Idx, arg2, "ptr-ebiten-draw-image-options")
-						evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn draw-image: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawImage = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn draw-image: expected function or nil")
-				}
-				if ctxObj2, ok := wordToObj["draw-triangles"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: expected context to have function draw-triangles")
-				}
-				switch fn := ctxObj2.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawTriangles = func(arg0 env.RyeCtx, arg1 []ebiten.Vertex, arg2 []uint16, arg3 *ebiten.Image, arg4 *ebiten.DrawTrianglesOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
-								items[i] = *env.NewNative(ps.Idx, it, "ebiten-vertex")
-							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						{
-							items := make([]env.Object, len(arg2))
-							for i, it := range arg2 {
-								items[i] = *env.NewInteger(int64(it))
-							}
-							arg2Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-image")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-triangles-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawTriangles = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: expected function or nil")
-				}
-				if ctxObj3, ok := wordToObj["draw-rect-shader"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: expected context to have function draw-rect-shader")
-				}
-				switch fn := ctxObj3.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawRectShader = func(arg0 env.RyeCtx, arg1 int, arg2 int, arg3 *ebiten.Shader, arg4 *ebiten.DrawRectShaderOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewInteger(int64(arg1))
-						arg2Val = *env.NewInteger(int64(arg2))
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-shader")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-rect-shader-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawRectShader = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: expected function or nil")
-				}
-				if ctxObj4, ok := wordToObj["draw-triangles-shader"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: expected context to have function draw-triangles-shader")
-				}
-				switch fn := ctxObj4.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawTrianglesShader = func(arg0 env.RyeCtx, arg1 []ebiten.Vertex, arg2 []uint16, arg3 *ebiten.Shader, arg4 *ebiten.DrawTrianglesShaderOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
-								items[i] = *env.NewNative(ps.Idx, it, "ebiten-vertex")
-							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						{
-							items := make([]env.Object, len(arg2))
-							for i, it := range arg2 {
-								items[i] = *env.NewInteger(int64(it))
-							}
-							arg2Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-shader")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-triangles-shader-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawTrianglesShader = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: expected function or nil")
-				}
-				if ctxObj5, ok := wordToObj["clear"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: expected context to have function clear")
-				}
-				switch fn := ctxObj5.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn clear: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Clear = func(arg0 env.RyeCtx) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn clear: expected integer to be 0 or nil")
-					}
-					impl.fn_Clear = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn clear: expected function or nil")
-				}
-				if ctxObj6, ok := wordToObj["fill"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: expected context to have function fill")
-				}
-				switch fn := ctxObj6.(type) {
-				case env.Function:
-					if fn.Argsn != 2 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn fill: function has invalid number of arguments (expected 2)")
-					}
-					impl.fn_Fill = func(arg0 env.RyeCtx, arg1 color.Color) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "color-color")
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn fill: expected integer to be 0 or nil")
-					}
-					impl.fn_Fill = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 1: context to ebiten.FinalScreen: context fn fill: expected function or nil")
-				}
-				arg0Val = impl
 			case env.Native:
 				var ok bool
 				arg0Val, ok = v.Value.(ebiten.FinalScreen)
@@ -6394,261 +4751,6 @@ return env.NewError("ebiten-final-screen//draw-triangles-shader: arg 5: expected
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var arg0Val ebiten.FinalScreen
 			switch v := arg0.(type) {
-			case env.RyeCtx:
-				words := v.GetWords(*ps.Idx).Series.S
-				wordToObj := make(map[string]env.Object, len(words))
-				for _, word := range words {
-					name := word.(env.String).Value
-					idx, ok := ps.Idx.GetIndex(name)
-					if !ok {
-						panic("expected valid word")
-					}
-					obj, ok := v.Get(idx)
-					if !ok {
-						panic("expected valid index")
-					}
-					wordToObj[name] = obj
-				}
-				impl := ryegen_ebiten_FinalScreen{
-					self: v,
-				}
-				if ctxObj0, ok := wordToObj["bounds"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: expected context to have function bounds")
-				}
-				switch fn := ctxObj0.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn bounds: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Bounds = func(arg0 env.RyeCtx) (image.Rectangle) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-						var res image.Rectangle
-						switch v := ps.Res.(type) {
-						case env.Native:
-							var ok bool
-							res, ok = v.Value.(image.Rectangle)
-							if !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-final-screen//fill: arg 1: callback result: expected native of type image.Rectangle",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-						default:
-							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-final-screen//fill: arg 1: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn bounds: expected integer to be 0 or nil")
-					}
-					impl.fn_Bounds = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn bounds: expected function or nil")
-				}
-				if ctxObj1, ok := wordToObj["draw-image"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: expected context to have function draw-image")
-				}
-				switch fn := ctxObj1.(type) {
-				case env.Function:
-					if fn.Argsn != 3 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn draw-image: function has invalid number of arguments (expected 3)")
-					}
-					impl.fn_DrawImage = func(arg0 env.RyeCtx, arg1 *ebiten.Image, arg2 *ebiten.DrawImageOptions) {
-						var arg0Val, arg1Val, arg2Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-						arg2Val = *env.NewNative(ps.Idx, arg2, "ptr-ebiten-draw-image-options")
-						evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn draw-image: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawImage = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn draw-image: expected function or nil")
-				}
-				if ctxObj2, ok := wordToObj["draw-triangles"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: expected context to have function draw-triangles")
-				}
-				switch fn := ctxObj2.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawTriangles = func(arg0 env.RyeCtx, arg1 []ebiten.Vertex, arg2 []uint16, arg3 *ebiten.Image, arg4 *ebiten.DrawTrianglesOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
-								items[i] = *env.NewNative(ps.Idx, it, "ebiten-vertex")
-							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						{
-							items := make([]env.Object, len(arg2))
-							for i, it := range arg2 {
-								items[i] = *env.NewInteger(int64(it))
-							}
-							arg2Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-image")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-triangles-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawTriangles = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn draw-triangles: expected function or nil")
-				}
-				if ctxObj3, ok := wordToObj["draw-rect-shader"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: expected context to have function draw-rect-shader")
-				}
-				switch fn := ctxObj3.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawRectShader = func(arg0 env.RyeCtx, arg1 int, arg2 int, arg3 *ebiten.Shader, arg4 *ebiten.DrawRectShaderOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewInteger(int64(arg1))
-						arg2Val = *env.NewInteger(int64(arg2))
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-shader")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-rect-shader-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawRectShader = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn draw-rect-shader: expected function or nil")
-				}
-				if ctxObj4, ok := wordToObj["draw-triangles-shader"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: expected context to have function draw-triangles-shader")
-				}
-				switch fn := ctxObj4.(type) {
-				case env.Function:
-					if fn.Argsn != 5 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: function has invalid number of arguments (expected 5)")
-					}
-					impl.fn_DrawTrianglesShader = func(arg0 env.RyeCtx, arg1 []ebiten.Vertex, arg2 []uint16, arg3 *ebiten.Shader, arg4 *ebiten.DrawTrianglesShaderOptions) {
-						var arg0Val, arg1Val, arg2Val, arg3Val, arg4Val env.Object
-						arg0Val = arg0
-						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
-								items[i] = *env.NewNative(ps.Idx, it, "ebiten-vertex")
-							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						{
-							items := make([]env.Object, len(arg2))
-							for i, it := range arg2 {
-								items[i] = *env.NewInteger(int64(it))
-							}
-							arg2Val = *env.NewBlock(*env.NewTSeries(items))
-						}
-						arg3Val = *env.NewNative(ps.Idx, arg3, "ptr-ebiten-shader")
-						arg4Val = *env.NewNative(ps.Idx, arg4, "ptr-ebiten-draw-triangles-shader-options")
-						evaldo.CallFunctionArgs5(fn, ps, arg0Val, arg1Val, arg2Val, arg3Val, arg4Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: expected integer to be 0 or nil")
-					}
-					impl.fn_DrawTrianglesShader = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn draw-triangles-shader: expected function or nil")
-				}
-				if ctxObj5, ok := wordToObj["clear"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: expected context to have function clear")
-				}
-				switch fn := ctxObj5.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn clear: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Clear = func(arg0 env.RyeCtx) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn clear: expected integer to be 0 or nil")
-					}
-					impl.fn_Clear = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn clear: expected function or nil")
-				}
-				if ctxObj6, ok := wordToObj["fill"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: expected context to have function fill")
-				}
-				switch fn := ctxObj6.(type) {
-				case env.Function:
-					if fn.Argsn != 2 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn fill: function has invalid number of arguments (expected 2)")
-					}
-					impl.fn_Fill = func(arg0 env.RyeCtx, arg1 color.Color) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "color-color")
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn fill: expected integer to be 0 or nil")
-					}
-					impl.fn_Fill = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("ebiten-final-screen//fill: arg 1: context to ebiten.FinalScreen: context fn fill: expected function or nil")
-				}
-				arg0Val = impl
 			case env.Native:
 				var ok bool
 				arg0Val, ok = v.Value.(ebiten.FinalScreen)
@@ -6741,46 +4843,47 @@ return env.NewError("ebiten-final-screen//fill: arg 2: expected native")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_ebiten_Game{
+				impl := &ryegen_ebiten_Game{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["update"]; !ok {
+				ctxObj0, ok := wordToObj["update"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("ebiten-game//draw: arg 1: context to ebiten.Game: expected context to have function update")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 1 {
+					if fn.Argsn != 0 {
 						ps.FailureFlag = true
-return env.NewError("ebiten-game//draw: arg 1: context to ebiten.Game: context fn update: function has invalid number of arguments (expected 1)")
+return env.NewError("ebiten-game//draw: arg 1: context to ebiten.Game: context fn update: function has invalid number of arguments (expected 0)")
 					}
-					impl.fn_Update = func(arg0 env.RyeCtx) (error) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
+					impl.fn_Update = func(ctx env.RyeCtx) (error) {
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx)
 						var res error
 						switch v := ps.Res.(type) {
-							case env.String:
-								res = errors.New(v.Value)
-							case env.Error:
-								res = errors.New(v.Print(*ps.Idx))
-							case env.Integer:
-								if v.Value != 0 {
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-game//draw: arg 1: callback result: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								res = nil
-							default:
+						case env.String:
+							res = errors.New(v.Value)
+						case env.Error:
+							res = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-game//draw: arg 1: callback result: expected error, string or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebiten-game//draw: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
+							}
+							res = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebiten-game//draw: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 							}
 							return res
 						}
@@ -6794,21 +4897,23 @@ return env.NewError("ebiten-game//draw: arg 1: context to ebiten.Game: context f
 						ps.FailureFlag = true
 return env.NewError("ebiten-game//draw: arg 1: context to ebiten.Game: context fn update: expected function or nil")
 					}
-					if ctxObj1, ok := wordToObj["draw"]; !ok {
+					ctxObj1, ok := wordToObj["draw"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("ebiten-game//draw: arg 1: context to ebiten.Game: expected context to have function draw")
 					}
 					switch fn := ctxObj1.(type) {
 					case env.Function:
-						if fn.Argsn != 2 {
+						if fn.Argsn != 1 {
 							ps.FailureFlag = true
-return env.NewError("ebiten-game//draw: arg 1: context to ebiten.Game: context fn draw: function has invalid number of arguments (expected 2)")
+return env.NewError("ebiten-game//draw: arg 1: context to ebiten.Game: context fn draw: function has invalid number of arguments (expected 1)")
 						}
-						impl.fn_Draw = func(arg0 env.RyeCtx, arg1 *ebiten.Image) {
-							var arg0Val, arg1Val env.Object
-							arg0Val = arg0
-							arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-							evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
+						impl.fn_Draw = func(ctx env.RyeCtx, arg0 *ebiten.Image) {
+							var arg0Val env.Object
+							arg0Val = *env.NewNative(ps.Idx, arg0, "ptr-ebiten-image")
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -6820,34 +4925,64 @@ return env.NewError("ebiten-game//draw: arg 1: context to ebiten.Game: context f
 						ps.FailureFlag = true
 return env.NewError("ebiten-game//draw: arg 1: context to ebiten.Game: context fn draw: expected function or nil")
 					}
-					if ctxObj2, ok := wordToObj["layout"]; !ok {
+					ctxObj2, ok := wordToObj["layout"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("ebiten-game//draw: arg 1: context to ebiten.Game: expected context to have function layout")
 					}
 					switch fn := ctxObj2.(type) {
 					case env.Function:
-						if fn.Argsn != 3 {
+						if fn.Argsn != 2 {
 							ps.FailureFlag = true
-return env.NewError("ebiten-game//draw: arg 1: context to ebiten.Game: context fn layout: function has invalid number of arguments (expected 3)")
+return env.NewError("ebiten-game//draw: arg 1: context to ebiten.Game: context fn layout: function has invalid number of arguments (expected 2)")
 						}
-						impl.fn_Layout = func(arg0 env.RyeCtx, arg1 int, arg2 int) (int, int) {
-							var arg0Val, arg1Val, arg2Val env.Object
-							arg0Val = arg0
+						impl.fn_Layout = func(ctx env.RyeCtx, arg0 int, arg1 int) (int, int) {
+							var arg0Val, arg1Val env.Object
+							arg0Val = *env.NewInteger(int64(arg0))
 							arg1Val = *env.NewInteger(int64(arg1))
-							arg2Val = *env.NewInteger(int64(arg2))
-							evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-							var res int
-							if v, ok := ps.Res.(env.Integer); ok {
-								res = int(v.Value)
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val)
+							var res0 int
+							var res1 int
+							res, ok := ps.Res.(env.Block)
+							if !ok {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebiten-game//draw: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if len(res.Series.S) != 2 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebiten-game//draw: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if v, ok := res.Series.S[0].(env.Integer); ok {
+								res0 = int(v.Value)
 							} else {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-game//draw: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebiten-game//draw: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 							}
-							return res
+							if v, ok := res.Series.S[1].(env.Integer); ok {
+								res1 = int(v.Value)
+							} else {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebiten-game//draw: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -6921,46 +5056,47 @@ return env.NewError("ebiten-game//draw: arg 2: expected native")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_ebiten_Game{
+				impl := &ryegen_ebiten_Game{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["update"]; !ok {
+				ctxObj0, ok := wordToObj["update"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("ebiten-game//layout: arg 1: context to ebiten.Game: expected context to have function update")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 1 {
+					if fn.Argsn != 0 {
 						ps.FailureFlag = true
-return env.NewError("ebiten-game//layout: arg 1: context to ebiten.Game: context fn update: function has invalid number of arguments (expected 1)")
+return env.NewError("ebiten-game//layout: arg 1: context to ebiten.Game: context fn update: function has invalid number of arguments (expected 0)")
 					}
-					impl.fn_Update = func(arg0 env.RyeCtx) (error) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
+					impl.fn_Update = func(ctx env.RyeCtx) (error) {
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx)
 						var res error
 						switch v := ps.Res.(type) {
-							case env.String:
-								res = errors.New(v.Value)
-							case env.Error:
-								res = errors.New(v.Print(*ps.Idx))
-							case env.Integer:
-								if v.Value != 0 {
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-game//layout: arg 1: callback result: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								res = nil
-							default:
+						case env.String:
+							res = errors.New(v.Value)
+						case env.Error:
+							res = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-game//layout: arg 1: callback result: expected error, string or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebiten-game//layout: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
+							}
+							res = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebiten-game//layout: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 							}
 							return res
 						}
@@ -6974,21 +5110,23 @@ return env.NewError("ebiten-game//layout: arg 1: context to ebiten.Game: context
 						ps.FailureFlag = true
 return env.NewError("ebiten-game//layout: arg 1: context to ebiten.Game: context fn update: expected function or nil")
 					}
-					if ctxObj1, ok := wordToObj["draw"]; !ok {
+					ctxObj1, ok := wordToObj["draw"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("ebiten-game//layout: arg 1: context to ebiten.Game: expected context to have function draw")
 					}
 					switch fn := ctxObj1.(type) {
 					case env.Function:
-						if fn.Argsn != 2 {
+						if fn.Argsn != 1 {
 							ps.FailureFlag = true
-return env.NewError("ebiten-game//layout: arg 1: context to ebiten.Game: context fn draw: function has invalid number of arguments (expected 2)")
+return env.NewError("ebiten-game//layout: arg 1: context to ebiten.Game: context fn draw: function has invalid number of arguments (expected 1)")
 						}
-						impl.fn_Draw = func(arg0 env.RyeCtx, arg1 *ebiten.Image) {
-							var arg0Val, arg1Val env.Object
-							arg0Val = arg0
-							arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-							evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
+						impl.fn_Draw = func(ctx env.RyeCtx, arg0 *ebiten.Image) {
+							var arg0Val env.Object
+							arg0Val = *env.NewNative(ps.Idx, arg0, "ptr-ebiten-image")
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -7000,34 +5138,64 @@ return env.NewError("ebiten-game//layout: arg 1: context to ebiten.Game: context
 						ps.FailureFlag = true
 return env.NewError("ebiten-game//layout: arg 1: context to ebiten.Game: context fn draw: expected function or nil")
 					}
-					if ctxObj2, ok := wordToObj["layout"]; !ok {
+					ctxObj2, ok := wordToObj["layout"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("ebiten-game//layout: arg 1: context to ebiten.Game: expected context to have function layout")
 					}
 					switch fn := ctxObj2.(type) {
 					case env.Function:
-						if fn.Argsn != 3 {
+						if fn.Argsn != 2 {
 							ps.FailureFlag = true
-return env.NewError("ebiten-game//layout: arg 1: context to ebiten.Game: context fn layout: function has invalid number of arguments (expected 3)")
+return env.NewError("ebiten-game//layout: arg 1: context to ebiten.Game: context fn layout: function has invalid number of arguments (expected 2)")
 						}
-						impl.fn_Layout = func(arg0 env.RyeCtx, arg1 int, arg2 int) (int, int) {
-							var arg0Val, arg1Val, arg2Val env.Object
-							arg0Val = arg0
+						impl.fn_Layout = func(ctx env.RyeCtx, arg0 int, arg1 int) (int, int) {
+							var arg0Val, arg1Val env.Object
+							arg0Val = *env.NewInteger(int64(arg0))
 							arg1Val = *env.NewInteger(int64(arg1))
-							arg2Val = *env.NewInteger(int64(arg2))
-							evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-							var res int
-							if v, ok := ps.Res.(env.Integer); ok {
-								res = int(v.Value)
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val)
+							var res0 int
+							var res1 int
+							res, ok := ps.Res.(env.Block)
+							if !ok {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebiten-game//layout: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if len(res.Series.S) != 2 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebiten-game//layout: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if v, ok := res.Series.S[0].(env.Integer); ok {
+								res0 = int(v.Value)
 							} else {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-game//layout: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebiten-game//layout: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 							}
-							return res
+							if v, ok := res.Series.S[1].(env.Integer); ok {
+								res1 = int(v.Value)
+							} else {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebiten-game//layout: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -7103,46 +5271,47 @@ return env.NewError("ebiten-game//layout: arg 3: expected integer")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_ebiten_Game{
+				impl := &ryegen_ebiten_Game{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["update"]; !ok {
+				ctxObj0, ok := wordToObj["update"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("ebiten-game//update: arg 1: context to ebiten.Game: expected context to have function update")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 1 {
+					if fn.Argsn != 0 {
 						ps.FailureFlag = true
-return env.NewError("ebiten-game//update: arg 1: context to ebiten.Game: context fn update: function has invalid number of arguments (expected 1)")
+return env.NewError("ebiten-game//update: arg 1: context to ebiten.Game: context fn update: function has invalid number of arguments (expected 0)")
 					}
-					impl.fn_Update = func(arg0 env.RyeCtx) (error) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
+					impl.fn_Update = func(ctx env.RyeCtx) (error) {
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx)
 						var res error
 						switch v := ps.Res.(type) {
-							case env.String:
-								res = errors.New(v.Value)
-							case env.Error:
-								res = errors.New(v.Print(*ps.Idx))
-							case env.Integer:
-								if v.Value != 0 {
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-game//update: arg 1: callback result: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								res = nil
-							default:
+						case env.String:
+							res = errors.New(v.Value)
+						case env.Error:
+							res = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-game//update: arg 1: callback result: expected error, string or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebiten-game//update: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
+							}
+							res = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebiten-game//update: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 							}
 							return res
 						}
@@ -7156,21 +5325,23 @@ return env.NewError("ebiten-game//update: arg 1: context to ebiten.Game: context
 						ps.FailureFlag = true
 return env.NewError("ebiten-game//update: arg 1: context to ebiten.Game: context fn update: expected function or nil")
 					}
-					if ctxObj1, ok := wordToObj["draw"]; !ok {
+					ctxObj1, ok := wordToObj["draw"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("ebiten-game//update: arg 1: context to ebiten.Game: expected context to have function draw")
 					}
 					switch fn := ctxObj1.(type) {
 					case env.Function:
-						if fn.Argsn != 2 {
+						if fn.Argsn != 1 {
 							ps.FailureFlag = true
-return env.NewError("ebiten-game//update: arg 1: context to ebiten.Game: context fn draw: function has invalid number of arguments (expected 2)")
+return env.NewError("ebiten-game//update: arg 1: context to ebiten.Game: context fn draw: function has invalid number of arguments (expected 1)")
 						}
-						impl.fn_Draw = func(arg0 env.RyeCtx, arg1 *ebiten.Image) {
-							var arg0Val, arg1Val env.Object
-							arg0Val = arg0
-							arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-							evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
+						impl.fn_Draw = func(ctx env.RyeCtx, arg0 *ebiten.Image) {
+							var arg0Val env.Object
+							arg0Val = *env.NewNative(ps.Idx, arg0, "ptr-ebiten-image")
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -7182,34 +5353,64 @@ return env.NewError("ebiten-game//update: arg 1: context to ebiten.Game: context
 						ps.FailureFlag = true
 return env.NewError("ebiten-game//update: arg 1: context to ebiten.Game: context fn draw: expected function or nil")
 					}
-					if ctxObj2, ok := wordToObj["layout"]; !ok {
+					ctxObj2, ok := wordToObj["layout"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("ebiten-game//update: arg 1: context to ebiten.Game: expected context to have function layout")
 					}
 					switch fn := ctxObj2.(type) {
 					case env.Function:
-						if fn.Argsn != 3 {
+						if fn.Argsn != 2 {
 							ps.FailureFlag = true
-return env.NewError("ebiten-game//update: arg 1: context to ebiten.Game: context fn layout: function has invalid number of arguments (expected 3)")
+return env.NewError("ebiten-game//update: arg 1: context to ebiten.Game: context fn layout: function has invalid number of arguments (expected 2)")
 						}
-						impl.fn_Layout = func(arg0 env.RyeCtx, arg1 int, arg2 int) (int, int) {
-							var arg0Val, arg1Val, arg2Val env.Object
-							arg0Val = arg0
+						impl.fn_Layout = func(ctx env.RyeCtx, arg0 int, arg1 int) (int, int) {
+							var arg0Val, arg1Val env.Object
+							arg0Val = *env.NewInteger(int64(arg0))
 							arg1Val = *env.NewInteger(int64(arg1))
-							arg2Val = *env.NewInteger(int64(arg2))
-							evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-							var res int
-							if v, ok := ps.Res.(env.Integer); ok {
-								res = int(v.Value)
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val)
+							var res0 int
+							var res1 int
+							res, ok := ps.Res.(env.Block)
+							if !ok {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebiten-game//update: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if len(res.Series.S) != 2 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebiten-game//update: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if v, ok := res.Series.S[0].(env.Integer); ok {
+								res0 = int(v.Value)
 							} else {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-game//update: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebiten-game//update: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 							}
-							return res
+							if v, ok := res.Series.S[1].(env.Integer); ok {
+								res1 = int(v.Value)
+							} else {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebiten-game//update: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -9956,37 +8157,67 @@ return env.NewError("ebiten-key//string: arg 1: expected integer")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_ebiten_LayoutFer{
+				impl := &ryegen_ebiten_LayoutFer{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["layout-f"]; !ok {
+				ctxObj0, ok := wordToObj["layout-f"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("ebiten-layout-fer//layout-f: arg 1: context to ebiten.LayoutFer: expected context to have function layout-f")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 3 {
+					if fn.Argsn != 2 {
 						ps.FailureFlag = true
-return env.NewError("ebiten-layout-fer//layout-f: arg 1: context to ebiten.LayoutFer: context fn layout-f: function has invalid number of arguments (expected 3)")
+return env.NewError("ebiten-layout-fer//layout-f: arg 1: context to ebiten.LayoutFer: context fn layout-f: function has invalid number of arguments (expected 2)")
 					}
-					impl.fn_LayoutF = func(arg0 env.RyeCtx, arg1 float64, arg2 float64) (float64, float64) {
-						var arg0Val, arg1Val, arg2Val env.Object
-						arg0Val = arg0
+					impl.fn_LayoutF = func(ctx env.RyeCtx, arg0 float64, arg1 float64) (float64, float64) {
+						var arg0Val, arg1Val env.Object
+						arg0Val = *env.NewDecimal(float64(arg0))
 						arg1Val = *env.NewDecimal(float64(arg1))
-						arg2Val = *env.NewDecimal(float64(arg2))
-						evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-						var res float64
-						if v, ok := ps.Res.(env.Decimal); ok {
-							res = float64(v.Value)
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val)
+						var res0 float64
+						var res1 float64
+						res, ok := ps.Res.(env.Block)
+						if !ok {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebiten-layout-fer//layout-f: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if len(res.Series.S) != 2 {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebiten-layout-fer//layout-f: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if v, ok := res.Series.S[0].(env.Decimal); ok {
+							res0 = float64(v.Value)
 						} else {
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebiten-layout-fer//layout-f: arg 1: callback result: expected decimal",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebiten-layout-fer//layout-f: arg 1: callback result: expected decimal",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 						}
-						return res
+						if v, ok := res.Series.S[1].(env.Decimal); ok {
+							res1 = float64(v.Value)
+						} else {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebiten-layout-fer//layout-f: arg 1: callback result: expected decimal",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						return res0, res1
 					}
 				case env.Integer:
 					if fn.Value != 0 {
@@ -10246,46 +8477,47 @@ return env.NewError("shader: arg 1: expected block, native or nil")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_ebiten_Game{
+				impl := &ryegen_ebiten_Game{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["update"]; !ok {
+				ctxObj0, ok := wordToObj["update"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("run-game: arg 1: context to ebiten.Game: expected context to have function update")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 1 {
+					if fn.Argsn != 0 {
 						ps.FailureFlag = true
-return env.NewError("run-game: arg 1: context to ebiten.Game: context fn update: function has invalid number of arguments (expected 1)")
+return env.NewError("run-game: arg 1: context to ebiten.Game: context fn update: function has invalid number of arguments (expected 0)")
 					}
-					impl.fn_Update = func(arg0 env.RyeCtx) (error) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
+					impl.fn_Update = func(ctx env.RyeCtx) (error) {
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx)
 						var res error
 						switch v := ps.Res.(type) {
-							case env.String:
-								res = errors.New(v.Value)
-							case env.Error:
-								res = errors.New(v.Print(*ps.Idx))
-							case env.Integer:
-								if v.Value != 0 {
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"run-game: arg 1: callback result: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								res = nil
-							default:
+						case env.String:
+							res = errors.New(v.Value)
+						case env.Error:
+							res = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"run-game: arg 1: callback result: expected error, string or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"run-game: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
+							}
+							res = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"run-game: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 							}
 							return res
 						}
@@ -10299,21 +8531,23 @@ return env.NewError("run-game: arg 1: context to ebiten.Game: context fn update:
 						ps.FailureFlag = true
 return env.NewError("run-game: arg 1: context to ebiten.Game: context fn update: expected function or nil")
 					}
-					if ctxObj1, ok := wordToObj["draw"]; !ok {
+					ctxObj1, ok := wordToObj["draw"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("run-game: arg 1: context to ebiten.Game: expected context to have function draw")
 					}
 					switch fn := ctxObj1.(type) {
 					case env.Function:
-						if fn.Argsn != 2 {
+						if fn.Argsn != 1 {
 							ps.FailureFlag = true
-return env.NewError("run-game: arg 1: context to ebiten.Game: context fn draw: function has invalid number of arguments (expected 2)")
+return env.NewError("run-game: arg 1: context to ebiten.Game: context fn draw: function has invalid number of arguments (expected 1)")
 						}
-						impl.fn_Draw = func(arg0 env.RyeCtx, arg1 *ebiten.Image) {
-							var arg0Val, arg1Val env.Object
-							arg0Val = arg0
-							arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-							evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
+						impl.fn_Draw = func(ctx env.RyeCtx, arg0 *ebiten.Image) {
+							var arg0Val env.Object
+							arg0Val = *env.NewNative(ps.Idx, arg0, "ptr-ebiten-image")
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -10325,34 +8559,64 @@ return env.NewError("run-game: arg 1: context to ebiten.Game: context fn draw: e
 						ps.FailureFlag = true
 return env.NewError("run-game: arg 1: context to ebiten.Game: context fn draw: expected function or nil")
 					}
-					if ctxObj2, ok := wordToObj["layout"]; !ok {
+					ctxObj2, ok := wordToObj["layout"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("run-game: arg 1: context to ebiten.Game: expected context to have function layout")
 					}
 					switch fn := ctxObj2.(type) {
 					case env.Function:
-						if fn.Argsn != 3 {
+						if fn.Argsn != 2 {
 							ps.FailureFlag = true
-return env.NewError("run-game: arg 1: context to ebiten.Game: context fn layout: function has invalid number of arguments (expected 3)")
+return env.NewError("run-game: arg 1: context to ebiten.Game: context fn layout: function has invalid number of arguments (expected 2)")
 						}
-						impl.fn_Layout = func(arg0 env.RyeCtx, arg1 int, arg2 int) (int, int) {
-							var arg0Val, arg1Val, arg2Val env.Object
-							arg0Val = arg0
+						impl.fn_Layout = func(ctx env.RyeCtx, arg0 int, arg1 int) (int, int) {
+							var arg0Val, arg1Val env.Object
+							arg0Val = *env.NewInteger(int64(arg0))
 							arg1Val = *env.NewInteger(int64(arg1))
-							arg2Val = *env.NewInteger(int64(arg2))
-							evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-							var res int
-							if v, ok := ps.Res.(env.Integer); ok {
-								res = int(v.Value)
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val)
+							var res0 int
+							var res1 int
+							res, ok := ps.Res.(env.Block)
+							if !ok {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"run-game: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if len(res.Series.S) != 2 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"run-game: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if v, ok := res.Series.S[0].(env.Integer); ok {
+								res0 = int(v.Value)
 							} else {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"run-game: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"run-game: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 							}
-							return res
+							if v, ok := res.Series.S[1].(env.Integer); ok {
+								res1 = int(v.Value)
+							} else {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"run-game: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -10759,46 +9023,47 @@ return env.NewError("ebiten-run-game-options//x-11-instance-name?: arg 1: expect
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_ebiten_Game{
+				impl := &ryegen_ebiten_Game{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["update"]; !ok {
+				ctxObj0, ok := wordToObj["update"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("run-game-with-options: arg 1: context to ebiten.Game: expected context to have function update")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 1 {
+					if fn.Argsn != 0 {
 						ps.FailureFlag = true
-return env.NewError("run-game-with-options: arg 1: context to ebiten.Game: context fn update: function has invalid number of arguments (expected 1)")
+return env.NewError("run-game-with-options: arg 1: context to ebiten.Game: context fn update: function has invalid number of arguments (expected 0)")
 					}
-					impl.fn_Update = func(arg0 env.RyeCtx) (error) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
+					impl.fn_Update = func(ctx env.RyeCtx) (error) {
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx)
 						var res error
 						switch v := ps.Res.(type) {
-							case env.String:
-								res = errors.New(v.Value)
-							case env.Error:
-								res = errors.New(v.Print(*ps.Idx))
-							case env.Integer:
-								if v.Value != 0 {
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"run-game-with-options: arg 1: callback result: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								res = nil
-							default:
+						case env.String:
+							res = errors.New(v.Value)
+						case env.Error:
+							res = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"run-game-with-options: arg 1: callback result: expected error, string or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"run-game-with-options: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
+							}
+							res = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"run-game-with-options: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 							}
 							return res
 						}
@@ -10812,21 +9077,23 @@ return env.NewError("run-game-with-options: arg 1: context to ebiten.Game: conte
 						ps.FailureFlag = true
 return env.NewError("run-game-with-options: arg 1: context to ebiten.Game: context fn update: expected function or nil")
 					}
-					if ctxObj1, ok := wordToObj["draw"]; !ok {
+					ctxObj1, ok := wordToObj["draw"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("run-game-with-options: arg 1: context to ebiten.Game: expected context to have function draw")
 					}
 					switch fn := ctxObj1.(type) {
 					case env.Function:
-						if fn.Argsn != 2 {
+						if fn.Argsn != 1 {
 							ps.FailureFlag = true
-return env.NewError("run-game-with-options: arg 1: context to ebiten.Game: context fn draw: function has invalid number of arguments (expected 2)")
+return env.NewError("run-game-with-options: arg 1: context to ebiten.Game: context fn draw: function has invalid number of arguments (expected 1)")
 						}
-						impl.fn_Draw = func(arg0 env.RyeCtx, arg1 *ebiten.Image) {
-							var arg0Val, arg1Val env.Object
-							arg0Val = arg0
-							arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-							evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
+						impl.fn_Draw = func(ctx env.RyeCtx, arg0 *ebiten.Image) {
+							var arg0Val env.Object
+							arg0Val = *env.NewNative(ps.Idx, arg0, "ptr-ebiten-image")
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -10838,34 +9105,64 @@ return env.NewError("run-game-with-options: arg 1: context to ebiten.Game: conte
 						ps.FailureFlag = true
 return env.NewError("run-game-with-options: arg 1: context to ebiten.Game: context fn draw: expected function or nil")
 					}
-					if ctxObj2, ok := wordToObj["layout"]; !ok {
+					ctxObj2, ok := wordToObj["layout"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("run-game-with-options: arg 1: context to ebiten.Game: expected context to have function layout")
 					}
 					switch fn := ctxObj2.(type) {
 					case env.Function:
-						if fn.Argsn != 3 {
+						if fn.Argsn != 2 {
 							ps.FailureFlag = true
-return env.NewError("run-game-with-options: arg 1: context to ebiten.Game: context fn layout: function has invalid number of arguments (expected 3)")
+return env.NewError("run-game-with-options: arg 1: context to ebiten.Game: context fn layout: function has invalid number of arguments (expected 2)")
 						}
-						impl.fn_Layout = func(arg0 env.RyeCtx, arg1 int, arg2 int) (int, int) {
-							var arg0Val, arg1Val, arg2Val env.Object
-							arg0Val = arg0
+						impl.fn_Layout = func(ctx env.RyeCtx, arg0 int, arg1 int) (int, int) {
+							var arg0Val, arg1Val env.Object
+							arg0Val = *env.NewInteger(int64(arg0))
 							arg1Val = *env.NewInteger(int64(arg1))
-							arg2Val = *env.NewInteger(int64(arg2))
-							evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-							var res int
-							if v, ok := ps.Res.(env.Integer); ok {
-								res = int(v.Value)
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val)
+							var res0 int
+							var res1 int
+							res, ok := ps.Res.(env.Block)
+							if !ok {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"run-game-with-options: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if len(res.Series.S) != 2 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"run-game-with-options: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if v, ok := res.Series.S[0].(env.Integer); ok {
+								res0 = int(v.Value)
 							} else {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"run-game-with-options: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"run-game-with-options: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 							}
-							return res
+							if v, ok := res.Series.S[1].(env.Integer); ok {
+								res1 = int(v.Value)
+							} else {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"run-game-with-options: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -12832,26 +11129,46 @@ return env.NewError("ebitenutil-image-from-file: arg 1: expected string")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_fs_FS{
+				impl := &ryegen_fs_FS{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["open"]; !ok {
+				ctxObj0, ok := wordToObj["open"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("ebitenutil-image-from-file-system: arg 1: context to fs.FS: expected context to have function open")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("ebitenutil-image-from-file-system: arg 1: context to fs.FS: context fn open: function has invalid number of arguments (expected 2)")
+return env.NewError("ebitenutil-image-from-file-system: arg 1: context to fs.FS: context fn open: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Open = func(arg0 env.RyeCtx, arg1 string) (fs.File, error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewString(arg1)
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-						var res fs.File
-						switch v := ps.Res.(type) {
+					impl.fn_Open = func(ctx env.RyeCtx, arg0 string) (fs.File, error) {
+						var arg0Val env.Object
+						arg0Val = *env.NewString(arg0)
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
+						var res0 fs.File
+						var res1 error
+						res, ok := ps.Res.(env.Block)
+						if !ok {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if len(res.Series.S) != 2 {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						switch v := res.Series.S[0].(type) {
 						case env.RyeCtx:
 							words := v.GetWords(*ps.Idx).Series.S
 							wordToObj := make(map[string]env.Object, len(words))
@@ -12867,33 +11184,52 @@ return env.NewError("ebitenutil-image-from-file-system: arg 1: context to fs.FS:
 								}
 								wordToObj[name] = obj
 							}
-							impl := ryegen_fs_File{
+							impl := &ryegen_fs_File{
 								self: v,
 							}
-							if ctxObj0, ok := wordToObj["stat"]; !ok {
+							ctxObj0, ok := wordToObj["stat"]
+							if !ok {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: expected context to have function stat",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: expected context to have function stat",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 							}
 							switch fn := ctxObj0.(type) {
 							case env.Function:
-								if fn.Argsn != 1 {
+								if fn.Argsn != 0 {
 									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn stat: function has invalid number of arguments (expected 1)",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn stat: function has invalid number of arguments (expected 0)",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 								}
-								impl.fn_Stat = func(arg0 env.RyeCtx) (fs.FileInfo, error) {
-									var arg0Val env.Object
-									arg0Val = arg0
-									evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-									var res fs.FileInfo
-									switch v := ps.Res.(type) {
+								impl.fn_Stat = func(ctx env.RyeCtx) (fs.FileInfo, error) {
+									actualFn := fn
+									_ = actualFn
+									evaldo.CallFunctionArgsN(fn, ps, &ctx)
+									var res0 fs.FileInfo
+									var res1 error
+									res, ok := ps.Res.(env.Block)
+									if !ok {
+										fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+									}
+									if len(res.Series.S) != 2 {
+										fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+									}
+									switch v := res.Series.S[0].(type) {
 									case env.RyeCtx:
 										words := v.GetWords(*ps.Idx).Series.S
 										wordToObj := make(map[string]env.Object, len(words))
@@ -12909,137 +11245,140 @@ return res
 											}
 											wordToObj[name] = obj
 										}
-										impl := ryegen_fs_FileInfo{
+										impl := &ryegen_fs_FileInfo{
 											self: v,
 										}
-										if ctxObj0, ok := wordToObj["name"]; !ok {
+										ctxObj0, ok := wordToObj["name"]
+										if !ok {
 											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: expected context to have function name",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: expected context to have function name",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 										}
 										switch fn := ctxObj0.(type) {
 										case env.Function:
-											if fn.Argsn != 1 {
+											if fn.Argsn != 0 {
 												fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn name: function has invalid number of arguments (expected 1)",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn name: function has invalid number of arguments (expected 0)",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 											}
-											impl.fn_Name = func(arg0 env.RyeCtx) (string) {
-												var arg0Val env.Object
-												arg0Val = arg0
-												evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
+											impl.fn_Name = func(ctx env.RyeCtx) (string) {
+												actualFn := fn
+												_ = actualFn
+												evaldo.CallFunctionArgsN(fn, ps, &ctx)
 												var res string
 												if v, ok := ps.Res.(env.String); ok {
 													res = string(v.Value)
 												} else {
 													fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected string",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected string",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 												}
 												return res
 											}
 										case env.Integer:
 											if fn.Value != 0 {
 												fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn name: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn name: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 											}
 											impl.fn_Name = nil
 										default:
 											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn name: expected function or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn name: expected function or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 										}
-										if ctxObj1, ok := wordToObj["size"]; !ok {
+										ctxObj1, ok := wordToObj["size"]
+										if !ok {
 											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: expected context to have function size",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: expected context to have function size",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 										}
 										switch fn := ctxObj1.(type) {
 										case env.Function:
-											if fn.Argsn != 1 {
+											if fn.Argsn != 0 {
 												fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn size: function has invalid number of arguments (expected 1)",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn size: function has invalid number of arguments (expected 0)",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 											}
-											impl.fn_Size = func(arg0 env.RyeCtx) (int64) {
-												var arg0Val env.Object
-												arg0Val = arg0
-												evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
+											impl.fn_Size = func(ctx env.RyeCtx) (int64) {
+												actualFn := fn
+												_ = actualFn
+												evaldo.CallFunctionArgsN(fn, ps, &ctx)
 												var res int64
 												if v, ok := ps.Res.(env.Integer); ok {
 													res = int64(v.Value)
 												} else {
 													fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 												}
 												return res
 											}
 										case env.Integer:
 											if fn.Value != 0 {
 												fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn size: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn size: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 											}
 											impl.fn_Size = nil
 										default:
 											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn size: expected function or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn size: expected function or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 										}
-										if ctxObj2, ok := wordToObj["mode"]; !ok {
+										ctxObj2, ok := wordToObj["mode"]
+										if !ok {
 											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: expected context to have function mode",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: expected context to have function mode",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 										}
 										switch fn := ctxObj2.(type) {
 										case env.Function:
-											if fn.Argsn != 1 {
+											if fn.Argsn != 0 {
 												fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn mode: function has invalid number of arguments (expected 1)",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn mode: function has invalid number of arguments (expected 0)",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 											}
-											impl.fn_Mode = func(arg0 env.RyeCtx) (fs.FileMode) {
-												var arg0Val env.Object
-												arg0Val = arg0
-												evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
+											impl.fn_Mode = func(ctx env.RyeCtx) (fs.FileMode) {
+												actualFn := fn
+												_ = actualFn
+												evaldo.CallFunctionArgsN(fn, ps, &ctx)
 												var res fs.FileMode
 												{
 													nat, natOk := ps.Res.(env.Native)
@@ -13056,11 +11395,11 @@ return res
 															u = uint32(v.Value)
 														} else {
 															fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 														}
 														res = fs.FileMode(u)
 													}
@@ -13070,43 +11409,44 @@ return res
 										case env.Integer:
 											if fn.Value != 0 {
 												fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn mode: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn mode: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 											}
 											impl.fn_Mode = nil
 										default:
 											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn mode: expected function or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn mode: expected function or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 										}
-										if ctxObj3, ok := wordToObj["mod-time"]; !ok {
+										ctxObj3, ok := wordToObj["mod-time"]
+										if !ok {
 											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: expected context to have function mod-time",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: expected context to have function mod-time",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 										}
 										switch fn := ctxObj3.(type) {
 										case env.Function:
-											if fn.Argsn != 1 {
+											if fn.Argsn != 0 {
 												fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn mod-time: function has invalid number of arguments (expected 1)",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn mod-time: function has invalid number of arguments (expected 0)",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 											}
-											impl.fn_ModTime = func(arg0 env.RyeCtx) (time.Time) {
-												var arg0Val env.Object
-												arg0Val = arg0
-												evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
+											impl.fn_ModTime = func(ctx env.RyeCtx) (time.Time) {
+												actualFn := fn
+												_ = actualFn
+												evaldo.CallFunctionArgsN(fn, ps, &ctx)
 												var res time.Time
 												switch v := ps.Res.(type) {
 												case env.Native:
@@ -13114,115 +11454,117 @@ return res
 													res, ok = v.Value.(time.Time)
 													if !ok {
 														fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected native of type time.Time",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected native of type time.Time",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 													}
 												default:
 													fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected native",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 												}
 												return res
 											}
 										case env.Integer:
 											if fn.Value != 0 {
 												fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn mod-time: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn mod-time: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 											}
 											impl.fn_ModTime = nil
 										default:
 											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn mod-time: expected function or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn mod-time: expected function or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 										}
-										if ctxObj4, ok := wordToObj["is-dir"]; !ok {
+										ctxObj4, ok := wordToObj["is-dir"]
+										if !ok {
 											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: expected context to have function is-dir",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: expected context to have function is-dir",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 										}
 										switch fn := ctxObj4.(type) {
 										case env.Function:
-											if fn.Argsn != 1 {
+											if fn.Argsn != 0 {
 												fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn is-dir: function has invalid number of arguments (expected 1)",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn is-dir: function has invalid number of arguments (expected 0)",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 											}
-											impl.fn_IsDir = func(arg0 env.RyeCtx) (bool) {
-												var arg0Val env.Object
-												arg0Val = arg0
-												evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
+											impl.fn_IsDir = func(ctx env.RyeCtx) (bool) {
+												actualFn := fn
+												_ = actualFn
+												evaldo.CallFunctionArgsN(fn, ps, &ctx)
 												var res bool
 												if v, ok := ps.Res.(env.Integer); ok {
 													res = v.Value != 0
 												} else {
 													fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 												}
 												return res
 											}
 										case env.Integer:
 											if fn.Value != 0 {
 												fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn is-dir: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn is-dir: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 											}
 											impl.fn_IsDir = nil
 										default:
 											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn is-dir: expected function or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn is-dir: expected function or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 										}
-										if ctxObj5, ok := wordToObj["sys"]; !ok {
+										ctxObj5, ok := wordToObj["sys"]
+										if !ok {
 											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: expected context to have function sys",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: expected context to have function sys",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 										}
 										switch fn := ctxObj5.(type) {
 										case env.Function:
-											if fn.Argsn != 1 {
+											if fn.Argsn != 0 {
 												fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn sys: function has invalid number of arguments (expected 1)",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn sys: function has invalid number of arguments (expected 0)",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 											}
-											impl.fn_Sys = func(arg0 env.RyeCtx) (any) {
-												var arg0Val env.Object
-												arg0Val = arg0
-												evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
+											impl.fn_Sys = func(ctx env.RyeCtx) (any) {
+												actualFn := fn
+												_ = actualFn
+												evaldo.CallFunctionArgsN(fn, ps, &ctx)
 												var res any
 												switch v := ps.Res.(type) {
 												case env.Native:
@@ -13230,295 +11572,385 @@ return res
 													res, ok = v.Value.(any)
 													if !ok {
 														fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected native of type any",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected native of type any",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 													}
 												default:
 													fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected native",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 												}
 												return res
 											}
 										case env.Integer:
 											if fn.Value != 0 {
 												fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn sys: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn sys: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 											}
 											impl.fn_Sys = nil
 										default:
 											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn sys: expected function or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.FileInfo: context fn sys: expected function or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 										}
-										res = impl
+										res0 = impl
 									case env.Native:
 										var ok bool
-										res, ok = v.Value.(fs.FileInfo)
+										res0, ok = v.Value.(fs.FileInfo)
 										if !ok {
 											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected native of type fs.FileInfo",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected native of type fs.FileInfo",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 										}
 									case env.Integer:
 										if v.Value != 0 {
 											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 										}
-										res = nil
+										res0 = nil
 									default:
 										fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected native",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 									}
-									return res
-								}
-							case env.Integer:
-								if fn.Value != 0 {
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn stat: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								impl.fn_Stat = nil
-							default:
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn stat: expected function or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-							if ctxObj1, ok := wordToObj["read"]; !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: expected context to have function read",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-							switch fn := ctxObj1.(type) {
-							case env.Function:
-								if fn.Argsn != 2 {
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn read: function has invalid number of arguments (expected 2)",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								impl.fn_Read = func(arg0 env.RyeCtx, arg1 []byte) (int, error) {
-									var arg0Val, arg1Val env.Object
-									arg0Val = arg0
-									{
-										items := make([]env.Object, len(arg1))
-										for i, it := range arg1 {
-											items[i] = *env.NewNative(ps.Idx, it, "byte")
-										}
-										arg1Val = *env.NewBlock(*env.NewTSeries(items))
-									}
-									evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-									var res int
-									if v, ok := ps.Res.(env.Integer); ok {
-										res = int(v.Value)
-									} else {
-										fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-									}
-									return res
-								}
-							case env.Integer:
-								if fn.Value != 0 {
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn read: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								impl.fn_Read = nil
-							default:
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn read: expected function or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-							if ctxObj2, ok := wordToObj["close"]; !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: expected context to have function close",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-							switch fn := ctxObj2.(type) {
-							case env.Function:
-								if fn.Argsn != 1 {
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn close: function has invalid number of arguments (expected 1)",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								impl.fn_Close = func(arg0 env.RyeCtx) (error) {
-									var arg0Val env.Object
-									arg0Val = arg0
-									evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-									var res error
-									switch v := ps.Res.(type) {
-										case env.String:
-											res = errors.New(v.Value)
-										case env.Error:
-											res = errors.New(v.Print(*ps.Idx))
-										case env.Integer:
-											if v.Value != 0 {
-												fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-											}
-											res = nil
-										default:
+									switch v := res.Series.S[1].(type) {
+									case env.String:
+										res1 = errors.New(v.Value)
+									case env.Error:
+										res1 = errors.New(v.Print(*ps.Idx))
+									case env.Integer:
+										if v.Value != 0 {
 											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected error, string or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 										}
-										return res
+										res1 = nil
+									default:
+										fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+										}
+										return res0, res1
 									}
 								case env.Integer:
 									if fn.Value != 0 {
 										fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn close: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn stat: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 									}
-									impl.fn_Close = nil
+									impl.fn_Stat = nil
 								default:
 									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn close: expected function or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn stat: expected function or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 								}
-								res = impl
-							case env.Native:
-								var ok bool
-								res, ok = v.Value.(fs.File)
+								ctxObj1, ok := wordToObj["read"]
 								if !ok {
 									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected native of type fs.File",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: expected context to have function read",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+								}
+								switch fn := ctxObj1.(type) {
+								case env.Function:
+									if fn.Argsn != 1 {
+										fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn read: function has invalid number of arguments (expected 1)",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+									}
+									impl.fn_Read = func(ctx env.RyeCtx, arg0 []byte) (int, error) {
+										var arg0Val env.Object
+										{
+											items := make([]env.Object, len(arg0))
+											for i, it := range arg0 {
+												items[i] = *env.NewNative(ps.Idx, it, "byte")
+											}
+											arg0Val = *env.NewBlock(*env.NewTSeries(items))
+										}
+										actualFn := fn
+										_ = actualFn
+										evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
+										var res0 int
+										var res1 error
+										res, ok := ps.Res.(env.Block)
+										if !ok {
+											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+										}
+										if len(res.Series.S) != 2 {
+											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+										}
+										if v, ok := res.Series.S[0].(env.Integer); ok {
+											res0 = int(v.Value)
+										} else {
+											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+										}
+										switch v := res.Series.S[1].(type) {
+										case env.String:
+											res1 = errors.New(v.Value)
+										case env.Error:
+											res1 = errors.New(v.Print(*ps.Idx))
+										case env.Integer:
+											if v.Value != 0 {
+												fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+											}
+											res1 = nil
+										default:
+											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+											}
+											return res0, res1
+										}
+									case env.Integer:
+										if fn.Value != 0 {
+											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn read: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+										}
+										impl.fn_Read = nil
+									default:
+										fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn read: expected function or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+									}
+									ctxObj2, ok := wordToObj["close"]
+									if !ok {
+										fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: expected context to have function close",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+									}
+									switch fn := ctxObj2.(type) {
+									case env.Function:
+										if fn.Argsn != 0 {
+											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn close: function has invalid number of arguments (expected 0)",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+										}
+										impl.fn_Close = func(ctx env.RyeCtx) (error) {
+											actualFn := fn
+											_ = actualFn
+											evaldo.CallFunctionArgsN(fn, ps, &ctx)
+											var res error
+											switch v := ps.Res.(type) {
+											case env.String:
+												res = errors.New(v.Value)
+											case env.Error:
+												res = errors.New(v.Print(*ps.Idx))
+											case env.Integer:
+												if v.Value != 0 {
+													fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
+												}
+												res = nil
+											default:
+												fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
+												}
+												return res
+											}
+										case env.Integer:
+											if fn.Value != 0 {
+												fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn close: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+											}
+											impl.fn_Close = nil
+										default:
+											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: context to fs.File: context fn close: expected function or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+										}
+										res0 = impl
+									case env.Native:
+										var ok bool
+										res0, ok = v.Value.(fs.File)
+										if !ok {
+											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected native of type fs.File",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+										}
+									case env.Integer:
+										if v.Value != 0 {
+											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+										}
+										res0 = nil
+									default:
+										fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected native",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+									}
+									switch v := res.Series.S[1].(type) {
+									case env.String:
+										res1 = errors.New(v.Value)
+									case env.Error:
+										res1 = errors.New(v.Print(*ps.Idx))
+									case env.Integer:
+										if v.Value != 0 {
+											fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+										}
+										res1 = nil
+									default:
+										fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-file-system: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+										}
+										return res0, res1
+									}
+								case env.Integer:
+									if fn.Value != 0 {
+										ps.FailureFlag = true
+return env.NewError("ebitenutil-image-from-file-system: arg 1: context to fs.FS: context fn open: expected integer to be 0 or nil")
+									}
+									impl.fn_Open = nil
+								default:
+									ps.FailureFlag = true
+return env.NewError("ebitenutil-image-from-file-system: arg 1: context to fs.FS: context fn open: expected function or nil")
+								}
+								arg0Val = impl
+							case env.Native:
+								var ok bool
+								arg0Val, ok = v.Value.(fs.FS)
+								if !ok {
+									ps.FailureFlag = true
+return env.NewError("ebitenutil-image-from-file-system: arg 1: expected native of type fs.FS")
 								}
 							case env.Integer:
 								if v.Value != 0 {
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								res = nil
-							default:
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-file-system: arg 1: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-							return res
-						}
-					case env.Integer:
-						if fn.Value != 0 {
-							ps.FailureFlag = true
-return env.NewError("ebitenutil-image-from-file-system: arg 1: context to fs.FS: context fn open: expected integer to be 0 or nil")
-						}
-						impl.fn_Open = nil
-					default:
-						ps.FailureFlag = true
-return env.NewError("ebitenutil-image-from-file-system: arg 1: context to fs.FS: context fn open: expected function or nil")
-					}
-					arg0Val = impl
-				case env.Native:
-					var ok bool
-					arg0Val, ok = v.Value.(fs.FS)
-					if !ok {
-						ps.FailureFlag = true
-return env.NewError("ebitenutil-image-from-file-system: arg 1: expected native of type fs.FS")
-					}
-				case env.Integer:
-					if v.Value != 0 {
-						ps.FailureFlag = true
+									ps.FailureFlag = true
 return env.NewError("ebitenutil-image-from-file-system: arg 1: expected integer to be 0 or nil")
-					}
-					arg0Val = nil
-				default:
-					ps.FailureFlag = true
+								}
+								arg0Val = nil
+							default:
+								ps.FailureFlag = true
 return env.NewError("ebitenutil-image-from-file-system: arg 1: expected native")
-				}
-				var arg1Val string
-				if v, ok := arg1.(env.String); ok {
-					arg1Val = string(v.Value)
-				} else {
-					ps.FailureFlag = true
+							}
+							var arg1Val string
+							if v, ok := arg1.(env.String); ok {
+								arg1Val = string(v.Value)
+							} else {
+								ps.FailureFlag = true
 return env.NewError("ebitenutil-image-from-file-system: arg 2: expected string")
-				}
-				res0, res1, res2 := ebitenutil.NewImageFromFileSystem(arg0Val, arg1Val)
-				var res0Obj env.Object
-				res0Obj = *env.NewNative(ps.Idx, res0, "ptr-ebiten-image")
-				var res1Obj env.Object
-				res1Obj = *env.NewNative(ps.Idx, res1, "image-image")
-				var res2Obj env.Object
-				res2Obj = *env.NewError(res2.Error())
-				return env.NewDict(map[string]any{
-					"1": res0Obj,
-					"2": res1Obj,
-					"err": res2Obj,
-				})
+							}
+							res0, res1, res2 := ebitenutil.NewImageFromFileSystem(arg0Val, arg1Val)
+							var res0Obj env.Object
+							res0Obj = *env.NewNative(ps.Idx, res0, "ptr-ebiten-image")
+							var res1Obj env.Object
+							res1Obj = *env.NewNative(ps.Idx, res1, "image-image")
+							var res2Obj env.Object
+							res2Obj = *env.NewError(res2.Error())
+							return env.NewDict(map[string]any{
+								"1": res0Obj,
+								"2": res1Obj,
+								"err": res2Obj,
+							})
 		},
 	},
 	"ebitenutil-image-from-reader": {
@@ -13542,83 +11974,126 @@ return env.NewError("ebitenutil-image-from-file-system: arg 2: expected string")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_io_Reader{
+				impl := &ryegen_io_Reader{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["read"]; !ok {
+				ctxObj0, ok := wordToObj["read"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("ebitenutil-image-from-reader: arg 1: context to io.Reader: expected context to have function read")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("ebitenutil-image-from-reader: arg 1: context to io.Reader: context fn read: function has invalid number of arguments (expected 2)")
+return env.NewError("ebitenutil-image-from-reader: arg 1: context to io.Reader: context fn read: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Read = func(arg0 env.RyeCtx, arg1 []byte) (int, error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
+					impl.fn_Read = func(ctx env.RyeCtx, arg0 []byte) (int, error) {
+						var arg0Val env.Object
 						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
+							items := make([]env.Object, len(arg0))
+							for i, it := range arg0 {
 								items[i] = *env.NewNative(ps.Idx, it, "byte")
 							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
+							arg0Val = *env.NewBlock(*env.NewTSeries(items))
 						}
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-						var res int
-						if v, ok := ps.Res.(env.Integer); ok {
-							res = int(v.Value)
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
+						var res0 int
+						var res1 error
+						res, ok := ps.Res.(env.Block)
+						if !ok {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-reader: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if len(res.Series.S) != 2 {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-reader: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if v, ok := res.Series.S[0].(env.Integer); ok {
+							res0 = int(v.Value)
 						} else {
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ebitenutil-image-from-reader: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ebitenutil-image-from-reader: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 						}
-						return res
+						switch v := res.Series.S[1].(type) {
+						case env.String:
+							res1 = errors.New(v.Value)
+						case env.Error:
+							res1 = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-reader: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							res1 = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ebitenutil-image-from-reader: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
+						}
+					case env.Integer:
+						if fn.Value != 0 {
+							ps.FailureFlag = true
+return env.NewError("ebitenutil-image-from-reader: arg 1: context to io.Reader: context fn read: expected integer to be 0 or nil")
+						}
+						impl.fn_Read = nil
+					default:
+						ps.FailureFlag = true
+return env.NewError("ebitenutil-image-from-reader: arg 1: context to io.Reader: context fn read: expected function or nil")
+					}
+					arg0Val = impl
+				case env.Native:
+					var ok bool
+					arg0Val, ok = v.Value.(io.Reader)
+					if !ok {
+						ps.FailureFlag = true
+return env.NewError("ebitenutil-image-from-reader: arg 1: expected native of type io.Reader")
 					}
 				case env.Integer:
-					if fn.Value != 0 {
+					if v.Value != 0 {
 						ps.FailureFlag = true
-return env.NewError("ebitenutil-image-from-reader: arg 1: context to io.Reader: context fn read: expected integer to be 0 or nil")
+return env.NewError("ebitenutil-image-from-reader: arg 1: expected integer to be 0 or nil")
 					}
-					impl.fn_Read = nil
+					arg0Val = nil
 				default:
 					ps.FailureFlag = true
-return env.NewError("ebitenutil-image-from-reader: arg 1: context to io.Reader: context fn read: expected function or nil")
-				}
-				arg0Val = impl
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(io.Reader)
-				if !ok {
-					ps.FailureFlag = true
-return env.NewError("ebitenutil-image-from-reader: arg 1: expected native of type io.Reader")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-return env.NewError("ebitenutil-image-from-reader: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
 return env.NewError("ebitenutil-image-from-reader: arg 1: expected native")
-			}
-			res0, res1, res2 := ebitenutil.NewImageFromReader(arg0Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-ebiten-image")
-			var res1Obj env.Object
-			res1Obj = *env.NewNative(ps.Idx, res1, "image-image")
-			var res2Obj env.Object
-			res2Obj = *env.NewError(res2.Error())
-			return env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-				"err": res2Obj,
-			})
+				}
+				res0, res1, res2 := ebitenutil.NewImageFromReader(arg0Val)
+				var res0Obj env.Object
+				res0Obj = *env.NewNative(ps.Idx, res0, "ptr-ebiten-image")
+				var res1Obj env.Object
+				res1Obj = *env.NewNative(ps.Idx, res1, "image-image")
+				var res2Obj env.Object
+				res2Obj = *env.NewError(res2.Error())
+				return env.NewDict(map[string]any{
+					"1": res0Obj,
+					"2": res1Obj,
+					"err": res2Obj,
+				})
 		},
 	},
 	"ebitenutil-image-from-url": {
@@ -15403,46 +13878,47 @@ return env.NewError("inpututil-touch-press-duration: arg 1: expected integer")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_io_Closer{
+				impl := &ryegen_io_Closer{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["close"]; !ok {
+				ctxObj0, ok := wordToObj["close"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("io-closer//close: arg 1: context to io.Closer: expected context to have function close")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 1 {
+					if fn.Argsn != 0 {
 						ps.FailureFlag = true
-return env.NewError("io-closer//close: arg 1: context to io.Closer: context fn close: function has invalid number of arguments (expected 1)")
+return env.NewError("io-closer//close: arg 1: context to io.Closer: context fn close: function has invalid number of arguments (expected 0)")
 					}
-					impl.fn_Close = func(arg0 env.RyeCtx) (error) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
+					impl.fn_Close = func(ctx env.RyeCtx) (error) {
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx)
 						var res error
 						switch v := ps.Res.(type) {
-							case env.String:
-								res = errors.New(v.Value)
-							case env.Error:
-								res = errors.New(v.Print(*ps.Idx))
-							case env.Integer:
-								if v.Value != 0 {
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"io-closer//close: arg 1: callback result: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								res = nil
-							default:
+						case env.String:
+							res = errors.New(v.Value)
+						case env.Error:
+							res = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"io-closer//close: arg 1: callback result: expected error, string or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"io-closer//close: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
+							}
+							res = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"io-closer//close: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 							}
 							return res
 						}
@@ -15501,115 +13977,158 @@ return env.NewError("io-closer//close: arg 1: expected native")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_io_Reader{
+				impl := &ryegen_io_Reader{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["read"]; !ok {
+				ctxObj0, ok := wordToObj["read"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("io-reader//read: arg 1: context to io.Reader: expected context to have function read")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("io-reader//read: arg 1: context to io.Reader: context fn read: function has invalid number of arguments (expected 2)")
+return env.NewError("io-reader//read: arg 1: context to io.Reader: context fn read: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Read = func(arg0 env.RyeCtx, arg1 []byte) (int, error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
+					impl.fn_Read = func(ctx env.RyeCtx, arg0 []byte) (int, error) {
+						var arg0Val env.Object
 						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
+							items := make([]env.Object, len(arg0))
+							for i, it := range arg0 {
 								items[i] = *env.NewNative(ps.Idx, it, "byte")
 							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
+							arg0Val = *env.NewBlock(*env.NewTSeries(items))
 						}
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-						var res int
-						if v, ok := ps.Res.(env.Integer); ok {
-							res = int(v.Value)
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
+						var res0 int
+						var res1 error
+						res, ok := ps.Res.(env.Block)
+						if !ok {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"io-reader//read: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if len(res.Series.S) != 2 {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"io-reader//read: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if v, ok := res.Series.S[0].(env.Integer); ok {
+							res0 = int(v.Value)
 						} else {
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"io-reader//read: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"io-reader//read: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("io-reader//read: arg 1: context to io.Reader: context fn read: expected integer to be 0 or nil")
-					}
-					impl.fn_Read = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("io-reader//read: arg 1: context to io.Reader: context fn read: expected function or nil")
-				}
-				arg0Val = impl
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(io.Reader)
-				if !ok {
-					ps.FailureFlag = true
-return env.NewError("io-reader//read: arg 1: expected native of type io.Reader")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-return env.NewError("io-reader//read: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-return env.NewError("io-reader//read: arg 1: expected native")
-			}
-			var arg1Val []byte
-			switch v := arg1.(type) {
-			case env.Block:
-				arg1Val = make([]byte, len(v.Series.S))
-				for i, it := range v.Series.S {
-					switch v := it.(type) {
-					case env.Native:
-						var ok bool
-						arg1Val[i], ok = v.Value.(byte)
-						if !ok {
+						switch v := res.Series.S[1].(type) {
+						case env.String:
+							res1 = errors.New(v.Value)
+						case env.Error:
+							res1 = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"io-reader//read: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							res1 = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"io-reader//read: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
+						}
+					case env.Integer:
+						if fn.Value != 0 {
 							ps.FailureFlag = true
-return env.NewError("io-reader//read: arg 2: block item: expected native of type byte")
+return env.NewError("io-reader//read: arg 1: context to io.Reader: context fn read: expected integer to be 0 or nil")
 						}
+						impl.fn_Read = nil
 					default:
 						ps.FailureFlag = true
-return env.NewError("io-reader//read: arg 2: block item: expected native")
+return env.NewError("io-reader//read: arg 1: context to io.Reader: context fn read: expected function or nil")
 					}
-				}
-			case env.Native:
-				var ok bool
-				arg1Val, ok = v.Value.([]byte)
-				if !ok {
+					arg0Val = impl
+				case env.Native:
+					var ok bool
+					arg0Val, ok = v.Value.(io.Reader)
+					if !ok {
+						ps.FailureFlag = true
+return env.NewError("io-reader//read: arg 1: expected native of type io.Reader")
+					}
+				case env.Integer:
+					if v.Value != 0 {
+						ps.FailureFlag = true
+return env.NewError("io-reader//read: arg 1: expected integer to be 0 or nil")
+					}
+					arg0Val = nil
+				default:
 					ps.FailureFlag = true
+return env.NewError("io-reader//read: arg 1: expected native")
+				}
+				var arg1Val []byte
+				switch v := arg1.(type) {
+				case env.Block:
+					arg1Val = make([]byte, len(v.Series.S))
+					for i, it := range v.Series.S {
+						switch v := it.(type) {
+						case env.Native:
+							var ok bool
+							arg1Val[i], ok = v.Value.(byte)
+							if !ok {
+								ps.FailureFlag = true
+return env.NewError("io-reader//read: arg 2: block item: expected native of type byte")
+							}
+						default:
+							ps.FailureFlag = true
+return env.NewError("io-reader//read: arg 2: block item: expected native")
+						}
+					}
+				case env.Native:
+					var ok bool
+					arg1Val, ok = v.Value.([]byte)
+					if !ok {
+						ps.FailureFlag = true
 return env.NewError("io-reader//read: arg 2: expected native of type []byte")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
+					}
+				case env.Integer:
+					if v.Value != 0 {
+						ps.FailureFlag = true
 return env.NewError("io-reader//read: arg 2: expected integer to be 0 or nil")
-				}
-				arg1Val = nil
-			default:
-				ps.FailureFlag = true
+					}
+					arg1Val = nil
+				default:
+					ps.FailureFlag = true
 return env.NewError("io-reader//read: arg 2: expected block, native or nil")
-			}
-			res0, res1 := arg0Val.Read(arg1Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			res1Obj = *env.NewError(res1.Error())
-			return env.NewDict(map[string]any{
-				"n": res0Obj,
-				"err": res1Obj,
-			})
+				}
+				res0, res1 := arg0Val.Read(arg1Val)
+				var res0Obj env.Object
+				res0Obj = *env.NewInteger(int64(res0))
+				var res1Obj env.Object
+				res1Obj = *env.NewError(res1.Error())
+				return env.NewDict(map[string]any{
+					"n": res0Obj,
+					"err": res1Obj,
+				})
 		},
 	},
 	"io-seeker//seek": {
@@ -15633,89 +14152,132 @@ return env.NewError("io-reader//read: arg 2: expected block, native or nil")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_io_Seeker{
+				impl := &ryegen_io_Seeker{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["seek"]; !ok {
+				ctxObj0, ok := wordToObj["seek"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("io-seeker//seek: arg 1: context to io.Seeker: expected context to have function seek")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 3 {
+					if fn.Argsn != 2 {
 						ps.FailureFlag = true
-return env.NewError("io-seeker//seek: arg 1: context to io.Seeker: context fn seek: function has invalid number of arguments (expected 3)")
+return env.NewError("io-seeker//seek: arg 1: context to io.Seeker: context fn seek: function has invalid number of arguments (expected 2)")
 					}
-					impl.fn_Seek = func(arg0 env.RyeCtx, arg1 int64, arg2 int) (int64, error) {
-						var arg0Val, arg1Val, arg2Val env.Object
-						arg0Val = arg0
+					impl.fn_Seek = func(ctx env.RyeCtx, arg0 int64, arg1 int) (int64, error) {
+						var arg0Val, arg1Val env.Object
+						arg0Val = *env.NewInteger(int64(arg0))
 						arg1Val = *env.NewInteger(int64(arg1))
-						arg2Val = *env.NewInteger(int64(arg2))
-						evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-						var res int64
-						if v, ok := ps.Res.(env.Integer); ok {
-							res = int64(v.Value)
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val)
+						var res0 int64
+						var res1 error
+						res, ok := ps.Res.(env.Block)
+						if !ok {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"io-seeker//seek: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if len(res.Series.S) != 2 {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"io-seeker//seek: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if v, ok := res.Series.S[0].(env.Integer); ok {
+							res0 = int64(v.Value)
 						} else {
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"io-seeker//seek: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"io-seeker//seek: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 						}
-						return res
+						switch v := res.Series.S[1].(type) {
+						case env.String:
+							res1 = errors.New(v.Value)
+						case env.Error:
+							res1 = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"io-seeker//seek: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							res1 = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"io-seeker//seek: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
+						}
+					case env.Integer:
+						if fn.Value != 0 {
+							ps.FailureFlag = true
+return env.NewError("io-seeker//seek: arg 1: context to io.Seeker: context fn seek: expected integer to be 0 or nil")
+						}
+						impl.fn_Seek = nil
+					default:
+						ps.FailureFlag = true
+return env.NewError("io-seeker//seek: arg 1: context to io.Seeker: context fn seek: expected function or nil")
+					}
+					arg0Val = impl
+				case env.Native:
+					var ok bool
+					arg0Val, ok = v.Value.(io.Seeker)
+					if !ok {
+						ps.FailureFlag = true
+return env.NewError("io-seeker//seek: arg 1: expected native of type io.Seeker")
 					}
 				case env.Integer:
-					if fn.Value != 0 {
+					if v.Value != 0 {
 						ps.FailureFlag = true
-return env.NewError("io-seeker//seek: arg 1: context to io.Seeker: context fn seek: expected integer to be 0 or nil")
+return env.NewError("io-seeker//seek: arg 1: expected integer to be 0 or nil")
 					}
-					impl.fn_Seek = nil
+					arg0Val = nil
 				default:
 					ps.FailureFlag = true
-return env.NewError("io-seeker//seek: arg 1: context to io.Seeker: context fn seek: expected function or nil")
-				}
-				arg0Val = impl
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(io.Seeker)
-				if !ok {
-					ps.FailureFlag = true
-return env.NewError("io-seeker//seek: arg 1: expected native of type io.Seeker")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-return env.NewError("io-seeker//seek: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
 return env.NewError("io-seeker//seek: arg 1: expected native")
-			}
-			var arg1Val int64
-			if v, ok := arg1.(env.Integer); ok {
-				arg1Val = int64(v.Value)
-			} else {
-				ps.FailureFlag = true
+				}
+				var arg1Val int64
+				if v, ok := arg1.(env.Integer); ok {
+					arg1Val = int64(v.Value)
+				} else {
+					ps.FailureFlag = true
 return env.NewError("io-seeker//seek: arg 2: expected integer")
-			}
-			var arg2Val int
-			if v, ok := arg2.(env.Integer); ok {
-				arg2Val = int(v.Value)
-			} else {
-				ps.FailureFlag = true
+				}
+				var arg2Val int
+				if v, ok := arg2.(env.Integer); ok {
+					arg2Val = int(v.Value)
+				} else {
+					ps.FailureFlag = true
 return env.NewError("io-seeker//seek: arg 3: expected integer")
-			}
-			res0, res1 := arg0Val.Seek(arg1Val, arg2Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			res1Obj = *env.NewError(res1.Error())
-			return env.NewDict(map[string]any{
-				"1": res0Obj,
-				"err": res1Obj,
-			})
+				}
+				res0, res1 := arg0Val.Seek(arg1Val, arg2Val)
+				var res0Obj env.Object
+				res0Obj = *env.NewInteger(int64(res0))
+				var res1Obj env.Object
+				res1Obj = *env.NewError(res1.Error())
+				return env.NewDict(map[string]any{
+					"1": res0Obj,
+					"err": res1Obj,
+				})
 		},
 	},
 	"keyboard-1-keyboard-png": {
@@ -15835,46 +14397,47 @@ return env.NewError("keyboard-key-rect: arg 1: expected integer")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_ebiten_Game{
+				impl := &ryegen_ebiten_Game{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["update"]; !ok {
+				ctxObj0, ok := wordToObj["update"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("mobile-set-game: arg 1: context to ebiten.Game: expected context to have function update")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 1 {
+					if fn.Argsn != 0 {
 						ps.FailureFlag = true
-return env.NewError("mobile-set-game: arg 1: context to ebiten.Game: context fn update: function has invalid number of arguments (expected 1)")
+return env.NewError("mobile-set-game: arg 1: context to ebiten.Game: context fn update: function has invalid number of arguments (expected 0)")
 					}
-					impl.fn_Update = func(arg0 env.RyeCtx) (error) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
+					impl.fn_Update = func(ctx env.RyeCtx) (error) {
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx)
 						var res error
 						switch v := ps.Res.(type) {
-							case env.String:
-								res = errors.New(v.Value)
-							case env.Error:
-								res = errors.New(v.Print(*ps.Idx))
-							case env.Integer:
-								if v.Value != 0 {
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"mobile-set-game: arg 1: callback result: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								res = nil
-							default:
+						case env.String:
+							res = errors.New(v.Value)
+						case env.Error:
+							res = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"mobile-set-game: arg 1: callback result: expected error, string or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"mobile-set-game: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
+							}
+							res = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mobile-set-game: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 							}
 							return res
 						}
@@ -15888,21 +14451,23 @@ return env.NewError("mobile-set-game: arg 1: context to ebiten.Game: context fn 
 						ps.FailureFlag = true
 return env.NewError("mobile-set-game: arg 1: context to ebiten.Game: context fn update: expected function or nil")
 					}
-					if ctxObj1, ok := wordToObj["draw"]; !ok {
+					ctxObj1, ok := wordToObj["draw"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("mobile-set-game: arg 1: context to ebiten.Game: expected context to have function draw")
 					}
 					switch fn := ctxObj1.(type) {
 					case env.Function:
-						if fn.Argsn != 2 {
+						if fn.Argsn != 1 {
 							ps.FailureFlag = true
-return env.NewError("mobile-set-game: arg 1: context to ebiten.Game: context fn draw: function has invalid number of arguments (expected 2)")
+return env.NewError("mobile-set-game: arg 1: context to ebiten.Game: context fn draw: function has invalid number of arguments (expected 1)")
 						}
-						impl.fn_Draw = func(arg0 env.RyeCtx, arg1 *ebiten.Image) {
-							var arg0Val, arg1Val env.Object
-							arg0Val = arg0
-							arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-							evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
+						impl.fn_Draw = func(ctx env.RyeCtx, arg0 *ebiten.Image) {
+							var arg0Val env.Object
+							arg0Val = *env.NewNative(ps.Idx, arg0, "ptr-ebiten-image")
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -15914,34 +14479,64 @@ return env.NewError("mobile-set-game: arg 1: context to ebiten.Game: context fn 
 						ps.FailureFlag = true
 return env.NewError("mobile-set-game: arg 1: context to ebiten.Game: context fn draw: expected function or nil")
 					}
-					if ctxObj2, ok := wordToObj["layout"]; !ok {
+					ctxObj2, ok := wordToObj["layout"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("mobile-set-game: arg 1: context to ebiten.Game: expected context to have function layout")
 					}
 					switch fn := ctxObj2.(type) {
 					case env.Function:
-						if fn.Argsn != 3 {
+						if fn.Argsn != 2 {
 							ps.FailureFlag = true
-return env.NewError("mobile-set-game: arg 1: context to ebiten.Game: context fn layout: function has invalid number of arguments (expected 3)")
+return env.NewError("mobile-set-game: arg 1: context to ebiten.Game: context fn layout: function has invalid number of arguments (expected 2)")
 						}
-						impl.fn_Layout = func(arg0 env.RyeCtx, arg1 int, arg2 int) (int, int) {
-							var arg0Val, arg1Val, arg2Val env.Object
-							arg0Val = arg0
+						impl.fn_Layout = func(ctx env.RyeCtx, arg0 int, arg1 int) (int, int) {
+							var arg0Val, arg1Val env.Object
+							arg0Val = *env.NewInteger(int64(arg0))
 							arg1Val = *env.NewInteger(int64(arg1))
-							arg2Val = *env.NewInteger(int64(arg2))
-							evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-							var res int
-							if v, ok := ps.Res.(env.Integer); ok {
-								res = int(v.Value)
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val)
+							var res0 int
+							var res1 int
+							res, ok := ps.Res.(env.Block)
+							if !ok {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mobile-set-game: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if len(res.Series.S) != 2 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mobile-set-game: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if v, ok := res.Series.S[0].(env.Integer); ok {
+								res0 = int(v.Value)
 							} else {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"mobile-set-game: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"mobile-set-game: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 							}
-							return res
+							if v, ok := res.Series.S[1].(env.Integer); ok {
+								res1 = int(v.Value)
+							} else {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mobile-set-game: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -15996,46 +14591,47 @@ return env.NewError("mobile-set-game: arg 1: expected native")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_ebiten_Game{
+				impl := &ryegen_ebiten_Game{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["update"]; !ok {
+				ctxObj0, ok := wordToObj["update"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("mobile-set-game-with-options: arg 1: context to ebiten.Game: expected context to have function update")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 1 {
+					if fn.Argsn != 0 {
 						ps.FailureFlag = true
-return env.NewError("mobile-set-game-with-options: arg 1: context to ebiten.Game: context fn update: function has invalid number of arguments (expected 1)")
+return env.NewError("mobile-set-game-with-options: arg 1: context to ebiten.Game: context fn update: function has invalid number of arguments (expected 0)")
 					}
-					impl.fn_Update = func(arg0 env.RyeCtx) (error) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
+					impl.fn_Update = func(ctx env.RyeCtx) (error) {
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx)
 						var res error
 						switch v := ps.Res.(type) {
-							case env.String:
-								res = errors.New(v.Value)
-							case env.Error:
-								res = errors.New(v.Print(*ps.Idx))
-							case env.Integer:
-								if v.Value != 0 {
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"mobile-set-game-with-options: arg 1: callback result: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								res = nil
-							default:
+						case env.String:
+							res = errors.New(v.Value)
+						case env.Error:
+							res = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"mobile-set-game-with-options: arg 1: callback result: expected error, string or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"mobile-set-game-with-options: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
+							}
+							res = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mobile-set-game-with-options: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 							}
 							return res
 						}
@@ -16049,21 +14645,23 @@ return env.NewError("mobile-set-game-with-options: arg 1: context to ebiten.Game
 						ps.FailureFlag = true
 return env.NewError("mobile-set-game-with-options: arg 1: context to ebiten.Game: context fn update: expected function or nil")
 					}
-					if ctxObj1, ok := wordToObj["draw"]; !ok {
+					ctxObj1, ok := wordToObj["draw"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("mobile-set-game-with-options: arg 1: context to ebiten.Game: expected context to have function draw")
 					}
 					switch fn := ctxObj1.(type) {
 					case env.Function:
-						if fn.Argsn != 2 {
+						if fn.Argsn != 1 {
 							ps.FailureFlag = true
-return env.NewError("mobile-set-game-with-options: arg 1: context to ebiten.Game: context fn draw: function has invalid number of arguments (expected 2)")
+return env.NewError("mobile-set-game-with-options: arg 1: context to ebiten.Game: context fn draw: function has invalid number of arguments (expected 1)")
 						}
-						impl.fn_Draw = func(arg0 env.RyeCtx, arg1 *ebiten.Image) {
-							var arg0Val, arg1Val env.Object
-							arg0Val = arg0
-							arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-							evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
+						impl.fn_Draw = func(ctx env.RyeCtx, arg0 *ebiten.Image) {
+							var arg0Val env.Object
+							arg0Val = *env.NewNative(ps.Idx, arg0, "ptr-ebiten-image")
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -16075,34 +14673,64 @@ return env.NewError("mobile-set-game-with-options: arg 1: context to ebiten.Game
 						ps.FailureFlag = true
 return env.NewError("mobile-set-game-with-options: arg 1: context to ebiten.Game: context fn draw: expected function or nil")
 					}
-					if ctxObj2, ok := wordToObj["layout"]; !ok {
+					ctxObj2, ok := wordToObj["layout"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("mobile-set-game-with-options: arg 1: context to ebiten.Game: expected context to have function layout")
 					}
 					switch fn := ctxObj2.(type) {
 					case env.Function:
-						if fn.Argsn != 3 {
+						if fn.Argsn != 2 {
 							ps.FailureFlag = true
-return env.NewError("mobile-set-game-with-options: arg 1: context to ebiten.Game: context fn layout: function has invalid number of arguments (expected 3)")
+return env.NewError("mobile-set-game-with-options: arg 1: context to ebiten.Game: context fn layout: function has invalid number of arguments (expected 2)")
 						}
-						impl.fn_Layout = func(arg0 env.RyeCtx, arg1 int, arg2 int) (int, int) {
-							var arg0Val, arg1Val, arg2Val env.Object
-							arg0Val = arg0
+						impl.fn_Layout = func(ctx env.RyeCtx, arg0 int, arg1 int) (int, int) {
+							var arg0Val, arg1Val env.Object
+							arg0Val = *env.NewInteger(int64(arg0))
 							arg1Val = *env.NewInteger(int64(arg1))
-							arg2Val = *env.NewInteger(int64(arg2))
-							evaldo.CallFunctionArgs3(fn, ps, arg0Val, arg1Val, arg2Val, ps.Ctx)
-							var res int
-							if v, ok := ps.Res.(env.Integer); ok {
-								res = int(v.Value)
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val)
+							var res0 int
+							var res1 int
+							res, ok := ps.Res.(env.Block)
+							if !ok {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mobile-set-game-with-options: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if len(res.Series.S) != 2 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mobile-set-game-with-options: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							if v, ok := res.Series.S[0].(env.Integer); ok {
+								res0 = int(v.Value)
 							} else {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"mobile-set-game-with-options: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"mobile-set-game-with-options: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 							}
-							return res
+							if v, ok := res.Series.S[1].(env.Integer); ok {
+								res1 = int(v.Value)
+							} else {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mobile-set-game-with-options: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -16195,80 +14823,123 @@ return env.NewError("mp-3-decode: arg 1: expected native")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_io_Reader{
+				impl := &ryegen_io_Reader{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["read"]; !ok {
+				ctxObj0, ok := wordToObj["read"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("mp-3-decode: arg 2: context to io.Reader: expected context to have function read")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("mp-3-decode: arg 2: context to io.Reader: context fn read: function has invalid number of arguments (expected 2)")
+return env.NewError("mp-3-decode: arg 2: context to io.Reader: context fn read: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Read = func(arg0 env.RyeCtx, arg1 []byte) (int, error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
+					impl.fn_Read = func(ctx env.RyeCtx, arg0 []byte) (int, error) {
+						var arg0Val env.Object
 						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
+							items := make([]env.Object, len(arg0))
+							for i, it := range arg0 {
 								items[i] = *env.NewNative(ps.Idx, it, "byte")
 							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
+							arg0Val = *env.NewBlock(*env.NewTSeries(items))
 						}
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-						var res int
-						if v, ok := ps.Res.(env.Integer); ok {
-							res = int(v.Value)
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
+						var res0 int
+						var res1 error
+						res, ok := ps.Res.(env.Block)
+						if !ok {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mp-3-decode: arg 2: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if len(res.Series.S) != 2 {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mp-3-decode: arg 2: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if v, ok := res.Series.S[0].(env.Integer); ok {
+							res0 = int(v.Value)
 						} else {
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"mp-3-decode: arg 2: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"mp-3-decode: arg 2: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 						}
-						return res
+						switch v := res.Series.S[1].(type) {
+						case env.String:
+							res1 = errors.New(v.Value)
+						case env.Error:
+							res1 = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mp-3-decode: arg 2: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							res1 = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mp-3-decode: arg 2: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
+						}
+					case env.Integer:
+						if fn.Value != 0 {
+							ps.FailureFlag = true
+return env.NewError("mp-3-decode: arg 2: context to io.Reader: context fn read: expected integer to be 0 or nil")
+						}
+						impl.fn_Read = nil
+					default:
+						ps.FailureFlag = true
+return env.NewError("mp-3-decode: arg 2: context to io.Reader: context fn read: expected function or nil")
+					}
+					arg1Val = impl
+				case env.Native:
+					var ok bool
+					arg1Val, ok = v.Value.(io.Reader)
+					if !ok {
+						ps.FailureFlag = true
+return env.NewError("mp-3-decode: arg 2: expected native of type io.Reader")
 					}
 				case env.Integer:
-					if fn.Value != 0 {
+					if v.Value != 0 {
 						ps.FailureFlag = true
-return env.NewError("mp-3-decode: arg 2: context to io.Reader: context fn read: expected integer to be 0 or nil")
+return env.NewError("mp-3-decode: arg 2: expected integer to be 0 or nil")
 					}
-					impl.fn_Read = nil
+					arg1Val = nil
 				default:
 					ps.FailureFlag = true
-return env.NewError("mp-3-decode: arg 2: context to io.Reader: context fn read: expected function or nil")
-				}
-				arg1Val = impl
-			case env.Native:
-				var ok bool
-				arg1Val, ok = v.Value.(io.Reader)
-				if !ok {
-					ps.FailureFlag = true
-return env.NewError("mp-3-decode: arg 2: expected native of type io.Reader")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-return env.NewError("mp-3-decode: arg 2: expected integer to be 0 or nil")
-				}
-				arg1Val = nil
-			default:
-				ps.FailureFlag = true
 return env.NewError("mp-3-decode: arg 2: expected native")
-			}
-			res0, res1 := mp3.Decode(arg0Val, arg1Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-mp-3-stream")
-			var res1Obj env.Object
-			res1Obj = *env.NewError(res1.Error())
-			return env.NewDict(map[string]any{
-				"1": res0Obj,
-				"err": res1Obj,
-			})
+				}
+				res0, res1 := mp3.Decode(arg0Val, arg1Val)
+				var res0Obj env.Object
+				res0Obj = *env.NewNative(ps.Idx, res0, "ptr-mp-3-stream")
+				var res1Obj env.Object
+				res1Obj = *env.NewError(res1.Error())
+				return env.NewDict(map[string]any{
+					"1": res0Obj,
+					"err": res1Obj,
+				})
 		},
 	},
 	"mp-3-decode-with-sample-rate": {
@@ -16299,80 +14970,123 @@ return env.NewError("mp-3-decode-with-sample-rate: arg 1: expected integer")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_io_Reader{
+				impl := &ryegen_io_Reader{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["read"]; !ok {
+				ctxObj0, ok := wordToObj["read"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("mp-3-decode-with-sample-rate: arg 2: context to io.Reader: expected context to have function read")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("mp-3-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: function has invalid number of arguments (expected 2)")
+return env.NewError("mp-3-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Read = func(arg0 env.RyeCtx, arg1 []byte) (int, error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
+					impl.fn_Read = func(ctx env.RyeCtx, arg0 []byte) (int, error) {
+						var arg0Val env.Object
 						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
+							items := make([]env.Object, len(arg0))
+							for i, it := range arg0 {
 								items[i] = *env.NewNative(ps.Idx, it, "byte")
 							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
+							arg0Val = *env.NewBlock(*env.NewTSeries(items))
 						}
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-						var res int
-						if v, ok := ps.Res.(env.Integer); ok {
-							res = int(v.Value)
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
+						var res0 int
+						var res1 error
+						res, ok := ps.Res.(env.Block)
+						if !ok {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mp-3-decode-with-sample-rate: arg 2: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if len(res.Series.S) != 2 {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mp-3-decode-with-sample-rate: arg 2: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if v, ok := res.Series.S[0].(env.Integer); ok {
+							res0 = int(v.Value)
 						} else {
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"mp-3-decode-with-sample-rate: arg 2: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"mp-3-decode-with-sample-rate: arg 2: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 						}
-						return res
+						switch v := res.Series.S[1].(type) {
+						case env.String:
+							res1 = errors.New(v.Value)
+						case env.Error:
+							res1 = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mp-3-decode-with-sample-rate: arg 2: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							res1 = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mp-3-decode-with-sample-rate: arg 2: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
+						}
+					case env.Integer:
+						if fn.Value != 0 {
+							ps.FailureFlag = true
+return env.NewError("mp-3-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: expected integer to be 0 or nil")
+						}
+						impl.fn_Read = nil
+					default:
+						ps.FailureFlag = true
+return env.NewError("mp-3-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: expected function or nil")
+					}
+					arg1Val = impl
+				case env.Native:
+					var ok bool
+					arg1Val, ok = v.Value.(io.Reader)
+					if !ok {
+						ps.FailureFlag = true
+return env.NewError("mp-3-decode-with-sample-rate: arg 2: expected native of type io.Reader")
 					}
 				case env.Integer:
-					if fn.Value != 0 {
+					if v.Value != 0 {
 						ps.FailureFlag = true
-return env.NewError("mp-3-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: expected integer to be 0 or nil")
+return env.NewError("mp-3-decode-with-sample-rate: arg 2: expected integer to be 0 or nil")
 					}
-					impl.fn_Read = nil
+					arg1Val = nil
 				default:
 					ps.FailureFlag = true
-return env.NewError("mp-3-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: expected function or nil")
-				}
-				arg1Val = impl
-			case env.Native:
-				var ok bool
-				arg1Val, ok = v.Value.(io.Reader)
-				if !ok {
-					ps.FailureFlag = true
-return env.NewError("mp-3-decode-with-sample-rate: arg 2: expected native of type io.Reader")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-return env.NewError("mp-3-decode-with-sample-rate: arg 2: expected integer to be 0 or nil")
-				}
-				arg1Val = nil
-			default:
-				ps.FailureFlag = true
 return env.NewError("mp-3-decode-with-sample-rate: arg 2: expected native")
-			}
-			res0, res1 := mp3.DecodeWithSampleRate(arg0Val, arg1Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-mp-3-stream")
-			var res1Obj env.Object
-			res1Obj = *env.NewError(res1.Error())
-			return env.NewDict(map[string]any{
-				"1": res0Obj,
-				"err": res1Obj,
-			})
+				}
+				res0, res1 := mp3.DecodeWithSampleRate(arg0Val, arg1Val)
+				var res0Obj env.Object
+				res0Obj = *env.NewNative(ps.Idx, res0, "ptr-mp-3-stream")
+				var res1Obj env.Object
+				res1Obj = *env.NewError(res1.Error())
+				return env.NewDict(map[string]any{
+					"1": res0Obj,
+					"err": res1Obj,
+				})
 		},
 	},
 	"mp-3-decode-without-resampling": {
@@ -16396,80 +15110,123 @@ return env.NewError("mp-3-decode-with-sample-rate: arg 2: expected native")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_io_Reader{
+				impl := &ryegen_io_Reader{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["read"]; !ok {
+				ctxObj0, ok := wordToObj["read"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("mp-3-decode-without-resampling: arg 1: context to io.Reader: expected context to have function read")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("mp-3-decode-without-resampling: arg 1: context to io.Reader: context fn read: function has invalid number of arguments (expected 2)")
+return env.NewError("mp-3-decode-without-resampling: arg 1: context to io.Reader: context fn read: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Read = func(arg0 env.RyeCtx, arg1 []byte) (int, error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
+					impl.fn_Read = func(ctx env.RyeCtx, arg0 []byte) (int, error) {
+						var arg0Val env.Object
 						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
+							items := make([]env.Object, len(arg0))
+							for i, it := range arg0 {
 								items[i] = *env.NewNative(ps.Idx, it, "byte")
 							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
+							arg0Val = *env.NewBlock(*env.NewTSeries(items))
 						}
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-						var res int
-						if v, ok := ps.Res.(env.Integer); ok {
-							res = int(v.Value)
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
+						var res0 int
+						var res1 error
+						res, ok := ps.Res.(env.Block)
+						if !ok {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mp-3-decode-without-resampling: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if len(res.Series.S) != 2 {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mp-3-decode-without-resampling: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if v, ok := res.Series.S[0].(env.Integer); ok {
+							res0 = int(v.Value)
 						} else {
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"mp-3-decode-without-resampling: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"mp-3-decode-without-resampling: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 						}
-						return res
+						switch v := res.Series.S[1].(type) {
+						case env.String:
+							res1 = errors.New(v.Value)
+						case env.Error:
+							res1 = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mp-3-decode-without-resampling: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							res1 = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"mp-3-decode-without-resampling: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
+						}
+					case env.Integer:
+						if fn.Value != 0 {
+							ps.FailureFlag = true
+return env.NewError("mp-3-decode-without-resampling: arg 1: context to io.Reader: context fn read: expected integer to be 0 or nil")
+						}
+						impl.fn_Read = nil
+					default:
+						ps.FailureFlag = true
+return env.NewError("mp-3-decode-without-resampling: arg 1: context to io.Reader: context fn read: expected function or nil")
+					}
+					arg0Val = impl
+				case env.Native:
+					var ok bool
+					arg0Val, ok = v.Value.(io.Reader)
+					if !ok {
+						ps.FailureFlag = true
+return env.NewError("mp-3-decode-without-resampling: arg 1: expected native of type io.Reader")
 					}
 				case env.Integer:
-					if fn.Value != 0 {
+					if v.Value != 0 {
 						ps.FailureFlag = true
-return env.NewError("mp-3-decode-without-resampling: arg 1: context to io.Reader: context fn read: expected integer to be 0 or nil")
+return env.NewError("mp-3-decode-without-resampling: arg 1: expected integer to be 0 or nil")
 					}
-					impl.fn_Read = nil
+					arg0Val = nil
 				default:
 					ps.FailureFlag = true
-return env.NewError("mp-3-decode-without-resampling: arg 1: context to io.Reader: context fn read: expected function or nil")
-				}
-				arg0Val = impl
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(io.Reader)
-				if !ok {
-					ps.FailureFlag = true
-return env.NewError("mp-3-decode-without-resampling: arg 1: expected native of type io.Reader")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-return env.NewError("mp-3-decode-without-resampling: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
 return env.NewError("mp-3-decode-without-resampling: arg 1: expected native")
-			}
-			res0, res1 := mp3.DecodeWithoutResampling(arg0Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-mp-3-stream")
-			var res1Obj env.Object
-			res1Obj = *env.NewError(res1.Error())
-			return env.NewDict(map[string]any{
-				"1": res0Obj,
-				"err": res1Obj,
-			})
+				}
+				res0, res1 := mp3.DecodeWithoutResampling(arg0Val)
+				var res0Obj env.Object
+				res0Obj = *env.NewNative(ps.Idx, res0, "ptr-mp-3-stream")
+				var res1Obj env.Object
+				res1Obj = *env.NewError(res1.Error())
+				return env.NewDict(map[string]any{
+					"1": res0Obj,
+					"err": res1Obj,
+				})
 		},
 	},
 	"platformer-background-png": {
@@ -17587,47 +16344,49 @@ return env.NewError("ptr-blocks-scene-manager//go-to: arg 1: expected native")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_blocks_Scene{
+				impl := &ryegen_blocks_Scene{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["update"]; !ok {
+				ctxObj0, ok := wordToObj["update"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("ptr-blocks-scene-manager//go-to: arg 2: context to blocks.Scene: expected context to have function update")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("ptr-blocks-scene-manager//go-to: arg 2: context to blocks.Scene: context fn update: function has invalid number of arguments (expected 2)")
+return env.NewError("ptr-blocks-scene-manager//go-to: arg 2: context to blocks.Scene: context fn update: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Update = func(arg0 env.RyeCtx, arg1 *blocks.GameState) (error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
-						arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-blocks-game-state")
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
+					impl.fn_Update = func(ctx env.RyeCtx, arg0 *blocks.GameState) (error) {
+						var arg0Val env.Object
+						arg0Val = *env.NewNative(ps.Idx, arg0, "ptr-blocks-game-state")
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 						var res error
 						switch v := ps.Res.(type) {
-							case env.String:
-								res = errors.New(v.Value)
-							case env.Error:
-								res = errors.New(v.Print(*ps.Idx))
-							case env.Integer:
-								if v.Value != 0 {
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ptr-blocks-scene-manager//go-to: arg 2: callback result: expected integer to be 0 or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								res = nil
-							default:
+						case env.String:
+							res = errors.New(v.Value)
+						case env.Error:
+							res = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
 								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"ptr-blocks-scene-manager//go-to: arg 2: callback result: expected error, string or nil",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"ptr-blocks-scene-manager//go-to: arg 2: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
+							}
+							res = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"ptr-blocks-scene-manager//go-to: arg 2: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res
 							}
 							return res
 						}
@@ -17641,21 +16400,23 @@ return env.NewError("ptr-blocks-scene-manager//go-to: arg 2: context to blocks.S
 						ps.FailureFlag = true
 return env.NewError("ptr-blocks-scene-manager//go-to: arg 2: context to blocks.Scene: context fn update: expected function or nil")
 					}
-					if ctxObj1, ok := wordToObj["draw"]; !ok {
+					ctxObj1, ok := wordToObj["draw"]
+					if !ok {
 						ps.FailureFlag = true
 return env.NewError("ptr-blocks-scene-manager//go-to: arg 2: context to blocks.Scene: expected context to have function draw")
 					}
 					switch fn := ctxObj1.(type) {
 					case env.Function:
-						if fn.Argsn != 2 {
+						if fn.Argsn != 1 {
 							ps.FailureFlag = true
-return env.NewError("ptr-blocks-scene-manager//go-to: arg 2: context to blocks.Scene: context fn draw: function has invalid number of arguments (expected 2)")
+return env.NewError("ptr-blocks-scene-manager//go-to: arg 2: context to blocks.Scene: context fn draw: function has invalid number of arguments (expected 1)")
 						}
-						impl.fn_Draw = func(arg0 env.RyeCtx, arg1 *ebiten.Image) {
-							var arg0Val, arg1Val env.Object
-							arg0Val = arg0
-							arg1Val = *env.NewNative(ps.Idx, arg1, "ptr-ebiten-image")
-							evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
+						impl.fn_Draw = func(ctx env.RyeCtx, arg0 *ebiten.Image) {
+							var arg0Val env.Object
+							arg0Val = *env.NewNative(ps.Idx, arg0, "ptr-ebiten-image")
+							actualFn := fn
+							_ = actualFn
+							evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 						}
 					case env.Integer:
 						if fn.Value != 0 {
@@ -25703,18 +24464,18 @@ return env.NewError("ptr-textinput-state//error!: arg 1: expected integer to be 
 return env.NewError("ptr-textinput-state//error!: arg 1: expected native")
 			}
 			switch v := arg1.(type) {
-				case env.String:
-					self.Error = errors.New(v.Value)
-				case env.Error:
-					self.Error = errors.New(v.Print(*ps.Idx))
-				case env.Integer:
-					if v.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("ptr-textinput-state//error!: arg 2: expected integer to be 0 or nil")
-					}
-					self.Error = nil
-				default:
+			case env.String:
+				self.Error = errors.New(v.Value)
+			case env.Error:
+				self.Error = errors.New(v.Print(*ps.Idx))
+			case env.Integer:
+				if v.Value != 0 {
 					ps.FailureFlag = true
+return env.NewError("ptr-textinput-state//error!: arg 2: expected integer to be 0 or nil")
+				}
+				self.Error = nil
+			default:
+				ps.FailureFlag = true
 return env.NewError("ptr-textinput-state//error!: arg 2: expected error, string or nil")
 				}
 				return arg0
@@ -27183,72 +25944,6 @@ return env.NewError("text-1-advance: arg 1: expected string")
 			}
 			var arg1Val text_1.Face
 			switch v := arg1.(type) {
-			case env.RyeCtx:
-				words := v.GetWords(*ps.Idx).Series.S
-				wordToObj := make(map[string]env.Object, len(words))
-				for _, word := range words {
-					name := word.(env.String).Value
-					idx, ok := ps.Idx.GetIndex(name)
-					if !ok {
-						panic("expected valid word")
-					}
-					obj, ok := v.Get(idx)
-					if !ok {
-						panic("expected valid index")
-					}
-					wordToObj[name] = obj
-				}
-				impl := ryegen_text_1_Face{
-					self: v,
-				}
-				if ctxObj0, ok := wordToObj["metrics"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("text-1-advance: arg 2: context to text_1.Face: expected context to have function metrics")
-				}
-				switch fn := ctxObj0.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("text-1-advance: arg 2: context to text_1.Face: context fn metrics: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Metrics = func(arg0 env.RyeCtx) (text_1.Metrics) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-						var res text_1.Metrics
-						switch v := ps.Res.(type) {
-						case env.Native:
-							var ok bool
-							res, ok = v.Value.(text_1.Metrics)
-							if !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-advance: arg 2: callback result: expected native of type text_1.Metrics",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-						default:
-							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-advance: arg 2: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("text-1-advance: arg 2: context to text_1.Face: context fn metrics: expected integer to be 0 or nil")
-					}
-					impl.fn_Metrics = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("text-1-advance: arg 2: context to text_1.Face: context fn metrics: expected function or nil")
-				}
-				arg1Val = impl
 			case env.Native:
 				var ok bool
 				arg1Val, ok = v.Value.(text_1.Face)
@@ -27347,72 +26042,6 @@ return env.NewError("text-1-append-glyphs: arg 2: expected string")
 			}
 			var arg2Val text_1.Face
 			switch v := arg2.(type) {
-			case env.RyeCtx:
-				words := v.GetWords(*ps.Idx).Series.S
-				wordToObj := make(map[string]env.Object, len(words))
-				for _, word := range words {
-					name := word.(env.String).Value
-					idx, ok := ps.Idx.GetIndex(name)
-					if !ok {
-						panic("expected valid word")
-					}
-					obj, ok := v.Get(idx)
-					if !ok {
-						panic("expected valid index")
-					}
-					wordToObj[name] = obj
-				}
-				impl := ryegen_text_1_Face{
-					self: v,
-				}
-				if ctxObj0, ok := wordToObj["metrics"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("text-1-append-glyphs: arg 3: context to text_1.Face: expected context to have function metrics")
-				}
-				switch fn := ctxObj0.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("text-1-append-glyphs: arg 3: context to text_1.Face: context fn metrics: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Metrics = func(arg0 env.RyeCtx) (text_1.Metrics) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-						var res text_1.Metrics
-						switch v := ps.Res.(type) {
-						case env.Native:
-							var ok bool
-							res, ok = v.Value.(text_1.Metrics)
-							if !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-append-glyphs: arg 3: callback result: expected native of type text_1.Metrics",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-						default:
-							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-append-glyphs: arg 3: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("text-1-append-glyphs: arg 3: context to text_1.Face: context fn metrics: expected integer to be 0 or nil")
-					}
-					impl.fn_Metrics = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("text-1-append-glyphs: arg 3: context to text_1.Face: context fn metrics: expected function or nil")
-				}
-				arg2Val = impl
 			case env.Native:
 				var ok bool
 				arg2Val, ok = v.Value.(text_1.Face)
@@ -27493,72 +26122,6 @@ return env.NewError("text-1-append-vector-path: arg 2: expected string")
 			}
 			var arg2Val text_1.Face
 			switch v := arg2.(type) {
-			case env.RyeCtx:
-				words := v.GetWords(*ps.Idx).Series.S
-				wordToObj := make(map[string]env.Object, len(words))
-				for _, word := range words {
-					name := word.(env.String).Value
-					idx, ok := ps.Idx.GetIndex(name)
-					if !ok {
-						panic("expected valid word")
-					}
-					obj, ok := v.Get(idx)
-					if !ok {
-						panic("expected valid index")
-					}
-					wordToObj[name] = obj
-				}
-				impl := ryegen_text_1_Face{
-					self: v,
-				}
-				if ctxObj0, ok := wordToObj["metrics"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("text-1-append-vector-path: arg 3: context to text_1.Face: expected context to have function metrics")
-				}
-				switch fn := ctxObj0.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("text-1-append-vector-path: arg 3: context to text_1.Face: context fn metrics: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Metrics = func(arg0 env.RyeCtx) (text_1.Metrics) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-						var res text_1.Metrics
-						switch v := ps.Res.(type) {
-						case env.Native:
-							var ok bool
-							res, ok = v.Value.(text_1.Metrics)
-							if !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-append-vector-path: arg 3: callback result: expected native of type text_1.Metrics",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-						default:
-							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-append-vector-path: arg 3: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("text-1-append-vector-path: arg 3: context to text_1.Face: context fn metrics: expected integer to be 0 or nil")
-					}
-					impl.fn_Metrics = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("text-1-append-vector-path: arg 3: context to text_1.Face: context fn metrics: expected function or nil")
-				}
-				arg2Val = impl
 			case env.Native:
 				var ok bool
 				arg2Val, ok = v.Value.(text_1.Face)
@@ -27612,72 +26175,6 @@ return env.NewError("text-1-cache-glyphs: arg 1: expected string")
 			}
 			var arg1Val text_1.Face
 			switch v := arg1.(type) {
-			case env.RyeCtx:
-				words := v.GetWords(*ps.Idx).Series.S
-				wordToObj := make(map[string]env.Object, len(words))
-				for _, word := range words {
-					name := word.(env.String).Value
-					idx, ok := ps.Idx.GetIndex(name)
-					if !ok {
-						panic("expected valid word")
-					}
-					obj, ok := v.Get(idx)
-					if !ok {
-						panic("expected valid index")
-					}
-					wordToObj[name] = obj
-				}
-				impl := ryegen_text_1_Face{
-					self: v,
-				}
-				if ctxObj0, ok := wordToObj["metrics"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("text-1-cache-glyphs: arg 2: context to text_1.Face: expected context to have function metrics")
-				}
-				switch fn := ctxObj0.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("text-1-cache-glyphs: arg 2: context to text_1.Face: context fn metrics: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Metrics = func(arg0 env.RyeCtx) (text_1.Metrics) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-						var res text_1.Metrics
-						switch v := ps.Res.(type) {
-						case env.Native:
-							var ok bool
-							res, ok = v.Value.(text_1.Metrics)
-							if !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-cache-glyphs: arg 2: callback result: expected native of type text_1.Metrics",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-						default:
-							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-cache-glyphs: arg 2: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("text-1-cache-glyphs: arg 2: context to text_1.Face: context fn metrics: expected integer to be 0 or nil")
-					}
-					impl.fn_Metrics = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("text-1-cache-glyphs: arg 2: context to text_1.Face: context fn metrics: expected function or nil")
-				}
-				arg1Val = impl
 			case env.Native:
 				var ok bool
 				arg1Val, ok = v.Value.(text_1.Face)
@@ -27767,72 +26264,6 @@ return env.NewError("text-1-draw: arg 2: expected string")
 			}
 			var arg2Val text_1.Face
 			switch v := arg2.(type) {
-			case env.RyeCtx:
-				words := v.GetWords(*ps.Idx).Series.S
-				wordToObj := make(map[string]env.Object, len(words))
-				for _, word := range words {
-					name := word.(env.String).Value
-					idx, ok := ps.Idx.GetIndex(name)
-					if !ok {
-						panic("expected valid word")
-					}
-					obj, ok := v.Get(idx)
-					if !ok {
-						panic("expected valid index")
-					}
-					wordToObj[name] = obj
-				}
-				impl := ryegen_text_1_Face{
-					self: v,
-				}
-				if ctxObj0, ok := wordToObj["metrics"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("text-1-draw: arg 3: context to text_1.Face: expected context to have function metrics")
-				}
-				switch fn := ctxObj0.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("text-1-draw: arg 3: context to text_1.Face: context fn metrics: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Metrics = func(arg0 env.RyeCtx) (text_1.Metrics) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-						var res text_1.Metrics
-						switch v := ps.Res.(type) {
-						case env.Native:
-							var ok bool
-							res, ok = v.Value.(text_1.Metrics)
-							if !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-draw: arg 3: callback result: expected native of type text_1.Metrics",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-						default:
-							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-draw: arg 3: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("text-1-draw: arg 3: context to text_1.Face: context fn metrics: expected integer to be 0 or nil")
-					}
-					impl.fn_Metrics = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("text-1-draw: arg 3: context to text_1.Face: context fn metrics: expected function or nil")
-				}
-				arg2Val = impl
 			case env.Native:
 				var ok bool
 				arg2Val, ok = v.Value.(text_1.Face)
@@ -28391,72 +26822,6 @@ return env.NewError("text-1-draw-options//secondary-align?: arg 1: expected nati
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var arg0Val text_1.Face
 			switch v := arg0.(type) {
-			case env.RyeCtx:
-				words := v.GetWords(*ps.Idx).Series.S
-				wordToObj := make(map[string]env.Object, len(words))
-				for _, word := range words {
-					name := word.(env.String).Value
-					idx, ok := ps.Idx.GetIndex(name)
-					if !ok {
-						panic("expected valid word")
-					}
-					obj, ok := v.Get(idx)
-					if !ok {
-						panic("expected valid index")
-					}
-					wordToObj[name] = obj
-				}
-				impl := ryegen_text_1_Face{
-					self: v,
-				}
-				if ctxObj0, ok := wordToObj["metrics"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("text-1-face//metrics: arg 1: context to text_1.Face: expected context to have function metrics")
-				}
-				switch fn := ctxObj0.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("text-1-face//metrics: arg 1: context to text_1.Face: context fn metrics: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Metrics = func(arg0 env.RyeCtx) (text_1.Metrics) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-						var res text_1.Metrics
-						switch v := ps.Res.(type) {
-						case env.Native:
-							var ok bool
-							res, ok = v.Value.(text_1.Metrics)
-							if !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-face//metrics: arg 1: callback result: expected native of type text_1.Metrics",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-						default:
-							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-face//metrics: arg 1: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("text-1-face//metrics: arg 1: context to text_1.Face: context fn metrics: expected integer to be 0 or nil")
-					}
-					impl.fn_Metrics = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("text-1-face//metrics: arg 1: context to text_1.Face: context fn metrics: expected function or nil")
-				}
-				arg0Val = impl
 			case env.Native:
 				var ok bool
 				arg0Val, ok = v.Value.(text_1.Face)
@@ -29243,72 +27608,6 @@ return env.NewError("text-1-measure: arg 1: expected string")
 			}
 			var arg1Val text_1.Face
 			switch v := arg1.(type) {
-			case env.RyeCtx:
-				words := v.GetWords(*ps.Idx).Series.S
-				wordToObj := make(map[string]env.Object, len(words))
-				for _, word := range words {
-					name := word.(env.String).Value
-					idx, ok := ps.Idx.GetIndex(name)
-					if !ok {
-						panic("expected valid word")
-					}
-					obj, ok := v.Get(idx)
-					if !ok {
-						panic("expected valid index")
-					}
-					wordToObj[name] = obj
-				}
-				impl := ryegen_text_1_Face{
-					self: v,
-				}
-				if ctxObj0, ok := wordToObj["metrics"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("text-1-measure: arg 2: context to text_1.Face: expected context to have function metrics")
-				}
-				switch fn := ctxObj0.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("text-1-measure: arg 2: context to text_1.Face: context fn metrics: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Metrics = func(arg0 env.RyeCtx) (text_1.Metrics) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-						var res text_1.Metrics
-						switch v := ps.Res.(type) {
-						case env.Native:
-							var ok bool
-							res, ok = v.Value.(text_1.Metrics)
-							if !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-measure: arg 2: callback result: expected native of type text_1.Metrics",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-						default:
-							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-measure: arg 2: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("text-1-measure: arg 2: context to text_1.Face: context fn metrics: expected integer to be 0 or nil")
-					}
-					impl.fn_Metrics = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("text-1-measure: arg 2: context to text_1.Face: context fn metrics: expected function or nil")
-				}
-				arg1Val = impl
 			case env.Native:
 				var ok bool
 				arg1Val, ok = v.Value.(text_1.Face)
@@ -29889,72 +28188,6 @@ return env.NewError("text-1-must-parse-tag: arg 1: expected string")
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var arg0Val text_1.Face
 			switch v := arg0.(type) {
-			case env.RyeCtx:
-				words := v.GetWords(*ps.Idx).Series.S
-				wordToObj := make(map[string]env.Object, len(words))
-				for _, word := range words {
-					name := word.(env.String).Value
-					idx, ok := ps.Idx.GetIndex(name)
-					if !ok {
-						panic("expected valid word")
-					}
-					obj, ok := v.Get(idx)
-					if !ok {
-						panic("expected valid index")
-					}
-					wordToObj[name] = obj
-				}
-				impl := ryegen_text_1_Face{
-					self: v,
-				}
-				if ctxObj0, ok := wordToObj["metrics"]; !ok {
-					ps.FailureFlag = true
-return env.NewError("text-1-limited-face: arg 1: context to text_1.Face: expected context to have function metrics")
-				}
-				switch fn := ctxObj0.(type) {
-				case env.Function:
-					if fn.Argsn != 1 {
-						ps.FailureFlag = true
-return env.NewError("text-1-limited-face: arg 1: context to text_1.Face: context fn metrics: function has invalid number of arguments (expected 1)")
-					}
-					impl.fn_Metrics = func(arg0 env.RyeCtx) (text_1.Metrics) {
-						var arg0Val env.Object
-						arg0Val = arg0
-						evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-						var res text_1.Metrics
-						switch v := ps.Res.(type) {
-						case env.Native:
-							var ok bool
-							res, ok = v.Value.(text_1.Metrics)
-							if !ok {
-								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-limited-face: arg 1: callback result: expected native of type text_1.Metrics",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-							}
-						default:
-							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-limited-face: arg 1: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-						}
-						return res
-					}
-				case env.Integer:
-					if fn.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("text-1-limited-face: arg 1: context to text_1.Face: context fn metrics: expected integer to be 0 or nil")
-					}
-					impl.fn_Metrics = nil
-				default:
-					ps.FailureFlag = true
-return env.NewError("text-1-limited-face: arg 1: context to text_1.Face: context fn metrics: expected function or nil")
-				}
-				arg0Val = impl
 			case env.Native:
 				var ok bool
 				arg0Val, ok = v.Value.(text_1.Face)
@@ -29988,72 +28221,6 @@ return env.NewError("text-1-limited-face: arg 1: expected native")
 				arg0Val = make([]text_1.Face, len(v.Series.S))
 				for i, it := range v.Series.S {
 					switch v := it.(type) {
-					case env.RyeCtx:
-						words := v.GetWords(*ps.Idx).Series.S
-						wordToObj := make(map[string]env.Object, len(words))
-						for _, word := range words {
-							name := word.(env.String).Value
-							idx, ok := ps.Idx.GetIndex(name)
-							if !ok {
-								panic("expected valid word")
-							}
-							obj, ok := v.Get(idx)
-							if !ok {
-								panic("expected valid index")
-							}
-							wordToObj[name] = obj
-						}
-						impl := ryegen_text_1_Face{
-							self: v,
-						}
-						if ctxObj0, ok := wordToObj["metrics"]; !ok {
-							ps.FailureFlag = true
-return env.NewError("text-1-multi-face: arg 1: block item: context to text_1.Face: expected context to have function metrics")
-						}
-						switch fn := ctxObj0.(type) {
-						case env.Function:
-							if fn.Argsn != 1 {
-								ps.FailureFlag = true
-return env.NewError("text-1-multi-face: arg 1: block item: context to text_1.Face: context fn metrics: function has invalid number of arguments (expected 1)")
-							}
-							impl.fn_Metrics = func(arg0 env.RyeCtx) (text_1.Metrics) {
-								var arg0Val env.Object
-								arg0Val = arg0
-								evaldo.CallFunction(fn, ps, arg0Val, false, ps.Ctx)
-								var res text_1.Metrics
-								switch v := ps.Res.(type) {
-								case env.Native:
-									var ok bool
-									res, ok = v.Value.(text_1.Metrics)
-									if !ok {
-										fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-multi-face: arg 1: callback result: expected native of type text_1.Metrics",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-									}
-								default:
-									fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"text-1-multi-face: arg 1: callback result: expected native",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
-								}
-								return res
-							}
-						case env.Integer:
-							if fn.Value != 0 {
-								ps.FailureFlag = true
-return env.NewError("text-1-multi-face: arg 1: block item: context to text_1.Face: context fn metrics: expected integer to be 0 or nil")
-							}
-							impl.fn_Metrics = nil
-						default:
-							ps.FailureFlag = true
-return env.NewError("text-1-multi-face: arg 1: block item: context to text_1.Face: context fn metrics: expected function or nil")
-						}
-						arg0Val[i] = impl
 					case env.Native:
 						var ok bool
 						arg0Val[i], ok = v.Value.(text_1.Face)
@@ -30333,7 +28500,7 @@ return env.NewError("text-1-tag//string: arg 1: expected integer")
 			return resObj
 		},
 	},
-	"append-glyphs": {
+	"text-append-glyphs": {
 		Doc: "text.AppendGlyphs",
 		Argsn: 3,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
@@ -30348,11 +28515,11 @@ return env.NewError("text-1-tag//string: arg 1: expected integer")
 						arg0Val[i], ok = v.Value.(text.Glyph)
 						if !ok {
 							ps.FailureFlag = true
-return env.NewError("append-glyphs: arg 1: block item: expected native of type text.Glyph")
+return env.NewError("text-append-glyphs: arg 1: block item: expected native of type text.Glyph")
 						}
 					default:
 						ps.FailureFlag = true
-return env.NewError("append-glyphs: arg 1: block item: expected native")
+return env.NewError("text-append-glyphs: arg 1: block item: expected native")
 					}
 				}
 			case env.Native:
@@ -30360,17 +28527,17 @@ return env.NewError("append-glyphs: arg 1: block item: expected native")
 				arg0Val, ok = v.Value.([]text.Glyph)
 				if !ok {
 					ps.FailureFlag = true
-return env.NewError("append-glyphs: arg 1: expected native of type []text.Glyph")
+return env.NewError("text-append-glyphs: arg 1: expected native of type []text.Glyph")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-return env.NewError("append-glyphs: arg 1: expected integer to be 0 or nil")
+return env.NewError("text-append-glyphs: arg 1: expected integer to be 0 or nil")
 				}
 				arg0Val = nil
 			default:
 				ps.FailureFlag = true
-return env.NewError("append-glyphs: arg 1: expected block, native or nil")
+return env.NewError("text-append-glyphs: arg 1: expected block, native or nil")
 			}
 			var arg1Val font.Face
 			switch v := arg1.(type) {
@@ -30379,18 +28546,18 @@ return env.NewError("append-glyphs: arg 1: expected block, native or nil")
 				arg1Val, ok = v.Value.(font.Face)
 				if !ok {
 					ps.FailureFlag = true
-return env.NewError("append-glyphs: arg 2: expected native of type font.Face")
+return env.NewError("text-append-glyphs: arg 2: expected native of type font.Face")
 				}
 			default:
 				ps.FailureFlag = true
-return env.NewError("append-glyphs: arg 2: expected native")
+return env.NewError("text-append-glyphs: arg 2: expected native")
 			}
 			var arg2Val string
 			if v, ok := arg2.(env.String); ok {
 				arg2Val = string(v.Value)
 			} else {
 				ps.FailureFlag = true
-return env.NewError("append-glyphs: arg 3: expected string")
+return env.NewError("text-append-glyphs: arg 3: expected string")
 			}
 			res0 := text.AppendGlyphs(arg0Val, arg1Val, arg2Val)
 			var res0Obj env.Object
@@ -30404,7 +28571,7 @@ return env.NewError("append-glyphs: arg 3: expected string")
 			return res0Obj
 		},
 	},
-	"bound-string": {
+	"text-bound-string": {
 		Doc: "text.BoundString",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
@@ -30415,18 +28582,18 @@ return env.NewError("append-glyphs: arg 3: expected string")
 				arg0Val, ok = v.Value.(font.Face)
 				if !ok {
 					ps.FailureFlag = true
-return env.NewError("bound-string: arg 1: expected native of type font.Face")
+return env.NewError("text-bound-string: arg 1: expected native of type font.Face")
 				}
 			default:
 				ps.FailureFlag = true
-return env.NewError("bound-string: arg 1: expected native")
+return env.NewError("text-bound-string: arg 1: expected native")
 			}
 			var arg1Val string
 			if v, ok := arg1.(env.String); ok {
 				arg1Val = string(v.Value)
 			} else {
 				ps.FailureFlag = true
-return env.NewError("bound-string: arg 2: expected string")
+return env.NewError("text-bound-string: arg 2: expected string")
 			}
 			res0 := text.BoundString(arg0Val, arg1Val)
 			var res0Obj env.Object
@@ -30434,7 +28601,7 @@ return env.NewError("bound-string: arg 2: expected string")
 			return res0Obj
 		},
 	},
-	"cache-glyphs": {
+	"text-cache-glyphs": {
 		Doc: "text.CacheGlyphs",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
@@ -30445,24 +28612,24 @@ return env.NewError("bound-string: arg 2: expected string")
 				arg0Val, ok = v.Value.(font.Face)
 				if !ok {
 					ps.FailureFlag = true
-return env.NewError("cache-glyphs: arg 1: expected native of type font.Face")
+return env.NewError("text-cache-glyphs: arg 1: expected native of type font.Face")
 				}
 			default:
 				ps.FailureFlag = true
-return env.NewError("cache-glyphs: arg 1: expected native")
+return env.NewError("text-cache-glyphs: arg 1: expected native")
 			}
 			var arg1Val string
 			if v, ok := arg1.(env.String); ok {
 				arg1Val = string(v.Value)
 			} else {
 				ps.FailureFlag = true
-return env.NewError("cache-glyphs: arg 2: expected string")
+return env.NewError("text-cache-glyphs: arg 2: expected string")
 			}
 			text.CacheGlyphs(arg0Val, arg1Val)
 			return nil
 		},
 	},
-	"draw-with-options": {
+	"text-draw-with-options": {
 		Doc: "text.DrawWithOptions",
 		Argsn: 4,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
@@ -30473,24 +28640,24 @@ return env.NewError("cache-glyphs: arg 2: expected string")
 				arg0Val, ok = v.Value.(*ebiten.Image)
 				if !ok {
 					ps.FailureFlag = true
-return env.NewError("draw-with-options: arg 1: expected native of type *ebiten.Image")
+return env.NewError("text-draw-with-options: arg 1: expected native of type *ebiten.Image")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-return env.NewError("draw-with-options: arg 1: expected integer to be 0 or nil")
+return env.NewError("text-draw-with-options: arg 1: expected integer to be 0 or nil")
 				}
 				arg0Val = nil
 			default:
 				ps.FailureFlag = true
-return env.NewError("draw-with-options: arg 1: expected native")
+return env.NewError("text-draw-with-options: arg 1: expected native")
 			}
 			var arg1Val string
 			if v, ok := arg1.(env.String); ok {
 				arg1Val = string(v.Value)
 			} else {
 				ps.FailureFlag = true
-return env.NewError("draw-with-options: arg 2: expected string")
+return env.NewError("text-draw-with-options: arg 2: expected string")
 			}
 			var arg2Val font.Face
 			switch v := arg2.(type) {
@@ -30499,11 +28666,11 @@ return env.NewError("draw-with-options: arg 2: expected string")
 				arg2Val, ok = v.Value.(font.Face)
 				if !ok {
 					ps.FailureFlag = true
-return env.NewError("draw-with-options: arg 3: expected native of type font.Face")
+return env.NewError("text-draw-with-options: arg 3: expected native of type font.Face")
 				}
 			default:
 				ps.FailureFlag = true
-return env.NewError("draw-with-options: arg 3: expected native")
+return env.NewError("text-draw-with-options: arg 3: expected native")
 			}
 			var arg3Val *ebiten.DrawImageOptions
 			switch v := arg3.(type) {
@@ -30512,23 +28679,23 @@ return env.NewError("draw-with-options: arg 3: expected native")
 				arg3Val, ok = v.Value.(*ebiten.DrawImageOptions)
 				if !ok {
 					ps.FailureFlag = true
-return env.NewError("draw-with-options: arg 4: expected native of type *ebiten.DrawImageOptions")
+return env.NewError("text-draw-with-options: arg 4: expected native of type *ebiten.DrawImageOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-return env.NewError("draw-with-options: arg 4: expected integer to be 0 or nil")
+return env.NewError("text-draw-with-options: arg 4: expected integer to be 0 or nil")
 				}
 				arg3Val = nil
 			default:
 				ps.FailureFlag = true
-return env.NewError("draw-with-options: arg 4: expected native")
+return env.NewError("text-draw-with-options: arg 4: expected native")
 			}
 			text.DrawWithOptions(arg0Val, arg1Val, arg2Val, arg3Val)
 			return nil
 		},
 	},
-	"face-with-line-height": {
+	"text-face-with-line-height": {
 		Doc: "text.FaceWithLineHeight",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
@@ -30539,18 +28706,18 @@ return env.NewError("draw-with-options: arg 4: expected native")
 				arg0Val, ok = v.Value.(font.Face)
 				if !ok {
 					ps.FailureFlag = true
-return env.NewError("face-with-line-height: arg 1: expected native of type font.Face")
+return env.NewError("text-face-with-line-height: arg 1: expected native of type font.Face")
 				}
 			default:
 				ps.FailureFlag = true
-return env.NewError("face-with-line-height: arg 1: expected native")
+return env.NewError("text-face-with-line-height: arg 1: expected native")
 			}
 			var arg1Val float64
 			if v, ok := arg1.(env.Decimal); ok {
 				arg1Val = float64(v.Value)
 			} else {
 				ps.FailureFlag = true
-return env.NewError("face-with-line-height: arg 2: expected decimal")
+return env.NewError("text-face-with-line-height: arg 2: expected decimal")
 			}
 			res0 := text.FaceWithLineHeight(arg0Val, arg1Val)
 			var res0Obj env.Object
@@ -30930,18 +29097,18 @@ return env.NewError("textinput-state//error!: arg 1: expected native of type tex
 return env.NewError("textinput-state//error!: arg 1: expected native")
 			}
 			switch v := arg1.(type) {
-				case env.String:
-					self.Error = errors.New(v.Value)
-				case env.Error:
-					self.Error = errors.New(v.Print(*ps.Idx))
-				case env.Integer:
-					if v.Value != 0 {
-						ps.FailureFlag = true
-return env.NewError("textinput-state//error!: arg 2: expected integer to be 0 or nil")
-					}
-					self.Error = nil
-				default:
+			case env.String:
+				self.Error = errors.New(v.Value)
+			case env.Error:
+				self.Error = errors.New(v.Print(*ps.Idx))
+			case env.Integer:
+				if v.Value != 0 {
 					ps.FailureFlag = true
+return env.NewError("textinput-state//error!: arg 2: expected integer to be 0 or nil")
+				}
+				self.Error = nil
+			default:
+				ps.FailureFlag = true
 return env.NewError("textinput-state//error!: arg 2: expected error, string or nil")
 				}
 				return arg0
@@ -31176,7 +29343,7 @@ return env.NewError("twenty-48-tile: arg 3: expected integer")
 			return res0Obj
 		},
 	},
-	"clockwise": {
+	"vector-clockwise": {
 		Doc: "Get vector.Clockwise value",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
@@ -31185,7 +29352,7 @@ return env.NewError("twenty-48-tile: arg 3: expected integer")
 			return resObj
 		},
 	},
-	"counter-clockwise": {
+	"vector-counter-clockwise": {
 		Doc: "Get vector.CounterClockwise value",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
@@ -31194,7 +29361,7 @@ return env.NewError("twenty-48-tile: arg 3: expected integer")
 			return resObj
 		},
 	},
-	"line-cap-butt": {
+	"vector-line-cap-butt": {
 		Doc: "Get vector.LineCapButt value",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
@@ -31203,7 +29370,7 @@ return env.NewError("twenty-48-tile: arg 3: expected integer")
 			return resObj
 		},
 	},
-	"line-cap-round": {
+	"vector-line-cap-round": {
 		Doc: "Get vector.LineCapRound value",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
@@ -31212,7 +29379,7 @@ return env.NewError("twenty-48-tile: arg 3: expected integer")
 			return resObj
 		},
 	},
-	"line-cap-square": {
+	"vector-line-cap-square": {
 		Doc: "Get vector.LineCapSquare value",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
@@ -31221,7 +29388,7 @@ return env.NewError("twenty-48-tile: arg 3: expected integer")
 			return resObj
 		},
 	},
-	"line-join-bevel": {
+	"vector-line-join-bevel": {
 		Doc: "Get vector.LineJoinBevel value",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
@@ -31230,7 +29397,7 @@ return env.NewError("twenty-48-tile: arg 3: expected integer")
 			return resObj
 		},
 	},
-	"line-join-miter": {
+	"vector-line-join-miter": {
 		Doc: "Get vector.LineJoinMiter value",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
@@ -31239,7 +29406,7 @@ return env.NewError("twenty-48-tile: arg 3: expected integer")
 			return resObj
 		},
 	},
-	"line-join-round": {
+	"vector-line-join-round": {
 		Doc: "Get vector.LineJoinRound value",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
@@ -31508,80 +29675,123 @@ return env.NewError("vorbis-decode: arg 1: expected native")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_io_Reader{
+				impl := &ryegen_io_Reader{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["read"]; !ok {
+				ctxObj0, ok := wordToObj["read"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("vorbis-decode: arg 2: context to io.Reader: expected context to have function read")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("vorbis-decode: arg 2: context to io.Reader: context fn read: function has invalid number of arguments (expected 2)")
+return env.NewError("vorbis-decode: arg 2: context to io.Reader: context fn read: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Read = func(arg0 env.RyeCtx, arg1 []byte) (int, error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
+					impl.fn_Read = func(ctx env.RyeCtx, arg0 []byte) (int, error) {
+						var arg0Val env.Object
 						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
+							items := make([]env.Object, len(arg0))
+							for i, it := range arg0 {
 								items[i] = *env.NewNative(ps.Idx, it, "byte")
 							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
+							arg0Val = *env.NewBlock(*env.NewTSeries(items))
 						}
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-						var res int
-						if v, ok := ps.Res.(env.Integer); ok {
-							res = int(v.Value)
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
+						var res0 int
+						var res1 error
+						res, ok := ps.Res.(env.Block)
+						if !ok {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"vorbis-decode: arg 2: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if len(res.Series.S) != 2 {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"vorbis-decode: arg 2: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if v, ok := res.Series.S[0].(env.Integer); ok {
+							res0 = int(v.Value)
 						} else {
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"vorbis-decode: arg 2: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"vorbis-decode: arg 2: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 						}
-						return res
+						switch v := res.Series.S[1].(type) {
+						case env.String:
+							res1 = errors.New(v.Value)
+						case env.Error:
+							res1 = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"vorbis-decode: arg 2: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							res1 = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"vorbis-decode: arg 2: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
+						}
+					case env.Integer:
+						if fn.Value != 0 {
+							ps.FailureFlag = true
+return env.NewError("vorbis-decode: arg 2: context to io.Reader: context fn read: expected integer to be 0 or nil")
+						}
+						impl.fn_Read = nil
+					default:
+						ps.FailureFlag = true
+return env.NewError("vorbis-decode: arg 2: context to io.Reader: context fn read: expected function or nil")
+					}
+					arg1Val = impl
+				case env.Native:
+					var ok bool
+					arg1Val, ok = v.Value.(io.Reader)
+					if !ok {
+						ps.FailureFlag = true
+return env.NewError("vorbis-decode: arg 2: expected native of type io.Reader")
 					}
 				case env.Integer:
-					if fn.Value != 0 {
+					if v.Value != 0 {
 						ps.FailureFlag = true
-return env.NewError("vorbis-decode: arg 2: context to io.Reader: context fn read: expected integer to be 0 or nil")
+return env.NewError("vorbis-decode: arg 2: expected integer to be 0 or nil")
 					}
-					impl.fn_Read = nil
+					arg1Val = nil
 				default:
 					ps.FailureFlag = true
-return env.NewError("vorbis-decode: arg 2: context to io.Reader: context fn read: expected function or nil")
-				}
-				arg1Val = impl
-			case env.Native:
-				var ok bool
-				arg1Val, ok = v.Value.(io.Reader)
-				if !ok {
-					ps.FailureFlag = true
-return env.NewError("vorbis-decode: arg 2: expected native of type io.Reader")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-return env.NewError("vorbis-decode: arg 2: expected integer to be 0 or nil")
-				}
-				arg1Val = nil
-			default:
-				ps.FailureFlag = true
 return env.NewError("vorbis-decode: arg 2: expected native")
-			}
-			res0, res1 := vorbis.Decode(arg0Val, arg1Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-vorbis-stream")
-			var res1Obj env.Object
-			res1Obj = *env.NewError(res1.Error())
-			return env.NewDict(map[string]any{
-				"1": res0Obj,
-				"err": res1Obj,
-			})
+				}
+				res0, res1 := vorbis.Decode(arg0Val, arg1Val)
+				var res0Obj env.Object
+				res0Obj = *env.NewNative(ps.Idx, res0, "ptr-vorbis-stream")
+				var res1Obj env.Object
+				res1Obj = *env.NewError(res1.Error())
+				return env.NewDict(map[string]any{
+					"1": res0Obj,
+					"err": res1Obj,
+				})
 		},
 	},
 	"vorbis-decode-with-sample-rate": {
@@ -31612,80 +29822,123 @@ return env.NewError("vorbis-decode-with-sample-rate: arg 1: expected integer")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_io_Reader{
+				impl := &ryegen_io_Reader{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["read"]; !ok {
+				ctxObj0, ok := wordToObj["read"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("vorbis-decode-with-sample-rate: arg 2: context to io.Reader: expected context to have function read")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("vorbis-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: function has invalid number of arguments (expected 2)")
+return env.NewError("vorbis-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Read = func(arg0 env.RyeCtx, arg1 []byte) (int, error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
+					impl.fn_Read = func(ctx env.RyeCtx, arg0 []byte) (int, error) {
+						var arg0Val env.Object
 						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
+							items := make([]env.Object, len(arg0))
+							for i, it := range arg0 {
 								items[i] = *env.NewNative(ps.Idx, it, "byte")
 							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
+							arg0Val = *env.NewBlock(*env.NewTSeries(items))
 						}
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-						var res int
-						if v, ok := ps.Res.(env.Integer); ok {
-							res = int(v.Value)
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
+						var res0 int
+						var res1 error
+						res, ok := ps.Res.(env.Block)
+						if !ok {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"vorbis-decode-with-sample-rate: arg 2: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if len(res.Series.S) != 2 {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"vorbis-decode-with-sample-rate: arg 2: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if v, ok := res.Series.S[0].(env.Integer); ok {
+							res0 = int(v.Value)
 						} else {
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"vorbis-decode-with-sample-rate: arg 2: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"vorbis-decode-with-sample-rate: arg 2: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 						}
-						return res
+						switch v := res.Series.S[1].(type) {
+						case env.String:
+							res1 = errors.New(v.Value)
+						case env.Error:
+							res1 = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"vorbis-decode-with-sample-rate: arg 2: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							res1 = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"vorbis-decode-with-sample-rate: arg 2: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
+						}
+					case env.Integer:
+						if fn.Value != 0 {
+							ps.FailureFlag = true
+return env.NewError("vorbis-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: expected integer to be 0 or nil")
+						}
+						impl.fn_Read = nil
+					default:
+						ps.FailureFlag = true
+return env.NewError("vorbis-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: expected function or nil")
+					}
+					arg1Val = impl
+				case env.Native:
+					var ok bool
+					arg1Val, ok = v.Value.(io.Reader)
+					if !ok {
+						ps.FailureFlag = true
+return env.NewError("vorbis-decode-with-sample-rate: arg 2: expected native of type io.Reader")
 					}
 				case env.Integer:
-					if fn.Value != 0 {
+					if v.Value != 0 {
 						ps.FailureFlag = true
-return env.NewError("vorbis-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: expected integer to be 0 or nil")
+return env.NewError("vorbis-decode-with-sample-rate: arg 2: expected integer to be 0 or nil")
 					}
-					impl.fn_Read = nil
+					arg1Val = nil
 				default:
 					ps.FailureFlag = true
-return env.NewError("vorbis-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: expected function or nil")
-				}
-				arg1Val = impl
-			case env.Native:
-				var ok bool
-				arg1Val, ok = v.Value.(io.Reader)
-				if !ok {
-					ps.FailureFlag = true
-return env.NewError("vorbis-decode-with-sample-rate: arg 2: expected native of type io.Reader")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-return env.NewError("vorbis-decode-with-sample-rate: arg 2: expected integer to be 0 or nil")
-				}
-				arg1Val = nil
-			default:
-				ps.FailureFlag = true
 return env.NewError("vorbis-decode-with-sample-rate: arg 2: expected native")
-			}
-			res0, res1 := vorbis.DecodeWithSampleRate(arg0Val, arg1Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-vorbis-stream")
-			var res1Obj env.Object
-			res1Obj = *env.NewError(res1.Error())
-			return env.NewDict(map[string]any{
-				"1": res0Obj,
-				"err": res1Obj,
-			})
+				}
+				res0, res1 := vorbis.DecodeWithSampleRate(arg0Val, arg1Val)
+				var res0Obj env.Object
+				res0Obj = *env.NewNative(ps.Idx, res0, "ptr-vorbis-stream")
+				var res1Obj env.Object
+				res1Obj = *env.NewError(res1.Error())
+				return env.NewDict(map[string]any{
+					"1": res0Obj,
+					"err": res1Obj,
+				})
 		},
 	},
 	"vorbis-decode-without-resampling": {
@@ -31709,80 +29962,123 @@ return env.NewError("vorbis-decode-with-sample-rate: arg 2: expected native")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_io_Reader{
+				impl := &ryegen_io_Reader{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["read"]; !ok {
+				ctxObj0, ok := wordToObj["read"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("vorbis-decode-without-resampling: arg 1: context to io.Reader: expected context to have function read")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("vorbis-decode-without-resampling: arg 1: context to io.Reader: context fn read: function has invalid number of arguments (expected 2)")
+return env.NewError("vorbis-decode-without-resampling: arg 1: context to io.Reader: context fn read: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Read = func(arg0 env.RyeCtx, arg1 []byte) (int, error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
+					impl.fn_Read = func(ctx env.RyeCtx, arg0 []byte) (int, error) {
+						var arg0Val env.Object
 						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
+							items := make([]env.Object, len(arg0))
+							for i, it := range arg0 {
 								items[i] = *env.NewNative(ps.Idx, it, "byte")
 							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
+							arg0Val = *env.NewBlock(*env.NewTSeries(items))
 						}
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-						var res int
-						if v, ok := ps.Res.(env.Integer); ok {
-							res = int(v.Value)
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
+						var res0 int
+						var res1 error
+						res, ok := ps.Res.(env.Block)
+						if !ok {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"vorbis-decode-without-resampling: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if len(res.Series.S) != 2 {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"vorbis-decode-without-resampling: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if v, ok := res.Series.S[0].(env.Integer); ok {
+							res0 = int(v.Value)
 						} else {
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"vorbis-decode-without-resampling: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"vorbis-decode-without-resampling: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 						}
-						return res
+						switch v := res.Series.S[1].(type) {
+						case env.String:
+							res1 = errors.New(v.Value)
+						case env.Error:
+							res1 = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"vorbis-decode-without-resampling: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							res1 = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"vorbis-decode-without-resampling: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
+						}
+					case env.Integer:
+						if fn.Value != 0 {
+							ps.FailureFlag = true
+return env.NewError("vorbis-decode-without-resampling: arg 1: context to io.Reader: context fn read: expected integer to be 0 or nil")
+						}
+						impl.fn_Read = nil
+					default:
+						ps.FailureFlag = true
+return env.NewError("vorbis-decode-without-resampling: arg 1: context to io.Reader: context fn read: expected function or nil")
+					}
+					arg0Val = impl
+				case env.Native:
+					var ok bool
+					arg0Val, ok = v.Value.(io.Reader)
+					if !ok {
+						ps.FailureFlag = true
+return env.NewError("vorbis-decode-without-resampling: arg 1: expected native of type io.Reader")
 					}
 				case env.Integer:
-					if fn.Value != 0 {
+					if v.Value != 0 {
 						ps.FailureFlag = true
-return env.NewError("vorbis-decode-without-resampling: arg 1: context to io.Reader: context fn read: expected integer to be 0 or nil")
+return env.NewError("vorbis-decode-without-resampling: arg 1: expected integer to be 0 or nil")
 					}
-					impl.fn_Read = nil
+					arg0Val = nil
 				default:
 					ps.FailureFlag = true
-return env.NewError("vorbis-decode-without-resampling: arg 1: context to io.Reader: context fn read: expected function or nil")
-				}
-				arg0Val = impl
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(io.Reader)
-				if !ok {
-					ps.FailureFlag = true
-return env.NewError("vorbis-decode-without-resampling: arg 1: expected native of type io.Reader")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-return env.NewError("vorbis-decode-without-resampling: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
 return env.NewError("vorbis-decode-without-resampling: arg 1: expected native")
-			}
-			res0, res1 := vorbis.DecodeWithoutResampling(arg0Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-vorbis-stream")
-			var res1Obj env.Object
-			res1Obj = *env.NewError(res1.Error())
-			return env.NewDict(map[string]any{
-				"1": res0Obj,
-				"err": res1Obj,
-			})
+				}
+				res0, res1 := vorbis.DecodeWithoutResampling(arg0Val)
+				var res0Obj env.Object
+				res0Obj = *env.NewNative(ps.Idx, res0, "ptr-vorbis-stream")
+				var res1Obj env.Object
+				res1Obj = *env.NewError(res1.Error())
+				return env.NewDict(map[string]any{
+					"1": res0Obj,
+					"err": res1Obj,
+				})
 		},
 	},
 	"wav-decode": {
@@ -31825,80 +30121,123 @@ return env.NewError("wav-decode: arg 1: expected native")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_io_Reader{
+				impl := &ryegen_io_Reader{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["read"]; !ok {
+				ctxObj0, ok := wordToObj["read"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("wav-decode: arg 2: context to io.Reader: expected context to have function read")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("wav-decode: arg 2: context to io.Reader: context fn read: function has invalid number of arguments (expected 2)")
+return env.NewError("wav-decode: arg 2: context to io.Reader: context fn read: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Read = func(arg0 env.RyeCtx, arg1 []byte) (int, error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
+					impl.fn_Read = func(ctx env.RyeCtx, arg0 []byte) (int, error) {
+						var arg0Val env.Object
 						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
+							items := make([]env.Object, len(arg0))
+							for i, it := range arg0 {
 								items[i] = *env.NewNative(ps.Idx, it, "byte")
 							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
+							arg0Val = *env.NewBlock(*env.NewTSeries(items))
 						}
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-						var res int
-						if v, ok := ps.Res.(env.Integer); ok {
-							res = int(v.Value)
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
+						var res0 int
+						var res1 error
+						res, ok := ps.Res.(env.Block)
+						if !ok {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"wav-decode: arg 2: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if len(res.Series.S) != 2 {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"wav-decode: arg 2: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if v, ok := res.Series.S[0].(env.Integer); ok {
+							res0 = int(v.Value)
 						} else {
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"wav-decode: arg 2: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"wav-decode: arg 2: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 						}
-						return res
+						switch v := res.Series.S[1].(type) {
+						case env.String:
+							res1 = errors.New(v.Value)
+						case env.Error:
+							res1 = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"wav-decode: arg 2: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							res1 = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"wav-decode: arg 2: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
+						}
+					case env.Integer:
+						if fn.Value != 0 {
+							ps.FailureFlag = true
+return env.NewError("wav-decode: arg 2: context to io.Reader: context fn read: expected integer to be 0 or nil")
+						}
+						impl.fn_Read = nil
+					default:
+						ps.FailureFlag = true
+return env.NewError("wav-decode: arg 2: context to io.Reader: context fn read: expected function or nil")
+					}
+					arg1Val = impl
+				case env.Native:
+					var ok bool
+					arg1Val, ok = v.Value.(io.Reader)
+					if !ok {
+						ps.FailureFlag = true
+return env.NewError("wav-decode: arg 2: expected native of type io.Reader")
 					}
 				case env.Integer:
-					if fn.Value != 0 {
+					if v.Value != 0 {
 						ps.FailureFlag = true
-return env.NewError("wav-decode: arg 2: context to io.Reader: context fn read: expected integer to be 0 or nil")
+return env.NewError("wav-decode: arg 2: expected integer to be 0 or nil")
 					}
-					impl.fn_Read = nil
+					arg1Val = nil
 				default:
 					ps.FailureFlag = true
-return env.NewError("wav-decode: arg 2: context to io.Reader: context fn read: expected function or nil")
-				}
-				arg1Val = impl
-			case env.Native:
-				var ok bool
-				arg1Val, ok = v.Value.(io.Reader)
-				if !ok {
-					ps.FailureFlag = true
-return env.NewError("wav-decode: arg 2: expected native of type io.Reader")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-return env.NewError("wav-decode: arg 2: expected integer to be 0 or nil")
-				}
-				arg1Val = nil
-			default:
-				ps.FailureFlag = true
 return env.NewError("wav-decode: arg 2: expected native")
-			}
-			res0, res1 := wav.Decode(arg0Val, arg1Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-wav-stream")
-			var res1Obj env.Object
-			res1Obj = *env.NewError(res1.Error())
-			return env.NewDict(map[string]any{
-				"1": res0Obj,
-				"err": res1Obj,
-			})
+				}
+				res0, res1 := wav.Decode(arg0Val, arg1Val)
+				var res0Obj env.Object
+				res0Obj = *env.NewNative(ps.Idx, res0, "ptr-wav-stream")
+				var res1Obj env.Object
+				res1Obj = *env.NewError(res1.Error())
+				return env.NewDict(map[string]any{
+					"1": res0Obj,
+					"err": res1Obj,
+				})
 		},
 	},
 	"wav-decode-with-sample-rate": {
@@ -31929,80 +30268,123 @@ return env.NewError("wav-decode-with-sample-rate: arg 1: expected integer")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_io_Reader{
+				impl := &ryegen_io_Reader{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["read"]; !ok {
+				ctxObj0, ok := wordToObj["read"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("wav-decode-with-sample-rate: arg 2: context to io.Reader: expected context to have function read")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("wav-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: function has invalid number of arguments (expected 2)")
+return env.NewError("wav-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Read = func(arg0 env.RyeCtx, arg1 []byte) (int, error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
+					impl.fn_Read = func(ctx env.RyeCtx, arg0 []byte) (int, error) {
+						var arg0Val env.Object
 						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
+							items := make([]env.Object, len(arg0))
+							for i, it := range arg0 {
 								items[i] = *env.NewNative(ps.Idx, it, "byte")
 							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
+							arg0Val = *env.NewBlock(*env.NewTSeries(items))
 						}
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-						var res int
-						if v, ok := ps.Res.(env.Integer); ok {
-							res = int(v.Value)
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
+						var res0 int
+						var res1 error
+						res, ok := ps.Res.(env.Block)
+						if !ok {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"wav-decode-with-sample-rate: arg 2: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if len(res.Series.S) != 2 {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"wav-decode-with-sample-rate: arg 2: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if v, ok := res.Series.S[0].(env.Integer); ok {
+							res0 = int(v.Value)
 						} else {
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"wav-decode-with-sample-rate: arg 2: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"wav-decode-with-sample-rate: arg 2: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 						}
-						return res
+						switch v := res.Series.S[1].(type) {
+						case env.String:
+							res1 = errors.New(v.Value)
+						case env.Error:
+							res1 = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"wav-decode-with-sample-rate: arg 2: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							res1 = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"wav-decode-with-sample-rate: arg 2: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
+						}
+					case env.Integer:
+						if fn.Value != 0 {
+							ps.FailureFlag = true
+return env.NewError("wav-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: expected integer to be 0 or nil")
+						}
+						impl.fn_Read = nil
+					default:
+						ps.FailureFlag = true
+return env.NewError("wav-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: expected function or nil")
+					}
+					arg1Val = impl
+				case env.Native:
+					var ok bool
+					arg1Val, ok = v.Value.(io.Reader)
+					if !ok {
+						ps.FailureFlag = true
+return env.NewError("wav-decode-with-sample-rate: arg 2: expected native of type io.Reader")
 					}
 				case env.Integer:
-					if fn.Value != 0 {
+					if v.Value != 0 {
 						ps.FailureFlag = true
-return env.NewError("wav-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: expected integer to be 0 or nil")
+return env.NewError("wav-decode-with-sample-rate: arg 2: expected integer to be 0 or nil")
 					}
-					impl.fn_Read = nil
+					arg1Val = nil
 				default:
 					ps.FailureFlag = true
-return env.NewError("wav-decode-with-sample-rate: arg 2: context to io.Reader: context fn read: expected function or nil")
-				}
-				arg1Val = impl
-			case env.Native:
-				var ok bool
-				arg1Val, ok = v.Value.(io.Reader)
-				if !ok {
-					ps.FailureFlag = true
-return env.NewError("wav-decode-with-sample-rate: arg 2: expected native of type io.Reader")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-return env.NewError("wav-decode-with-sample-rate: arg 2: expected integer to be 0 or nil")
-				}
-				arg1Val = nil
-			default:
-				ps.FailureFlag = true
 return env.NewError("wav-decode-with-sample-rate: arg 2: expected native")
-			}
-			res0, res1 := wav.DecodeWithSampleRate(arg0Val, arg1Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-wav-stream")
-			var res1Obj env.Object
-			res1Obj = *env.NewError(res1.Error())
-			return env.NewDict(map[string]any{
-				"1": res0Obj,
-				"err": res1Obj,
-			})
+				}
+				res0, res1 := wav.DecodeWithSampleRate(arg0Val, arg1Val)
+				var res0Obj env.Object
+				res0Obj = *env.NewNative(ps.Idx, res0, "ptr-wav-stream")
+				var res1Obj env.Object
+				res1Obj = *env.NewError(res1.Error())
+				return env.NewDict(map[string]any{
+					"1": res0Obj,
+					"err": res1Obj,
+				})
 		},
 	},
 	"wav-decode-without-resampling": {
@@ -32026,80 +30408,123 @@ return env.NewError("wav-decode-with-sample-rate: arg 2: expected native")
 					}
 					wordToObj[name] = obj
 				}
-				impl := ryegen_io_Reader{
+				impl := &ryegen_io_Reader{
 					self: v,
 				}
-				if ctxObj0, ok := wordToObj["read"]; !ok {
+				ctxObj0, ok := wordToObj["read"]
+				if !ok {
 					ps.FailureFlag = true
 return env.NewError("wav-decode-without-resampling: arg 1: context to io.Reader: expected context to have function read")
 				}
 				switch fn := ctxObj0.(type) {
 				case env.Function:
-					if fn.Argsn != 2 {
+					if fn.Argsn != 1 {
 						ps.FailureFlag = true
-return env.NewError("wav-decode-without-resampling: arg 1: context to io.Reader: context fn read: function has invalid number of arguments (expected 2)")
+return env.NewError("wav-decode-without-resampling: arg 1: context to io.Reader: context fn read: function has invalid number of arguments (expected 1)")
 					}
-					impl.fn_Read = func(arg0 env.RyeCtx, arg1 []byte) (int, error) {
-						var arg0Val, arg1Val env.Object
-						arg0Val = arg0
+					impl.fn_Read = func(ctx env.RyeCtx, arg0 []byte) (int, error) {
+						var arg0Val env.Object
 						{
-							items := make([]env.Object, len(arg1))
-							for i, it := range arg1 {
+							items := make([]env.Object, len(arg0))
+							for i, it := range arg0 {
 								items[i] = *env.NewNative(ps.Idx, it, "byte")
 							}
-							arg1Val = *env.NewBlock(*env.NewTSeries(items))
+							arg0Val = *env.NewBlock(*env.NewTSeries(items))
 						}
-						evaldo.CallFunctionArgs2(fn, ps, arg0Val, arg1Val, ps.Ctx)
-						var res int
-						if v, ok := ps.Res.(env.Integer); ok {
-							res = int(v.Value)
+						actualFn := fn
+						_ = actualFn
+						evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
+						var res0 int
+						var res1 error
+						res, ok := ps.Res.(env.Block)
+						if !ok {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"wav-decode-without-resampling: arg 1: callback result: expected block for multiple return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if len(res.Series.S) != 2 {
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"wav-decode-without-resampling: arg 1: callback result: expected block with 2 return values",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+						}
+						if v, ok := res.Series.S[0].(env.Integer); ok {
+							res0 = int(v.Value)
 						} else {
 							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
-"wav-decode-without-resampling: arg 1: callback result: expected integer",
-fn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
-fn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
-)
-return res
+	"wav-decode-without-resampling: arg 1: callback result: expected integer",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
 						}
-						return res
+						switch v := res.Series.S[1].(type) {
+						case env.String:
+							res1 = errors.New(v.Value)
+						case env.Error:
+							res1 = errors.New(v.Print(*ps.Idx))
+						case env.Integer:
+							if v.Value != 0 {
+								fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"wav-decode-without-resampling: arg 1: callback result: expected integer to be 0 or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							res1 = nil
+						default:
+							fmt.Printf("\033[31mError: \033[1m%v\033[m\n\033[31mFrom function \033[1m%v %v\033[m\n",
+	"wav-decode-without-resampling: arg 1: callback result: expected error, string or nil",
+	actualFn.Spec.Series.PositionAndSurroundingElements(*ps.Idx),
+	actualFn.Body.Series.PositionAndSurroundingElements(*ps.Idx),
+	)
+	return res0, res1
+							}
+							return res0, res1
+						}
+					case env.Integer:
+						if fn.Value != 0 {
+							ps.FailureFlag = true
+return env.NewError("wav-decode-without-resampling: arg 1: context to io.Reader: context fn read: expected integer to be 0 or nil")
+						}
+						impl.fn_Read = nil
+					default:
+						ps.FailureFlag = true
+return env.NewError("wav-decode-without-resampling: arg 1: context to io.Reader: context fn read: expected function or nil")
+					}
+					arg0Val = impl
+				case env.Native:
+					var ok bool
+					arg0Val, ok = v.Value.(io.Reader)
+					if !ok {
+						ps.FailureFlag = true
+return env.NewError("wav-decode-without-resampling: arg 1: expected native of type io.Reader")
 					}
 				case env.Integer:
-					if fn.Value != 0 {
+					if v.Value != 0 {
 						ps.FailureFlag = true
-return env.NewError("wav-decode-without-resampling: arg 1: context to io.Reader: context fn read: expected integer to be 0 or nil")
+return env.NewError("wav-decode-without-resampling: arg 1: expected integer to be 0 or nil")
 					}
-					impl.fn_Read = nil
+					arg0Val = nil
 				default:
 					ps.FailureFlag = true
-return env.NewError("wav-decode-without-resampling: arg 1: context to io.Reader: context fn read: expected function or nil")
-				}
-				arg0Val = impl
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(io.Reader)
-				if !ok {
-					ps.FailureFlag = true
-return env.NewError("wav-decode-without-resampling: arg 1: expected native of type io.Reader")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-return env.NewError("wav-decode-without-resampling: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
 return env.NewError("wav-decode-without-resampling: arg 1: expected native")
-			}
-			res0, res1 := wav.DecodeWithoutResampling(arg0Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-wav-stream")
-			var res1Obj env.Object
-			res1Obj = *env.NewError(res1.Error())
-			return env.NewDict(map[string]any{
-				"1": res0Obj,
-				"err": res1Obj,
-			})
+				}
+				res0, res1 := wav.DecodeWithoutResampling(arg0Val)
+				var res0Obj env.Object
+				res0Obj = *env.NewNative(ps.Idx, res0, "ptr-wav-stream")
+				var res1Obj env.Object
+				res1Obj = *env.NewError(res1.Error())
+				return env.NewDict(map[string]any{
+					"1": res0Obj,
+					"err": res1Obj,
+				})
 		},
 	},
 }
