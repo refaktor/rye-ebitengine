@@ -2,21 +2,21 @@ module github.com/refaktor/rye-ebitengine
 
 go 1.21.5
 
-replace github.com/refaktor/rye v0.0.21-0.20240613091039-01d356399f23 => ../rye
+replace github.com/refaktor/rye => ../rye
+
+replace github.com/refaktor/ryegen => ../ryegen
 
 require (
-	github.com/BurntSushi/toml v1.3.2
 	github.com/hajimehoshi/ebiten/v2 v2.7.7
-	github.com/iancoleman/strcase v0.3.0
 	github.com/refaktor/rye v0.0.21-0.20240613091039-01d356399f23
-	github.com/refaktor/rye-front v0.0.0-20240719130703-811eeacee2ab
+	github.com/refaktor/ryegen v0.0.0-20240723150247-8b3d7738fb2a
 	golang.org/x/image v0.18.0
-	golang.org/x/mod v0.17.0
 	golang.org/x/text v0.16.0
 )
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/BurntSushi/toml v1.4.0 // indirect
 	github.com/RoaringBitmap/roaring v1.2.3 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/aws/aws-sdk-go-v2 v1.27.2 // indirect
@@ -58,7 +58,6 @@ require (
 	github.com/ebitengine/hideconsole v1.0.0 // indirect
 	github.com/ebitengine/oto/v3 v3.2.0 // indirect
 	github.com/ebitengine/purego v0.7.0 // indirect
-	github.com/eiannone/keyboard v0.0.0-20220611211555-0d226195f203 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gliderlabs/ssh v0.3.7 // indirect
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df // indirect
@@ -75,6 +74,7 @@ require (
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/gorilla/sessions v1.2.2 // indirect
 	github.com/hajimehoshi/go-mp3 v0.3.4 // indirect
+	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/itchyny/gojq v0.12.13 // indirect
 	github.com/itchyny/timefmt-go v0.1.5 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
@@ -114,6 +114,7 @@ require (
 	go.etcd.io/bbolt v1.3.7 // indirect
 	go.mongodb.org/mongo-driver v1.15.0 // indirect
 	golang.org/x/crypto v0.23.0 // indirect
+	golang.org/x/mod v0.19.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
