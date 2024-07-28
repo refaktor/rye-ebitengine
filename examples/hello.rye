@@ -1,7 +1,7 @@
 rye .needs { ebiten }
 
 do\in ebiten {
-	set-window-size 600 400
+	set-window-size 1280 720
 	set-window-title "Hello"
 	game: context {
 		update: does {
@@ -11,7 +11,7 @@ do\in ebiten {
 			ebitenutil-debug-print screen "Hello, world!"
 		}
 		layout: fn { w h } {
-			{ 600 400 }
+			{ 160 90 }
 		}
 	}
 	run-game game
