@@ -27,7 +27,8 @@ do\in ebiten {
 			i: mod to-integer frame / 5 frame-count
 			sx: frame-ox + i * frame-w
 			sy: frame-oy
-			screen .draw-image img .sub-image image-rect sx sy sx + frame-w sy + frame-h op
+			frame: img .sub-image image-rect sx sy sx + frame-w sy + frame-h
+			screen .draw-image frame op
 		}
 		layout: fn { w h } {
 			{ 320 240 }

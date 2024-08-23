@@ -1,0 +1,21 @@
+rye .needs { ebiten }
+
+print "SCRIPT"
+
+do\in ebiten {
+	print "DO IN"	
+	set-window-size 1280 720
+	set-window-title "Hello"
+	game: context {
+		update: does {
+			nil
+		}
+		draw: fn { screen } {
+			nil
+		}
+		layout: fn { w h } {
+			{ 160 90 }
+		}
+	}
+	run-game game
+}

@@ -18,7 +18,7 @@ do\in ebiten {
 		draw: fn { screen } {
 			i: 0
 			for xs { ::x
-				ebitenutil-debug-print-at screen "Hello, world!" x i * 20
+				debug-print-at screen "Hello, world!" x i * 20
 				i:: i + 1
 			}
 			nil

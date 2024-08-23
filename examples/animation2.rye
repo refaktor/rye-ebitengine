@@ -22,17 +22,20 @@ do\in ebiten {
 			nil
 		}
 		draw: fn { screen } {
-			op: draw-image-options
-			op .geo-m? .translate 144.0 134.0
-			;debug-print screen frame .to-string
-			i: mod to-integer frame / 5 frame-count
-			sx: frame-ox + i * frame-w
-			sy: frame-oy
-			frame: img .sub-image image-rect sx sy sx + frame-w sy + frame-h
-			screen .draw-image frame op
-
-			op1: draw-image-options
-			screen .draw-image img op1
+			private {
+				op: draw-image-options
+				op .geo-m? .translate 144.0 124.0
+				;debug-print screen frame .to-string
+				i: mod to-integer frame / 5 frame-count
+				sx: frame-ox + i * frame-w
+				sy: frame-oy
+				frame: img .sub-image image-rect sx sy sx + frame-w sy + frame-h
+				screen .draw-image frame op
+			}
+			private {
+				draw-image-options :op .geo-m? .scale 0.8 0.8
+				screen .draw-image img op
+			}
 		}
 		layout: fn { w h } {
 			{ 320 240 }
