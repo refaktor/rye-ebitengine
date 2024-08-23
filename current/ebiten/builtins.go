@@ -4261,17 +4261,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("audio-player: arg 2: expected native")
 			}
-			res0, res1 := audio.NewPlayer(arg0Val, arg1Val)
+			res0, resErr := audio.NewPlayer(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-audio-player")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"audio-player-from-bytes": {
@@ -4842,12 +4843,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("blocks-scene//update: arg 2: expected native")
 			}
-			res0 := arg0Val.Update(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"bytes-compare": {
@@ -5293,11 +5298,11 @@ var Builtins = map[string]*env.Builtin{
 			}
 			var res2Obj env.Object
 			res2Obj = *env.NewInteger(boolToInt64(res2))
-			return *env.NewDict(map[string]any{
-				"before": res0Obj,
-				"after":  res1Obj,
-				"found":  res2Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+			}))
 		},
 	},
 	"bytes-equal": {
@@ -8620,12 +8625,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-alpha-model": {
@@ -8686,12 +8691,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-cmyk-model": {
@@ -8759,11 +8764,11 @@ var Builtins = map[string]*env.Builtin{
 			res1Obj = *env.NewInteger(int64(res1))
 			var res2Obj env.Object
 			res2Obj = *env.NewInteger(int64(res2))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-				"3": res2Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+			}))
 		},
 	},
 	"color-cmyk//rgba": {
@@ -8798,12 +8803,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-				"3": res2Obj,
-				"4": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-color//rgba": {
@@ -8845,12 +8850,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-gray-16-model": {
@@ -8911,12 +8916,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-gray-model": {
@@ -8977,12 +8982,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-model-func": {
@@ -9343,12 +9348,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-nrgba-model": {
@@ -9409,12 +9414,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-ny-cb-cr-a-model": {
@@ -9475,12 +9480,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-				"3": res2Obj,
-				"4": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-palette//convert": {
@@ -9730,12 +9735,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-				"3": res2Obj,
-				"4": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-rgb-to-y-cb-cr": {
@@ -9770,11 +9775,11 @@ var Builtins = map[string]*env.Builtin{
 			res1Obj = *env.NewInteger(int64(res1))
 			var res2Obj env.Object
 			res2Obj = *env.NewInteger(int64(res2))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-				"3": res2Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+			}))
 		},
 	},
 	"color-rgba-64-model": {
@@ -9835,12 +9840,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-rgba-model": {
@@ -9901,12 +9906,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-y-cb-cr-model": {
@@ -9967,11 +9972,11 @@ var Builtins = map[string]*env.Builtin{
 			res1Obj = *env.NewInteger(int64(res1))
 			var res2Obj env.Object
 			res2Obj = *env.NewInteger(int64(res2))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-				"3": res2Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+			}))
 		},
 	},
 	"color-y-cb-cr//rgba": {
@@ -10006,12 +10011,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-				"3": res2Obj,
-				"4": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"colorm-draw-image": {
@@ -11516,10 +11521,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"x": res0Obj,
-				"y": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"cursor-shape": {
@@ -12436,10 +12441,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"screen-width":  res0Obj,
-				"screen-height": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ebiten-game//update": {
@@ -12472,12 +12477,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ebiten-game//update: arg 1: expected native")
 			}
-			res0 := arg0Val.Update()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"gamepad-axis": {
@@ -15122,7 +15131,7 @@ var Builtins = map[string]*env.Builtin{
 					arg0Val = ebiten.Key(u)
 				}
 			}
-			res0, res1 := arg0Val.MarshalText()
+			res0, resErr := arg0Val.MarshalText()
 			var res0Obj env.Object
 			{
 				items := make([]env.Object, len(res0))
@@ -15131,14 +15140,15 @@ var Builtins = map[string]*env.Builtin{
 				}
 				res0Obj = *env.NewBlock(*env.NewTSeries(items))
 			}
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ebiten-key//string": {
@@ -15221,10 +15231,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewDecimal(float64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewDecimal(float64(res1))
-			return *env.NewDict(map[string]any{
-				"screen-width":  res0Obj,
-				"screen-height": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"max-tps": {
@@ -15636,17 +15646,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("shader: arg 1: expected block, native or nil")
 			}
-			res0, res1 := ebiten.NewShader(arg0Val)
+			res0, resErr := ebiten.NewShader(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-ebiten-shader")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"vertex": {
@@ -15753,12 +15764,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("run-game: arg 1: expected native")
 			}
-			res0 := ebiten.RunGame(arg0Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := ebiten.RunGame(arg0Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return nil
 		},
 	},
 	"run-game-with-options": {
@@ -15810,12 +15825,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("run-game-with-options: arg 2: expected native")
 			}
-			res0 := ebiten.RunGameWithOptions(arg0Val, arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := ebiten.RunGameWithOptions(arg0Val, arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return nil
 		},
 	},
 	"schedule-frame": {
@@ -15835,10 +15854,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"set-cursor-mode": {
@@ -16702,10 +16721,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"tps": {
@@ -16729,17 +16748,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("update-standard-gamepad-layout-mappings: arg 1: expected string")
 			}
-			res0, res1 := ebiten.UpdateStandardGamepadLayoutMappings(arg0Val)
+			res0, resErr := ebiten.UpdateStandardGamepadLayoutMappings(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(boolToInt64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"vibrate": {
@@ -16826,10 +16846,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewDecimal(float64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewDecimal(float64(res1))
-			return *env.NewDict(map[string]any{
-				"xoff": res0Obj,
-				"yoff": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"window-position": {
@@ -16841,10 +16861,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"x": res0Obj,
-				"y": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"window-resizing-mode": {
@@ -16893,10 +16913,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"window-size-limits": {
@@ -16912,12 +16932,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"minw": res0Obj,
-				"minh": res1Obj,
-				"maxw": res2Obj,
-				"maxh": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"debug-print": {
@@ -17087,7 +17107,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("image-from-file: arg 1: expected string")
 			}
-			res0, res1, res2 := ebitenutil.NewImageFromFile(arg0Val)
+			res0, res1, resErr := ebitenutil.NewImageFromFile(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-ebiten-image")
 			var res1Obj env.Object
@@ -17109,15 +17129,18 @@ var Builtins = map[string]*env.Builtin{
 					res1Obj = *env.NewNative(ps.Idx, res1, "image-image")
 				}
 			}
-			var res2Obj env.Object
-			if res2 != nil {
-				res2Obj = *env.NewError(res2.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"2":   res1Obj,
-				"err": res2Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"image-from-file-system": {
@@ -17157,7 +17180,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("image-from-file-system: arg 2: expected string")
 			}
-			res0, res1, res2 := ebitenutil.NewImageFromFileSystem(arg0Val, arg1Val)
+			res0, res1, resErr := ebitenutil.NewImageFromFileSystem(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-ebiten-image")
 			var res1Obj env.Object
@@ -17179,15 +17202,18 @@ var Builtins = map[string]*env.Builtin{
 					res1Obj = *env.NewNative(ps.Idx, res1, "image-image")
 				}
 			}
-			var res2Obj env.Object
-			if res2 != nil {
-				res2Obj = *env.NewError(res2.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"2":   res1Obj,
-				"err": res2Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"image-from-reader": {
@@ -17220,7 +17246,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("image-from-reader: arg 1: expected native")
 			}
-			res0, res1, res2 := ebitenutil.NewImageFromReader(arg0Val)
+			res0, res1, resErr := ebitenutil.NewImageFromReader(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-ebiten-image")
 			var res1Obj env.Object
@@ -17242,15 +17268,18 @@ var Builtins = map[string]*env.Builtin{
 					res1Obj = *env.NewNative(ps.Idx, res1, "image-image")
 				}
 			}
-			var res2Obj env.Object
-			if res2 != nil {
-				res2Obj = *env.NewError(res2.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"2":   res1Obj,
-				"err": res2Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"image-from-url": {
@@ -17264,17 +17293,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("image-from-url: arg 1: expected string")
 			}
-			res0, res1 := ebitenutil.NewImageFromURL(arg0Val)
+			res0, resErr := ebitenutil.NewImageFromURL(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-ebiten-image")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"open-file": {
@@ -17288,7 +17318,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("open-file: arg 1: expected string")
 			}
-			res0, res1 := ebitenutil.OpenFile(arg0Val)
+			res0, resErr := ebitenutil.OpenFile(arg0Val)
 			var res0Obj env.Object
 			{
 				typ := reflect.TypeOf(res0)
@@ -17308,14 +17338,15 @@ var Builtins = map[string]*env.Builtin{
 					res0Obj = *env.NewNative(ps.Idx, res0, "ebitenutil-read-seek-closer")
 				}
 			}
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"flappy-gopher-png": {
@@ -17408,7 +17439,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("gif-decode: arg 1: expected native")
 			}
-			res0, res1 := gif.Decode(arg0Val)
+			res0, resErr := gif.Decode(arg0Val)
 			var res0Obj env.Object
 			{
 				typ := reflect.TypeOf(res0)
@@ -17428,14 +17459,15 @@ var Builtins = map[string]*env.Builtin{
 					res0Obj = *env.NewNative(ps.Idx, res0, "image-image")
 				}
 			}
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"gif-decode-all": {
@@ -17468,17 +17500,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("gif-decode-all: arg 1: expected native")
 			}
-			res0, res1 := gif.DecodeAll(arg0Val)
+			res0, resErr := gif.DecodeAll(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-gif-gif")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"gif-decode-config": {
@@ -17511,17 +17544,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("gif-decode-config: arg 1: expected native")
 			}
-			res0, res1 := gif.DecodeConfig(arg0Val)
+			res0, resErr := gif.DecodeConfig(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-image-config")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"gif-encode": {
@@ -17599,12 +17633,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("gif-encode: arg 3: expected native")
 			}
-			res0 := gif.Encode(arg0Val, arg1Val, arg2Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := gif.Encode(arg0Val, arg1Val, arg2Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return nil
 		},
 	},
 	"gif-encode-all": {
@@ -17656,12 +17694,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("gif-encode-all: arg 2: expected native")
 			}
-			res0 := gif.EncodeAll(arg0Val, arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := gif.EncodeAll(arg0Val, arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return nil
 		},
 	},
 	"gif-gif": {
@@ -17714,7 +17756,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("image-decode: arg 1: expected native")
 			}
-			res0, res1, res2 := image.Decode(arg0Val)
+			res0, res1, resErr := image.Decode(arg0Val)
 			var res0Obj env.Object
 			{
 				typ := reflect.TypeOf(res0)
@@ -17736,15 +17778,18 @@ var Builtins = map[string]*env.Builtin{
 			}
 			var res1Obj env.Object
 			res1Obj = *env.NewString(res1)
-			var res2Obj env.Object
-			if res2 != nil {
-				res2Obj = *env.NewError(res2.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"2":   res1Obj,
-				"err": res2Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"image-decode-config": {
@@ -17777,20 +17822,23 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("image-decode-config: arg 1: expected native")
 			}
-			res0, res1, res2 := image.DecodeConfig(arg0Val)
+			res0, res1, resErr := image.DecodeConfig(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-image-config")
 			var res1Obj env.Object
 			res1Obj = *env.NewString(res1)
-			var res2Obj env.Object
-			if res2 != nil {
-				res2Obj = *env.NewError(res2.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"2":   res1Obj,
-				"err": res2Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"image-image//at": {
@@ -21655,10 +21703,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"inpututil-touch-press-duration": {
@@ -21722,17 +21770,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("io-byte-reader//read-byte: arg 1: expected native")
 			}
-			res0, res1 := arg0Val.ReadByte()
+			res0, resErr := arg0Val.ReadByte()
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "byte")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"io-closer//close": {
@@ -21765,12 +21814,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("io-closer//close: arg 1: expected native")
 			}
-			res0 := arg0Val.Close()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Close()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"io-reader//read": {
@@ -21838,17 +21891,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("io-reader//read: arg 2: expected block, native or nil")
 			}
-			res0, res1 := arg0Val.Read(arg1Val)
+			res0, resErr := arg0Val.Read(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"io-seeker//seek": {
@@ -21895,17 +21949,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("io-seeker//seek: arg 3: expected integer")
 			}
-			res0, res1 := arg0Val.Seek(arg1Val, arg2Val)
+			res0, resErr := arg0Val.Seek(arg1Val, arg2Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"jpeg-decode": {
@@ -21938,7 +21993,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("jpeg-decode: arg 1: expected native")
 			}
-			res0, res1 := jpeg.Decode(arg0Val)
+			res0, resErr := jpeg.Decode(arg0Val)
 			var res0Obj env.Object
 			{
 				typ := reflect.TypeOf(res0)
@@ -21958,14 +22013,15 @@ var Builtins = map[string]*env.Builtin{
 					res0Obj = *env.NewNative(ps.Idx, res0, "image-image")
 				}
 			}
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"jpeg-decode-config": {
@@ -21998,17 +22054,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("jpeg-decode-config: arg 1: expected native")
 			}
-			res0, res1 := jpeg.DecodeConfig(arg0Val)
+			res0, resErr := jpeg.DecodeConfig(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-image-config")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"jpeg-encode": {
@@ -22086,12 +22143,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("jpeg-encode: arg 3: expected native")
 			}
-			res0 := jpeg.Encode(arg0Val, arg1Val, arg2Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := jpeg.Encode(arg0Val, arg1Val, arg2Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return nil
 		},
 	},
 	"jpeg-format-error//error": {
@@ -22211,10 +22272,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-image-rectangle")
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(boolToInt64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"mascot-out-01-png": {
@@ -22398,17 +22459,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("mp-3-decode: arg 2: expected native")
 			}
-			res0, res1 := mp3.Decode(arg0Val, arg1Val)
+			res0, resErr := mp3.Decode(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-mp-3-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"mp-3-decode-with-sample-rate": {
@@ -22448,17 +22510,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("mp-3-decode-with-sample-rate: arg 2: expected native")
 			}
-			res0, res1 := mp3.DecodeWithSampleRate(arg0Val, arg1Val)
+			res0, resErr := mp3.DecodeWithSampleRate(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-mp-3-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"mp-3-decode-without-resampling": {
@@ -22491,17 +22554,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("mp-3-decode-without-resampling: arg 1: expected native")
 			}
-			res0, res1 := mp3.DecodeWithoutResampling(arg0Val)
+			res0, resErr := mp3.DecodeWithoutResampling(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-mp-3-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"mp-3-stream": {
@@ -22622,7 +22686,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("png-decode: arg 1: expected native")
 			}
-			res0, res1 := png.Decode(arg0Val)
+			res0, resErr := png.Decode(arg0Val)
 			var res0Obj env.Object
 			{
 				typ := reflect.TypeOf(res0)
@@ -22642,14 +22706,15 @@ var Builtins = map[string]*env.Builtin{
 					res0Obj = *env.NewNative(ps.Idx, res0, "image-image")
 				}
 			}
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"png-decode-config": {
@@ -22682,17 +22747,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("png-decode-config: arg 1: expected native")
 			}
-			res0, res1 := png.DecodeConfig(arg0Val)
+			res0, resErr := png.DecodeConfig(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-image-config")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"png-default-compression": {
@@ -22760,12 +22826,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("png-encode: arg 2: expected native")
 			}
-			res0 := png.Encode(arg0Val, arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := png.Encode(arg0Val, arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return nil
 		},
 	},
 	"png-encoder-buffer-pool//get": {
@@ -23016,17 +23086,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-audio-context//player: arg 2: expected native")
 			}
-			res0, res1 := arg0Val.NewPlayer(arg1Val)
+			res0, resErr := arg0Val.NewPlayer(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-audio-player")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-audio-context//player-from-bytes": {
@@ -23180,17 +23251,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-audio-infinite-loop//read: arg 2: expected block, native or nil")
 			}
-			res0, res1 := arg0Val.Read(arg1Val)
+			res0, resErr := arg0Val.Read(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-audio-infinite-loop//seek": {
@@ -23230,17 +23302,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-audio-infinite-loop//seek: arg 3: expected integer")
 			}
-			res0, res1 := arg0Val.Seek(arg1Val, arg2Val)
+			res0, resErr := arg0Val.Seek(arg1Val, arg2Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-audio-player//close": {
@@ -23266,12 +23339,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-audio-player//close: arg 1: expected native")
 			}
-			res0 := arg0Val.Close()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Close()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-audio-player//current": {
@@ -23438,12 +23515,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-audio-player//rewind: arg 1: expected native")
 			}
-			res0 := arg0Val.Rewind()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Rewind()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-audio-player//seek": {
@@ -23482,12 +23563,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-audio-player//seek: arg 2: expected native")
 			}
-			res0 := arg0Val.Seek(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Seek(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-audio-player//set-buffer-size": {
@@ -23566,12 +23651,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-audio-player//set-position: arg 2: expected native")
 			}
-			res0 := arg0Val.SetPosition(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.SetPosition(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-audio-player//set-volume": {
@@ -24514,12 +24603,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-blocks-game-scene//update: arg 2: expected native")
 			}
-			res0 := arg0Val.Update(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-blocks-game-state//input!": {
@@ -24754,10 +24847,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"screen-width":  res0Obj,
-				"screen-height": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-blocks-game//update": {
@@ -24783,12 +24876,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-blocks-game//update: arg 1: expected native")
 			}
-			res0 := arg0Val.Update()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-blocks-gamepad-scene//draw": {
@@ -24879,12 +24976,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-blocks-gamepad-scene//update: arg 2: expected native")
 			}
-			res0 := arg0Val.Update(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-blocks-input//gamepad-id-button-pressed": {
@@ -25278,10 +25379,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-blocks-scene-manager//draw": {
@@ -25425,12 +25526,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-blocks-scene-manager//update: arg 2: expected native")
 			}
-			res0 := arg0Val.Update(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-blocks-title-scene//draw": {
@@ -25521,12 +25626,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-blocks-title-scene//update: arg 2: expected native")
 			}
-			res0 := arg0Val.Update(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-bytes-buffer//bytes": {
@@ -25756,17 +25865,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//read: arg 2: expected block, native or nil")
 			}
-			res0, res1 := arg0Val.Read(arg1Val)
+			res0, resErr := arg0Val.Read(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-buffer//read-byte": {
@@ -25792,17 +25902,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//read-byte: arg 1: expected native")
 			}
-			res0, res1 := arg0Val.ReadByte()
+			res0, resErr := arg0Val.ReadByte()
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "byte")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-buffer//read-bytes": {
@@ -25841,7 +25952,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//read-bytes: arg 2: expected native")
 			}
-			res0, res1 := arg0Val.ReadBytes(arg1Val)
+			res0, resErr := arg0Val.ReadBytes(arg1Val)
 			var res0Obj env.Object
 			{
 				items := make([]env.Object, len(res0))
@@ -25850,14 +25961,15 @@ var Builtins = map[string]*env.Builtin{
 				}
 				res0Obj = *env.NewBlock(*env.NewTSeries(items))
 			}
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"line": res0Obj,
-				"err":  res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-buffer//read-from": {
@@ -25909,17 +26021,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//read-from: arg 2: expected native")
 			}
-			res0, res1 := arg0Val.ReadFrom(arg1Val)
+			res0, resErr := arg0Val.ReadFrom(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-buffer//read-rune": {
@@ -25945,20 +26058,23 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//read-rune: arg 1: expected native")
 			}
-			res0, res1, res2 := arg0Val.ReadRune()
+			res0, res1, resErr := arg0Val.ReadRune()
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "rune")
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			var res2Obj env.Object
-			if res2 != nil {
-				res2Obj = *env.NewError(res2.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"r":    res0Obj,
-				"size": res1Obj,
-				"err":  res2Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-bytes-buffer//read-string": {
@@ -25997,17 +26113,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//read-string: arg 2: expected native")
 			}
-			res0, res1 := arg0Val.ReadString(arg1Val)
+			res0, resErr := arg0Val.ReadString(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewString(res0)
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"line": res0Obj,
-				"err":  res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-buffer//reset": {
@@ -26123,12 +26240,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//unread-byte: arg 1: expected native")
 			}
-			res0 := arg0Val.UnreadByte()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.UnreadByte()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-bytes-buffer//unread-rune": {
@@ -26154,12 +26275,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//unread-rune: arg 1: expected native")
 			}
-			res0 := arg0Val.UnreadRune()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.UnreadRune()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-bytes-buffer//write": {
@@ -26220,17 +26345,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//write: arg 2: expected block, native or nil")
 			}
-			res0, res1 := arg0Val.Write(arg1Val)
+			res0, resErr := arg0Val.Write(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-buffer//write-byte": {
@@ -26269,12 +26395,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//write-byte: arg 2: expected native")
 			}
-			res0 := arg0Val.WriteByte(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.WriteByte(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-bytes-buffer//write-rune": {
@@ -26313,17 +26443,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//write-rune: arg 2: expected native")
 			}
-			res0, res1 := arg0Val.WriteRune(arg1Val)
+			res0, resErr := arg0Val.WriteRune(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-buffer//write-string": {
@@ -26356,17 +26487,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//write-string: arg 2: expected string")
 			}
-			res0, res1 := arg0Val.WriteString(arg1Val)
+			res0, resErr := arg0Val.WriteString(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-buffer//write-to": {
@@ -26418,17 +26550,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//write-to: arg 2: expected native")
 			}
-			res0, res1 := arg0Val.WriteTo(arg1Val)
+			res0, resErr := arg0Val.WriteTo(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-reader//len": {
@@ -26518,17 +26651,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-reader//read: arg 2: expected block, native or nil")
 			}
-			res0, res1 := arg0Val.Read(arg1Val)
+			res0, resErr := arg0Val.Read(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-reader//read-at": {
@@ -26596,17 +26730,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-reader//read-at: arg 3: expected integer")
 			}
-			res0, res1 := arg0Val.ReadAt(arg1Val, arg2Val)
+			res0, resErr := arg0Val.ReadAt(arg1Val, arg2Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-reader//read-byte": {
@@ -26632,17 +26767,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-reader//read-byte: arg 1: expected native")
 			}
-			res0, res1 := arg0Val.ReadByte()
+			res0, resErr := arg0Val.ReadByte()
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "byte")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-reader//read-rune": {
@@ -26668,20 +26804,23 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-reader//read-rune: arg 1: expected native")
 			}
-			res0, res1, res2 := arg0Val.ReadRune()
+			res0, res1, resErr := arg0Val.ReadRune()
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "rune")
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			var res2Obj env.Object
-			if res2 != nil {
-				res2Obj = *env.NewError(res2.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"ch":   res0Obj,
-				"size": res1Obj,
-				"err":  res2Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-bytes-reader//reset": {
@@ -26783,17 +26922,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-reader//seek: arg 3: expected integer")
 			}
-			res0, res1 := arg0Val.Seek(arg1Val, arg2Val)
+			res0, resErr := arg0Val.Seek(arg1Val, arg2Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-reader//size": {
@@ -26848,12 +26988,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-reader//unread-byte: arg 1: expected native")
 			}
-			res0 := arg0Val.UnreadByte()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.UnreadByte()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-bytes-reader//unread-rune": {
@@ -26879,12 +27023,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-reader//unread-rune: arg 1: expected native")
 			}
-			res0 := arg0Val.UnreadRune()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.UnreadRune()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-bytes-reader//write-to": {
@@ -26936,17 +27084,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-reader//write-to: arg 2: expected native")
 			}
-			res0, res1 := arg0Val.WriteTo(arg1Val)
+			res0, resErr := arg0Val.WriteTo(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-color-alpha-16//a!": {
@@ -32708,10 +32857,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewDecimal(float64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewDecimal(float64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-ebiten-geo-m//concat": {
@@ -34053,10 +34202,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"width":  res0Obj,
-				"height": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-ebiten-image//sub-image": {
@@ -34244,12 +34393,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-ebiten-key//unmarshal-text: arg 2: expected block, native or nil")
 			}
-			res0 := arg0Val.UnmarshalText(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.UnmarshalText(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-ebiten-monitor-type//device-scale-factor": {
@@ -34338,10 +34491,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-ebiten-new-image-from-image-options//preserve-bounds!": {
@@ -46134,12 +46287,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"ptr-image-uniform//rgba-64-at": {
@@ -47257,17 +47410,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-mp-3-stream//read: arg 2: expected block, native or nil")
 			}
-			res0, res1 := arg0Val.Read(arg1Val)
+			res0, resErr := arg0Val.Read(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-mp-3-stream//seek": {
@@ -47307,17 +47461,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-mp-3-stream//seek: arg 3: expected integer")
 			}
-			res0, res1 := arg0Val.Seek(arg1Val, arg2Val)
+			res0, resErr := arg0Val.Seek(arg1Val, arg2Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-png-encoder//buffer-pool!": {
@@ -47565,12 +47720,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-png-encoder//encode: arg 3: expected native")
 			}
-			res0 := arg0Val.Encode(arg1Val, arg2Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Encode(arg1Val, arg2Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-text-1-draw-options//blend!": {
@@ -50530,11 +50689,11 @@ var Builtins = map[string]*env.Builtin{
 			res1Obj = *env.NewInteger(int64(res1))
 			var res2Obj env.Object
 			res2Obj = *env.NewInteger(boolToInt64(res2))
-			return *env.NewDict(map[string]any{
-				"start": res0Obj,
-				"end":   res1Obj,
-				"ok":    res2Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+			}))
 		},
 	},
 	"ptr-textinput-field//focus": {
@@ -50601,17 +50760,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-textinput-field//handle-input: arg 3: expected integer")
 			}
-			res0, res1 := arg0Val.HandleInput(arg1Val, arg2Val)
+			res0, resErr := arg0Val.HandleInput(arg1Val, arg2Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(boolToInt64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"handled": res0Obj,
-				"err":     res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-textinput-field//is-focused": {
@@ -50671,10 +50831,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"start": res0Obj,
-				"end":   res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-textinput-field//set-selection": {
@@ -51070,7 +51230,7 @@ var Builtins = map[string]*env.Builtin{
 			}
 			var resObj env.Object
 			if self.Error != nil {
-				resObj = *env.NewError(self.Error.Error())
+				resObj = env.NewError(self.Error.Error())
 			}
 			return resObj
 		},
@@ -51225,12 +51385,16 @@ var Builtins = map[string]*env.Builtin{
 					arg1Val = twenty48.Dir(u)
 				}
 			}
-			res0 := arg0Val.Move(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Move(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-twenty-48-board//size": {
@@ -51261,10 +51425,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-twenty-48-board//update": {
@@ -51309,12 +51473,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-twenty-48-board//update: arg 2: expected native")
 			}
-			res0 := arg0Val.Update(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-twenty-48-game//draw": {
@@ -51405,10 +51573,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"screen-width":  res0Obj,
-				"screen-height": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-twenty-48-game//update": {
@@ -51434,12 +51602,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-twenty-48-game//update: arg 1: expected native")
 			}
-			res0 := arg0Val.Update()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-twenty-48-input//dir": {
@@ -51470,10 +51642,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(int(res0)))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(boolToInt64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-twenty-48-input//update": {
@@ -51606,10 +51778,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-twenty-48-tile//next-value": {
@@ -51669,10 +51841,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-twenty-48-tile//update": {
@@ -51698,12 +51870,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-twenty-48-tile//update: arg 1: expected native")
 			}
-			res0 := arg0Val.Update()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-twenty-48-tile//value": {
@@ -51839,10 +52015,10 @@ var Builtins = map[string]*env.Builtin{
 				}
 				res1Obj = *env.NewBlock(*env.NewTSeries(items))
 			}
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-vector-path//append-vertices-and-indices-for-stroke": {
@@ -51968,10 +52144,10 @@ var Builtins = map[string]*env.Builtin{
 				}
 				res1Obj = *env.NewBlock(*env.NewTSeries(items))
 			}
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-vector-path//close": {
@@ -52493,17 +52669,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-vorbis-stream//read: arg 2: expected block, native or nil")
 			}
-			res0, res1 := arg0Val.Read(arg1Val)
+			res0, resErr := arg0Val.Read(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-vorbis-stream//seek": {
@@ -52543,17 +52720,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-vorbis-stream//seek: arg 3: expected integer")
 			}
-			res0, res1 := arg0Val.Seek(arg1Val, arg2Val)
+			res0, resErr := arg0Val.Seek(arg1Val, arg2Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-wav-stream//length": {
@@ -52643,17 +52821,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-wav-stream//read: arg 2: expected block, native or nil")
 			}
-			res0, res1 := arg0Val.Read(arg1Val)
+			res0, resErr := arg0Val.Read(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-wav-stream//seek": {
@@ -52693,17 +52872,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-wav-stream//seek: arg 3: expected integer")
 			}
-			res0, res1 := arg0Val.Seek(arg1Val, arg2Val)
+			res0, resErr := arg0Val.Seek(arg1Val, arg2Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"shader-1-gopher-bg-png": {
@@ -53210,10 +53390,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewDecimal(float64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewDecimal(float64(res1))
-			return *env.NewDict(map[string]any{
-				"width":  res0Obj,
-				"height": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"text-1-must-parse-tag": {
@@ -53293,17 +53473,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("text-1-go-text-face-source: arg 1: expected native")
 			}
-			res0, res1 := text_1.NewGoTextFaceSource(arg0Val)
+			res0, resErr := text_1.NewGoTextFaceSource(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-text-1-go-text-face-source")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"text-1-go-text-face-sources-from-collection": {
@@ -53336,7 +53517,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("text-1-go-text-face-sources-from-collection: arg 1: expected native")
 			}
-			res0, res1 := text_1.NewGoTextFaceSourcesFromCollection(arg0Val)
+			res0, resErr := text_1.NewGoTextFaceSourcesFromCollection(arg0Val)
 			var res0Obj env.Object
 			{
 				items := make([]env.Object, len(res0))
@@ -53345,14 +53526,15 @@ var Builtins = map[string]*env.Builtin{
 				}
 				res0Obj = *env.NewBlock(*env.NewTSeries(items))
 			}
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"text-1-go-x-face": {
@@ -53482,17 +53664,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("text-1-multi-face: arg 1: expected block, native or nil")
 			}
-			res0, res1 := text_1.NewMultiFace(arg0Val...)
+			res0, resErr := text_1.NewMultiFace(arg0Val...)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-text-1-multi-face")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"text-1-parse-tag": {
@@ -53506,17 +53689,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("text-1-parse-tag: arg 1: expected string")
 			}
-			res0, res1 := text_1.ParseTag(arg0Val)
+			res0, resErr := text_1.ParseTag(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(uint32(res0)))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"text-1-stretch-condensed": {
@@ -54008,10 +54192,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewNative(ps.Idx, res0, "chan_srtextinput-state")
 			var res1Obj env.Object
 			res1Obj = *env.NewNative(ps.Idx, res1, "func()")
-			return *env.NewDict(map[string]any{
-				"states": res0Obj,
-				"close":  res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"twenty-48-dir-down": {
@@ -54111,10 +54295,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"x": res0Obj,
-				"y": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"twenty-48-board": {
@@ -54128,34 +54312,36 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("twenty-48-board: arg 1: expected integer")
 			}
-			res0, res1 := twenty48.NewBoard(arg0Val)
+			res0, resErr := twenty48.NewBoard(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-twenty-48-board")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"twenty-48-game": {
 		Doc:   "twenty48.NewGame",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			res0, res1 := twenty48.NewGame()
+			res0, resErr := twenty48.NewGame()
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-twenty-48-game")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"twenty-48-input": {
@@ -54350,17 +54536,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("vorbis-decode: arg 2: expected native")
 			}
-			res0, res1 := vorbis.Decode(arg0Val, arg1Val)
+			res0, resErr := vorbis.Decode(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-vorbis-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"vorbis-decode-with-sample-rate": {
@@ -54400,17 +54587,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("vorbis-decode-with-sample-rate: arg 2: expected native")
 			}
-			res0, res1 := vorbis.DecodeWithSampleRate(arg0Val, arg1Val)
+			res0, resErr := vorbis.DecodeWithSampleRate(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-vorbis-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"vorbis-decode-without-resampling": {
@@ -54443,17 +54631,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("vorbis-decode-without-resampling: arg 1: expected native")
 			}
-			res0, res1 := vorbis.DecodeWithoutResampling(arg0Val)
+			res0, resErr := vorbis.DecodeWithoutResampling(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-vorbis-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"vorbis-stream": {
@@ -54515,17 +54704,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("wav-decode: arg 2: expected native")
 			}
-			res0, res1 := wav.Decode(arg0Val, arg1Val)
+			res0, resErr := wav.Decode(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-wav-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"wav-decode-with-sample-rate": {
@@ -54565,17 +54755,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("wav-decode-with-sample-rate: arg 2: expected native")
 			}
-			res0, res1 := wav.DecodeWithSampleRate(arg0Val, arg1Val)
+			res0, resErr := wav.DecodeWithSampleRate(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-wav-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"wav-decode-without-resampling": {
@@ -54608,17 +54799,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("wav-decode-without-resampling: arg 1: expected native")
 			}
-			res0, res1 := wav.DecodeWithoutResampling(arg0Val)
+			res0, resErr := wav.DecodeWithoutResampling(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-wav-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"wav-stream": {
