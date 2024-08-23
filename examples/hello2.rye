@@ -1,0 +1,23 @@
+rye .needs { ebiten }
+
+do\in ebiten {
+	set-window-size 600 400
+	set-window-title "Hello"
+
+	game: context {
+		x: -60
+		y: 200
+
+		update: fn\in { } current {
+			either x < 600 { x + 2 } { -60 } |change! 'x
+			nil
+		}
+		draw: fn { screen } {
+			ebitenutil-debug-print-at screen "Hello, world!" x y
+		}
+		layout: fn { w h } {
+			{ 600 400 }
+		}
+	}
+	run-game game
+}

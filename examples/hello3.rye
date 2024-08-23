@@ -1,0 +1,31 @@
+rye .needs { ebiten }
+
+do\in ebiten {
+	set-window-size 600 600
+	set-window-title "Hello"
+
+	game: context {
+		xs: produce 30 { } { .concat -60 }
+		y: 200
+		
+		
+		update: fn\in { } current {
+			map\pos xs 'i { ::x
+				either x < 600 { x + i } { -60 }
+			} |change! 'xs
+			nil
+		}
+		draw: fn { screen } {
+			i: 0
+			for xs { ::x
+				ebitenutil-debug-print-at screen "Hello, world!" x i * 20
+				i:: i + 1
+			}
+			nil
+		}
+		layout: fn { w h } {
+			{ 600 600 }
+		}
+	}
+	run-game game
+}
