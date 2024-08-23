@@ -8,7 +8,7 @@ do\in ebiten {
 			nil
 		}
 		draw: fn { screen } {
-			ebitenutil-debug-print screen "Hello, world!"
+			debug-print screen "Hello, world!"
 		}
 		layout: fn { w h } {
 			{ 160 90 }
