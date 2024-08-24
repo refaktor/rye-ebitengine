@@ -223,13 +223,8 @@ func ctxTo_blocks_Scene(ps *env.ProgramState, v env.RyeCtx) (blocks.Scene, error
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to blocks.Scene: context fn update: expected integer to be 0 or nil")
-		}
-		impl.fn_Update = nil
 	default:
-		return nil, errors.New("context to blocks.Scene: context fn update: expected function or nil")
+		return nil, errors.New("context to blocks.Scene: context fn update: expected function")
 	}
 	ctxObj1, ok := wordToObj["draw"]
 	if !ok {
@@ -247,13 +242,8 @@ func ctxTo_blocks_Scene(ps *env.ProgramState, v env.RyeCtx) (blocks.Scene, error
 			_ = actualFn
 			evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to blocks.Scene: context fn draw: expected integer to be 0 or nil")
-		}
-		impl.fn_Draw = nil
 	default:
-		return nil, errors.New("context to blocks.Scene: context fn draw: expected function or nil")
+		return nil, errors.New("context to blocks.Scene: context fn draw: expected function")
 	}
 	return impl, nil
 }
@@ -361,13 +351,8 @@ func ctxTo_color_Color(ps *env.ProgramState, v env.RyeCtx) (color.Color, error) 
 			}
 			return res0, res1, res2, res3
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to color.Color: context fn rgba: expected integer to be 0 or nil")
-		}
-		impl.fn_RGBA = nil
 	default:
-		return nil, errors.New("context to color.Color: context fn rgba: expected function or nil")
+		return nil, errors.New("context to color.Color: context fn rgba: expected function")
 	}
 	return impl, nil
 }
@@ -475,13 +460,8 @@ func ctxTo_color_Model(ps *env.ProgramState, v env.RyeCtx) (color.Model, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to color.Model: context fn convert: expected integer to be 0 or nil")
-		}
-		impl.fn_Convert = nil
 	default:
-		return nil, errors.New("context to color.Model: context fn convert: expected function or nil")
+		return nil, errors.New("context to color.Model: context fn convert: expected function")
 	}
 	return impl, nil
 }
@@ -566,13 +546,8 @@ func ctxTo_draw_Drawer(ps *env.ProgramState, v env.RyeCtx) (draw.Drawer, error) 
 			_ = actualFn
 			evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val, arg2Val, arg3Val)
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.Drawer: context fn draw: expected integer to be 0 or nil")
-		}
-		impl.fn_Draw = nil
 	default:
-		return nil, errors.New("context to draw.Drawer: context fn draw: expected function or nil")
+		return nil, errors.New("context to draw.Drawer: context fn draw: expected function")
 	}
 	return impl, nil
 }
@@ -651,13 +626,8 @@ func ctxTo_draw_Image(ps *env.ProgramState, v env.RyeCtx) (draw.Image, error) {
 			_ = actualFn
 			evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val, arg2Val)
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.Image: context fn set: expected integer to be 0 or nil")
-		}
-		impl.fn_Set = nil
 	default:
-		return nil, errors.New("context to draw.Image: context fn set: expected function or nil")
+		return nil, errors.New("context to draw.Image: context fn set: expected function")
 	}
 	ctxObj1, ok := wordToObj["color-model"]
 	if !ok {
@@ -716,13 +686,8 @@ func ctxTo_draw_Image(ps *env.ProgramState, v env.RyeCtx) (draw.Image, error) {
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.Image: context fn color-model: expected integer to be 0 or nil")
-		}
-		impl.fn_ColorModel = nil
 	default:
-		return nil, errors.New("context to draw.Image: context fn color-model: expected function or nil")
+		return nil, errors.New("context to draw.Image: context fn color-model: expected function")
 	}
 	ctxObj2, ok := wordToObj["bounds"]
 	if !ok {
@@ -760,13 +725,8 @@ func ctxTo_draw_Image(ps *env.ProgramState, v env.RyeCtx) (draw.Image, error) {
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.Image: context fn bounds: expected integer to be 0 or nil")
-		}
-		impl.fn_Bounds = nil
 	default:
-		return nil, errors.New("context to draw.Image: context fn bounds: expected function or nil")
+		return nil, errors.New("context to draw.Image: context fn bounds: expected function")
 	}
 	ctxObj3, ok := wordToObj["at"]
 	if !ok {
@@ -828,13 +788,8 @@ func ctxTo_draw_Image(ps *env.ProgramState, v env.RyeCtx) (draw.Image, error) {
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.Image: context fn at: expected integer to be 0 or nil")
-		}
-		impl.fn_At = nil
 	default:
-		return nil, errors.New("context to draw.Image: context fn at: expected function or nil")
+		return nil, errors.New("context to draw.Image: context fn at: expected function")
 	}
 	return impl, nil
 }
@@ -1014,13 +969,8 @@ func ctxTo_draw_Quantizer(ps *env.ProgramState, v env.RyeCtx) (draw.Quantizer, e
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.Quantizer: context fn quantize: expected integer to be 0 or nil")
-		}
-		impl.fn_Quantize = nil
 	default:
-		return nil, errors.New("context to draw.Quantizer: context fn quantize: expected function or nil")
+		return nil, errors.New("context to draw.Quantizer: context fn quantize: expected function")
 	}
 	return impl, nil
 }
@@ -1107,13 +1057,8 @@ func ctxTo_draw_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (draw.RGBA64Imag
 			_ = actualFn
 			evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val, arg2Val)
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.RGBA64Image: context fn set: expected integer to be 0 or nil")
-		}
-		impl.fn_Set = nil
 	default:
-		return nil, errors.New("context to draw.RGBA64Image: context fn set: expected function or nil")
+		return nil, errors.New("context to draw.RGBA64Image: context fn set: expected function")
 	}
 	ctxObj1, ok := wordToObj["set-rgba-64"]
 	if !ok {
@@ -1133,13 +1078,8 @@ func ctxTo_draw_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (draw.RGBA64Imag
 			_ = actualFn
 			evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val, arg2Val)
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.RGBA64Image: context fn set-rgba-64: expected integer to be 0 or nil")
-		}
-		impl.fn_SetRGBA64 = nil
 	default:
-		return nil, errors.New("context to draw.RGBA64Image: context fn set-rgba-64: expected function or nil")
+		return nil, errors.New("context to draw.RGBA64Image: context fn set-rgba-64: expected function")
 	}
 	ctxObj2, ok := wordToObj["rgba-64-at"]
 	if !ok {
@@ -1180,13 +1120,8 @@ func ctxTo_draw_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (draw.RGBA64Imag
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.RGBA64Image: context fn rgba-64-at: expected integer to be 0 or nil")
-		}
-		impl.fn_RGBA64At = nil
 	default:
-		return nil, errors.New("context to draw.RGBA64Image: context fn rgba-64-at: expected function or nil")
+		return nil, errors.New("context to draw.RGBA64Image: context fn rgba-64-at: expected function")
 	}
 	ctxObj3, ok := wordToObj["color-model"]
 	if !ok {
@@ -1245,13 +1180,8 @@ func ctxTo_draw_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (draw.RGBA64Imag
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.RGBA64Image: context fn color-model: expected integer to be 0 or nil")
-		}
-		impl.fn_ColorModel = nil
 	default:
-		return nil, errors.New("context to draw.RGBA64Image: context fn color-model: expected function or nil")
+		return nil, errors.New("context to draw.RGBA64Image: context fn color-model: expected function")
 	}
 	ctxObj4, ok := wordToObj["bounds"]
 	if !ok {
@@ -1289,13 +1219,8 @@ func ctxTo_draw_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (draw.RGBA64Imag
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.RGBA64Image: context fn bounds: expected integer to be 0 or nil")
-		}
-		impl.fn_Bounds = nil
 	default:
-		return nil, errors.New("context to draw.RGBA64Image: context fn bounds: expected function or nil")
+		return nil, errors.New("context to draw.RGBA64Image: context fn bounds: expected function")
 	}
 	ctxObj5, ok := wordToObj["at"]
 	if !ok {
@@ -1357,13 +1282,8 @@ func ctxTo_draw_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (draw.RGBA64Imag
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.RGBA64Image: context fn at: expected integer to be 0 or nil")
-		}
-		impl.fn_At = nil
 	default:
-		return nil, errors.New("context to draw.RGBA64Image: context fn at: expected function or nil")
+		return nil, errors.New("context to draw.RGBA64Image: context fn at: expected function")
 	}
 	return impl, nil
 }
@@ -1430,13 +1350,8 @@ func ctxTo_ebiten_FinalScreenDrawer(ps *env.ProgramState, v env.RyeCtx) (ebiten.
 			_ = actualFn
 			evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val, arg2Val)
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to ebiten.FinalScreenDrawer: context fn draw-final-screen: expected integer to be 0 or nil")
-		}
-		impl.fn_DrawFinalScreen = nil
 	default:
-		return nil, errors.New("context to ebiten.FinalScreenDrawer: context fn draw-final-screen: expected function or nil")
+		return nil, errors.New("context to ebiten.FinalScreenDrawer: context fn draw-final-screen: expected function")
 	}
 	return impl, nil
 }
@@ -1515,13 +1430,8 @@ func ctxTo_ebiten_Game(ps *env.ProgramState, v env.RyeCtx) (ebiten.Game, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to ebiten.Game: context fn update: expected integer to be 0 or nil")
-		}
-		impl.fn_Update = nil
 	default:
-		return nil, errors.New("context to ebiten.Game: context fn update: expected function or nil")
+		return nil, errors.New("context to ebiten.Game: context fn update: expected function")
 	}
 	ctxObj1, ok := wordToObj["draw"]
 	if !ok {
@@ -1539,13 +1449,8 @@ func ctxTo_ebiten_Game(ps *env.ProgramState, v env.RyeCtx) (ebiten.Game, error) 
 			_ = actualFn
 			evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to ebiten.Game: context fn draw: expected integer to be 0 or nil")
-		}
-		impl.fn_Draw = nil
 	default:
-		return nil, errors.New("context to ebiten.Game: context fn draw: expected function or nil")
+		return nil, errors.New("context to ebiten.Game: context fn draw: expected function")
 	}
 	ctxObj2, ok := wordToObj["layout"]
 	if !ok {
@@ -1604,13 +1509,8 @@ func ctxTo_ebiten_Game(ps *env.ProgramState, v env.RyeCtx) (ebiten.Game, error) 
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to ebiten.Game: context fn layout: expected integer to be 0 or nil")
-		}
-		impl.fn_Layout = nil
 	default:
-		return nil, errors.New("context to ebiten.Game: context fn layout: expected function or nil")
+		return nil, errors.New("context to ebiten.Game: context fn layout: expected function")
 	}
 	return impl, nil
 }
@@ -1699,13 +1599,8 @@ func ctxTo_ebiten_LayoutFer(ps *env.ProgramState, v env.RyeCtx) (ebiten.LayoutFe
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to ebiten.LayoutFer: context fn layout-f: expected integer to be 0 or nil")
-		}
-		impl.fn_LayoutF = nil
 	default:
-		return nil, errors.New("context to ebiten.LayoutFer: context fn layout-f: expected function or nil")
+		return nil, errors.New("context to ebiten.LayoutFer: context fn layout-f: expected function")
 	}
 	return impl, nil
 }
@@ -1837,13 +1732,8 @@ func ctxTo_fs_FS(ps *env.ProgramState, v env.RyeCtx) (fs.FS, error) {
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.FS: context fn open: expected integer to be 0 or nil")
-		}
-		impl.fn_Open = nil
 	default:
-		return nil, errors.New("context to fs.FS: context fn open: expected function or nil")
+		return nil, errors.New("context to fs.FS: context fn open: expected function")
 	}
 	return impl, nil
 }
@@ -1981,13 +1871,8 @@ func ctxTo_fs_File(ps *env.ProgramState, v env.RyeCtx) (fs.File, error) {
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.File: context fn stat: expected integer to be 0 or nil")
-		}
-		impl.fn_Stat = nil
 	default:
-		return nil, errors.New("context to fs.File: context fn stat: expected function or nil")
+		return nil, errors.New("context to fs.File: context fn stat: expected function")
 	}
 	ctxObj1, ok := wordToObj["read"]
 	if !ok {
@@ -2064,13 +1949,8 @@ func ctxTo_fs_File(ps *env.ProgramState, v env.RyeCtx) (fs.File, error) {
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.File: context fn read: expected integer to be 0 or nil")
-		}
-		impl.fn_Read = nil
 	default:
-		return nil, errors.New("context to fs.File: context fn read: expected function or nil")
+		return nil, errors.New("context to fs.File: context fn read: expected function")
 	}
 	ctxObj2, ok := wordToObj["close"]
 	if !ok {
@@ -2111,13 +1991,8 @@ func ctxTo_fs_File(ps *env.ProgramState, v env.RyeCtx) (fs.File, error) {
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.File: context fn close: expected integer to be 0 or nil")
-		}
-		impl.fn_Close = nil
 	default:
-		return nil, errors.New("context to fs.File: context fn close: expected function or nil")
+		return nil, errors.New("context to fs.File: context fn close: expected function")
 	}
 	return impl, nil
 }
@@ -2195,13 +2070,8 @@ func ctxTo_fs_FileInfo(ps *env.ProgramState, v env.RyeCtx) (fs.FileInfo, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.FileInfo: context fn name: expected integer to be 0 or nil")
-		}
-		impl.fn_Name = nil
 	default:
-		return nil, errors.New("context to fs.FileInfo: context fn name: expected function or nil")
+		return nil, errors.New("context to fs.FileInfo: context fn name: expected function")
 	}
 	ctxObj1, ok := wordToObj["size"]
 	if !ok {
@@ -2229,13 +2099,8 @@ func ctxTo_fs_FileInfo(ps *env.ProgramState, v env.RyeCtx) (fs.FileInfo, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.FileInfo: context fn size: expected integer to be 0 or nil")
-		}
-		impl.fn_Size = nil
 	default:
-		return nil, errors.New("context to fs.FileInfo: context fn size: expected function or nil")
+		return nil, errors.New("context to fs.FileInfo: context fn size: expected function")
 	}
 	ctxObj2, ok := wordToObj["mode"]
 	if !ok {
@@ -2277,13 +2142,8 @@ func ctxTo_fs_FileInfo(ps *env.ProgramState, v env.RyeCtx) (fs.FileInfo, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.FileInfo: context fn mode: expected integer to be 0 or nil")
-		}
-		impl.fn_Mode = nil
 	default:
-		return nil, errors.New("context to fs.FileInfo: context fn mode: expected function or nil")
+		return nil, errors.New("context to fs.FileInfo: context fn mode: expected function")
 	}
 	ctxObj3, ok := wordToObj["mod-time"]
 	if !ok {
@@ -2321,13 +2181,8 @@ func ctxTo_fs_FileInfo(ps *env.ProgramState, v env.RyeCtx) (fs.FileInfo, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.FileInfo: context fn mod-time: expected integer to be 0 or nil")
-		}
-		impl.fn_ModTime = nil
 	default:
-		return nil, errors.New("context to fs.FileInfo: context fn mod-time: expected function or nil")
+		return nil, errors.New("context to fs.FileInfo: context fn mod-time: expected function")
 	}
 	ctxObj4, ok := wordToObj["is-dir"]
 	if !ok {
@@ -2355,13 +2210,8 @@ func ctxTo_fs_FileInfo(ps *env.ProgramState, v env.RyeCtx) (fs.FileInfo, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.FileInfo: context fn is-dir: expected integer to be 0 or nil")
-		}
-		impl.fn_IsDir = nil
 	default:
-		return nil, errors.New("context to fs.FileInfo: context fn is-dir: expected function or nil")
+		return nil, errors.New("context to fs.FileInfo: context fn is-dir: expected function")
 	}
 	ctxObj5, ok := wordToObj["sys"]
 	if !ok {
@@ -2399,13 +2249,8 @@ func ctxTo_fs_FileInfo(ps *env.ProgramState, v env.RyeCtx) (fs.FileInfo, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.FileInfo: context fn sys: expected integer to be 0 or nil")
-		}
-		impl.fn_Sys = nil
 	default:
-		return nil, errors.New("context to fs.FileInfo: context fn sys: expected function or nil")
+		return nil, errors.New("context to fs.FileInfo: context fn sys: expected function")
 	}
 	return impl, nil
 }
@@ -2502,13 +2347,8 @@ func ctxTo_image_Image(ps *env.ProgramState, v env.RyeCtx) (image.Image, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.Image: context fn color-model: expected integer to be 0 or nil")
-		}
-		impl.fn_ColorModel = nil
 	default:
-		return nil, errors.New("context to image.Image: context fn color-model: expected function or nil")
+		return nil, errors.New("context to image.Image: context fn color-model: expected function")
 	}
 	ctxObj1, ok := wordToObj["bounds"]
 	if !ok {
@@ -2546,13 +2386,8 @@ func ctxTo_image_Image(ps *env.ProgramState, v env.RyeCtx) (image.Image, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.Image: context fn bounds: expected integer to be 0 or nil")
-		}
-		impl.fn_Bounds = nil
 	default:
-		return nil, errors.New("context to image.Image: context fn bounds: expected function or nil")
+		return nil, errors.New("context to image.Image: context fn bounds: expected function")
 	}
 	ctxObj2, ok := wordToObj["at"]
 	if !ok {
@@ -2614,13 +2449,8 @@ func ctxTo_image_Image(ps *env.ProgramState, v env.RyeCtx) (image.Image, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.Image: context fn at: expected integer to be 0 or nil")
-		}
-		impl.fn_At = nil
 	default:
-		return nil, errors.New("context to image.Image: context fn at: expected function or nil")
+		return nil, errors.New("context to image.Image: context fn at: expected function")
 	}
 	return impl, nil
 }
@@ -2693,13 +2523,8 @@ func ctxTo_image_PalettedImage(ps *env.ProgramState, v env.RyeCtx) (image.Palett
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.PalettedImage: context fn color-index-at: expected integer to be 0 or nil")
-		}
-		impl.fn_ColorIndexAt = nil
 	default:
-		return nil, errors.New("context to image.PalettedImage: context fn color-index-at: expected function or nil")
+		return nil, errors.New("context to image.PalettedImage: context fn color-index-at: expected function")
 	}
 	ctxObj1, ok := wordToObj["color-model"]
 	if !ok {
@@ -2758,13 +2583,8 @@ func ctxTo_image_PalettedImage(ps *env.ProgramState, v env.RyeCtx) (image.Palett
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.PalettedImage: context fn color-model: expected integer to be 0 or nil")
-		}
-		impl.fn_ColorModel = nil
 	default:
-		return nil, errors.New("context to image.PalettedImage: context fn color-model: expected function or nil")
+		return nil, errors.New("context to image.PalettedImage: context fn color-model: expected function")
 	}
 	ctxObj2, ok := wordToObj["bounds"]
 	if !ok {
@@ -2802,13 +2622,8 @@ func ctxTo_image_PalettedImage(ps *env.ProgramState, v env.RyeCtx) (image.Palett
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.PalettedImage: context fn bounds: expected integer to be 0 or nil")
-		}
-		impl.fn_Bounds = nil
 	default:
-		return nil, errors.New("context to image.PalettedImage: context fn bounds: expected function or nil")
+		return nil, errors.New("context to image.PalettedImage: context fn bounds: expected function")
 	}
 	ctxObj3, ok := wordToObj["at"]
 	if !ok {
@@ -2870,13 +2685,8 @@ func ctxTo_image_PalettedImage(ps *env.ProgramState, v env.RyeCtx) (image.Palett
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.PalettedImage: context fn at: expected integer to be 0 or nil")
-		}
-		impl.fn_At = nil
 	default:
-		return nil, errors.New("context to image.PalettedImage: context fn at: expected function or nil")
+		return nil, errors.New("context to image.PalettedImage: context fn at: expected function")
 	}
 	return impl, nil
 }
@@ -2959,13 +2769,8 @@ func ctxTo_image_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (image.RGBA64Im
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.RGBA64Image: context fn rgba-64-at: expected integer to be 0 or nil")
-		}
-		impl.fn_RGBA64At = nil
 	default:
-		return nil, errors.New("context to image.RGBA64Image: context fn rgba-64-at: expected function or nil")
+		return nil, errors.New("context to image.RGBA64Image: context fn rgba-64-at: expected function")
 	}
 	ctxObj1, ok := wordToObj["color-model"]
 	if !ok {
@@ -3024,13 +2829,8 @@ func ctxTo_image_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (image.RGBA64Im
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.RGBA64Image: context fn color-model: expected integer to be 0 or nil")
-		}
-		impl.fn_ColorModel = nil
 	default:
-		return nil, errors.New("context to image.RGBA64Image: context fn color-model: expected function or nil")
+		return nil, errors.New("context to image.RGBA64Image: context fn color-model: expected function")
 	}
 	ctxObj2, ok := wordToObj["bounds"]
 	if !ok {
@@ -3068,13 +2868,8 @@ func ctxTo_image_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (image.RGBA64Im
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.RGBA64Image: context fn bounds: expected integer to be 0 or nil")
-		}
-		impl.fn_Bounds = nil
 	default:
-		return nil, errors.New("context to image.RGBA64Image: context fn bounds: expected function or nil")
+		return nil, errors.New("context to image.RGBA64Image: context fn bounds: expected function")
 	}
 	ctxObj3, ok := wordToObj["at"]
 	if !ok {
@@ -3136,13 +2931,8 @@ func ctxTo_image_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (image.RGBA64Im
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.RGBA64Image: context fn at: expected integer to be 0 or nil")
-		}
-		impl.fn_At = nil
 	default:
-		return nil, errors.New("context to image.RGBA64Image: context fn at: expected function or nil")
+		return nil, errors.New("context to image.RGBA64Image: context fn at: expected function")
 	}
 	return impl, nil
 }
@@ -3251,13 +3041,8 @@ func ctxTo_io_ByteReader(ps *env.ProgramState, v env.RyeCtx) (io.ByteReader, err
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to io.ByteReader: context fn read-byte: expected integer to be 0 or nil")
-		}
-		impl.fn_ReadByte = nil
 	default:
-		return nil, errors.New("context to io.ByteReader: context fn read-byte: expected function or nil")
+		return nil, errors.New("context to io.ByteReader: context fn read-byte: expected function")
 	}
 	return impl, nil
 }
@@ -3328,13 +3113,8 @@ func ctxTo_io_Closer(ps *env.ProgramState, v env.RyeCtx) (io.Closer, error) {
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to io.Closer: context fn close: expected integer to be 0 or nil")
-		}
-		impl.fn_Close = nil
 	default:
-		return nil, errors.New("context to io.Closer: context fn close: expected function or nil")
+		return nil, errors.New("context to io.Closer: context fn close: expected function")
 	}
 	return impl, nil
 }
@@ -3445,13 +3225,8 @@ func ctxTo_io_ReadSeeker(ps *env.ProgramState, v env.RyeCtx) (io.ReadSeeker, err
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to io.ReadSeeker: context fn read: expected integer to be 0 or nil")
-		}
-		impl.fn_Read = nil
 	default:
-		return nil, errors.New("context to io.ReadSeeker: context fn read: expected function or nil")
+		return nil, errors.New("context to io.ReadSeeker: context fn read: expected function")
 	}
 	ctxObj1, ok := wordToObj["seek"]
 	if !ok {
@@ -3523,13 +3298,8 @@ func ctxTo_io_ReadSeeker(ps *env.ProgramState, v env.RyeCtx) (io.ReadSeeker, err
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to io.ReadSeeker: context fn seek: expected integer to be 0 or nil")
-		}
-		impl.fn_Seek = nil
 	default:
-		return nil, errors.New("context to io.ReadSeeker: context fn seek: expected function or nil")
+		return nil, errors.New("context to io.ReadSeeker: context fn seek: expected function")
 	}
 	return impl, nil
 }
@@ -3636,13 +3406,8 @@ func ctxTo_io_Reader(ps *env.ProgramState, v env.RyeCtx) (io.Reader, error) {
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to io.Reader: context fn read: expected integer to be 0 or nil")
-		}
-		impl.fn_Read = nil
 	default:
-		return nil, errors.New("context to io.Reader: context fn read: expected function or nil")
+		return nil, errors.New("context to io.Reader: context fn read: expected function")
 	}
 	return impl, nil
 }
@@ -3744,13 +3509,8 @@ func ctxTo_io_Seeker(ps *env.ProgramState, v env.RyeCtx) (io.Seeker, error) {
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to io.Seeker: context fn seek: expected integer to be 0 or nil")
-		}
-		impl.fn_Seek = nil
 	default:
-		return nil, errors.New("context to io.Seeker: context fn seek: expected function or nil")
+		return nil, errors.New("context to io.Seeker: context fn seek: expected function")
 	}
 	return impl, nil
 }
@@ -3857,13 +3617,8 @@ func ctxTo_io_Writer(ps *env.ProgramState, v env.RyeCtx) (io.Writer, error) {
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to io.Writer: context fn write: expected integer to be 0 or nil")
-		}
-		impl.fn_Write = nil
 	default:
-		return nil, errors.New("context to io.Writer: context fn write: expected function or nil")
+		return nil, errors.New("context to io.Writer: context fn write: expected function")
 	}
 	return impl, nil
 }
@@ -3945,13 +3700,8 @@ func ctxTo_png_EncoderBufferPool(ps *env.ProgramState, v env.RyeCtx) (png.Encode
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to png.EncoderBufferPool: context fn get: expected integer to be 0 or nil")
-		}
-		impl.fn_Get = nil
 	default:
-		return nil, errors.New("context to png.EncoderBufferPool: context fn get: expected function or nil")
+		return nil, errors.New("context to png.EncoderBufferPool: context fn get: expected function")
 	}
 	ctxObj1, ok := wordToObj["put"]
 	if !ok {
@@ -3969,13 +3719,8 @@ func ctxTo_png_EncoderBufferPool(ps *env.ProgramState, v env.RyeCtx) (png.Encode
 			_ = actualFn
 			evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to png.EncoderBufferPool: context fn put: expected integer to be 0 or nil")
-		}
-		impl.fn_Put = nil
 	default:
-		return nil, errors.New("context to png.EncoderBufferPool: context fn put: expected function or nil")
+		return nil, errors.New("context to png.EncoderBufferPool: context fn put: expected function")
 	}
 	return impl, nil
 }
