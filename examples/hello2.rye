@@ -13,7 +13,7 @@ do\in ebiten {
 			nil
 		}
 		draw: fn { screen } {
-			ebitenutil-debug-print-at screen "Hello, world!" x y
+			debug-print-at screen "Hello, world!" x y
 		}
 		layout: fn { w h } {
 			{ 600 400 }

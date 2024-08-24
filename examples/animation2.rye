@@ -1,0 +1,45 @@
+rye .needs { ebiten }
+
+do\in ebiten {
+	print "START"  ; BUG: when you close the window this code is ran again
+	screen-w:: 320
+	screen-h: 240
+
+	frame-ox: 0
+	frame-oy: 32
+	frame-w: 32
+	frame-h: 32
+	frame-count: 8
+
+	img: image-from-file "./examples/assets/runner.png" -> "1"
+
+	set-window-size screen-w * 2 screen-h * 2
+	set-window-title "Animation Example"
+	game: context {
+		frame: 0
+		update: does {
+			change! frame + 1 'frame
+			nil
+		}
+		draw: fn { screen } {
+			private {
+				op: draw-image-options
+				op .geo-m? .translate 144.0 124.0
+				;debug-print screen frame .to-string
+				i: mod to-integer frame / 5 frame-count
+				sx: frame-ox + i * frame-w
+				sy: frame-oy
+				frame: img .sub-image image-rect sx sy sx + frame-w sy + frame-h
+				screen .draw-image frame op
+			}
+			private {
+				draw-image-options :op .geo-m? .scale 0.8 0.8
+				screen .draw-image img op
+			}
+		}
+		layout: fn { w h } {
+			{ 320 240 }
+		}
+	}
+	run-game game
+}
