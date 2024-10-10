@@ -10,7 +10,7 @@ do\in ebiten {
 	frame-h: 32
 	frame-count: 8
 
-	img: image-from-file "./examples/assets/runner.png" -> "1"
+	img: image-from-file "./examples/assets/runner.png" -> 0
 
 	set-window-size screen-w * 2 screen-h * 2
 	set-window-title "Animation Example"
