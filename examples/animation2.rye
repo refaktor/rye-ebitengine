@@ -1,7 +1,6 @@
 rye .needs { ebiten }
 
 do\in ebiten {
-	print "START"  ; BUG: when you close the window this code is ran again
 	screen-w:: 320
 	screen-h: 240
 
@@ -25,7 +24,6 @@ do\in ebiten {
 			private {
 				op: draw-image-options
 				op .geo-m? .translate 144.0 124.0
-				;debug-print screen frame .to-string
 				i: mod to-integer frame / 5 frame-count
 				sx: frame-ox + i * frame-w
 				sy: frame-oy

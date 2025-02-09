@@ -18,22 +18,22 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/examples/2048/2048"
 	"github.com/hajimehoshi/ebiten/v2/examples/blocks/blocks"
 	"github.com/hajimehoshi/ebiten/v2/examples/keyboard/keyboard"
-	audio_1 "github.com/hajimehoshi/ebiten/v2/examples/resources/audio"
+	resources_audio "github.com/hajimehoshi/ebiten/v2/examples/resources/audio"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/images"
-	audio_2 "github.com/hajimehoshi/ebiten/v2/examples/resources/images/audio"
+	images_audio "github.com/hajimehoshi/ebiten/v2/examples/resources/images/audio"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/images/blend"
-	blocks_1 "github.com/hajimehoshi/ebiten/v2/examples/resources/images/blocks"
+	images_blocks "github.com/hajimehoshi/ebiten/v2/examples/resources/images/blocks"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/images/flappy"
-	keyboard_1 "github.com/hajimehoshi/ebiten/v2/examples/resources/images/keyboard"
+	images_keyboard "github.com/hajimehoshi/ebiten/v2/examples/resources/images/keyboard"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/images/mascot"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/images/platformer"
-	shader_1 "github.com/hajimehoshi/ebiten/v2/examples/resources/images/shader"
+	images_shader "github.com/hajimehoshi/ebiten/v2/examples/resources/images/shader"
 	"github.com/hajimehoshi/ebiten/v2/exp/textinput"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/mobile"
-	"github.com/hajimehoshi/ebiten/v2/text"
-	text_1 "github.com/hajimehoshi/ebiten/v2/text/v2"
+	ebiten_text "github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/refaktor/rye/env"
 	"github.com/refaktor/rye/evaldo"
@@ -102,15 +102,15 @@ var ryeStructNameLookup = map[string]string{
 	"github.com/hajimehoshi/ebiten/v2/examples/blocks/blocks.*TitleScene":   "ptr-blocks-title-scene",
 	"github.com/hajimehoshi/ebiten/v2/exp/textinput.*Field":                 "ptr-textinput-field",
 	"github.com/hajimehoshi/ebiten/v2/exp/textinput.*State":                 "ptr-textinput-state",
-	"github.com/hajimehoshi/ebiten/v2/text.*Glyph":                          "ptr-text-glyph",
-	"github.com/hajimehoshi/ebiten/v2/text/v2.*DrawOptions":                 "ptr-text-1-draw-options",
-	"github.com/hajimehoshi/ebiten/v2/text/v2.*Glyph":                       "ptr-text-1-glyph",
-	"github.com/hajimehoshi/ebiten/v2/text/v2.*GoTextFace":                  "ptr-text-1-go-text-face",
-	"github.com/hajimehoshi/ebiten/v2/text/v2.*LayoutOptions":               "ptr-text-1-layout-options",
-	"github.com/hajimehoshi/ebiten/v2/text/v2.*LimitedFace":                 "ptr-text-1-limited-face",
-	"github.com/hajimehoshi/ebiten/v2/text/v2.*Metadata":                    "ptr-text-1-metadata",
-	"github.com/hajimehoshi/ebiten/v2/text/v2.*Metrics":                     "ptr-text-1-metrics",
-	"github.com/hajimehoshi/ebiten/v2/text/v2.*MultiFace":                   "ptr-text-1-multi-face",
+	"github.com/hajimehoshi/ebiten/v2/text.*Glyph":                          "ptr-ebiten-text-glyph",
+	"github.com/hajimehoshi/ebiten/v2/text/v2.*DrawOptions":                 "ptr-text-draw-options",
+	"github.com/hajimehoshi/ebiten/v2/text/v2.*Glyph":                       "ptr-text-glyph",
+	"github.com/hajimehoshi/ebiten/v2/text/v2.*GoTextFace":                  "ptr-text-go-text-face",
+	"github.com/hajimehoshi/ebiten/v2/text/v2.*LayoutOptions":               "ptr-text-layout-options",
+	"github.com/hajimehoshi/ebiten/v2/text/v2.*LimitedFace":                 "ptr-text-limited-face",
+	"github.com/hajimehoshi/ebiten/v2/text/v2.*Metadata":                    "ptr-text-metadata",
+	"github.com/hajimehoshi/ebiten/v2/text/v2.*Metrics":                     "ptr-text-metrics",
+	"github.com/hajimehoshi/ebiten/v2/text/v2.*MultiFace":                   "ptr-text-multi-face",
 	"github.com/hajimehoshi/ebiten/v2/vector.*Path":                         "ptr-vector-path",
 	"github.com/hajimehoshi/ebiten/v2/vector.*StrokeOptions":                "ptr-vector-stroke-options",
 	"image.*Alpha":         "ptr-image-alpha",
@@ -223,13 +223,8 @@ func ctxTo_blocks_Scene(ps *env.ProgramState, v env.RyeCtx) (blocks.Scene, error
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to blocks.Scene: context fn update: expected integer to be 0 or nil")
-		}
-		impl.fn_Update = nil
 	default:
-		return nil, errors.New("context to blocks.Scene: context fn update: expected function or nil")
+		return nil, errors.New("context to blocks.Scene: context fn update: expected function")
 	}
 	ctxObj1, ok := wordToObj["draw"]
 	if !ok {
@@ -247,13 +242,8 @@ func ctxTo_blocks_Scene(ps *env.ProgramState, v env.RyeCtx) (blocks.Scene, error
 			_ = actualFn
 			evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to blocks.Scene: context fn draw: expected integer to be 0 or nil")
-		}
-		impl.fn_Draw = nil
 	default:
-		return nil, errors.New("context to blocks.Scene: context fn draw: expected function or nil")
+		return nil, errors.New("context to blocks.Scene: context fn draw: expected function")
 	}
 	return impl, nil
 }
@@ -361,13 +351,8 @@ func ctxTo_color_Color(ps *env.ProgramState, v env.RyeCtx) (color.Color, error) 
 			}
 			return res0, res1, res2, res3
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to color.Color: context fn rgba: expected integer to be 0 or nil")
-		}
-		impl.fn_RGBA = nil
 	default:
-		return nil, errors.New("context to color.Color: context fn rgba: expected function or nil")
+		return nil, errors.New("context to color.Color: context fn rgba: expected function")
 	}
 	return impl, nil
 }
@@ -475,13 +460,8 @@ func ctxTo_color_Model(ps *env.ProgramState, v env.RyeCtx) (color.Model, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to color.Model: context fn convert: expected integer to be 0 or nil")
-		}
-		impl.fn_Convert = nil
 	default:
-		return nil, errors.New("context to color.Model: context fn convert: expected function or nil")
+		return nil, errors.New("context to color.Model: context fn convert: expected function")
 	}
 	return impl, nil
 }
@@ -566,13 +546,8 @@ func ctxTo_draw_Drawer(ps *env.ProgramState, v env.RyeCtx) (draw.Drawer, error) 
 			_ = actualFn
 			evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val, arg2Val, arg3Val)
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.Drawer: context fn draw: expected integer to be 0 or nil")
-		}
-		impl.fn_Draw = nil
 	default:
-		return nil, errors.New("context to draw.Drawer: context fn draw: expected function or nil")
+		return nil, errors.New("context to draw.Drawer: context fn draw: expected function")
 	}
 	return impl, nil
 }
@@ -651,13 +626,8 @@ func ctxTo_draw_Image(ps *env.ProgramState, v env.RyeCtx) (draw.Image, error) {
 			_ = actualFn
 			evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val, arg2Val)
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.Image: context fn set: expected integer to be 0 or nil")
-		}
-		impl.fn_Set = nil
 	default:
-		return nil, errors.New("context to draw.Image: context fn set: expected function or nil")
+		return nil, errors.New("context to draw.Image: context fn set: expected function")
 	}
 	ctxObj1, ok := wordToObj["color-model"]
 	if !ok {
@@ -716,13 +686,8 @@ func ctxTo_draw_Image(ps *env.ProgramState, v env.RyeCtx) (draw.Image, error) {
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.Image: context fn color-model: expected integer to be 0 or nil")
-		}
-		impl.fn_ColorModel = nil
 	default:
-		return nil, errors.New("context to draw.Image: context fn color-model: expected function or nil")
+		return nil, errors.New("context to draw.Image: context fn color-model: expected function")
 	}
 	ctxObj2, ok := wordToObj["bounds"]
 	if !ok {
@@ -760,13 +725,8 @@ func ctxTo_draw_Image(ps *env.ProgramState, v env.RyeCtx) (draw.Image, error) {
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.Image: context fn bounds: expected integer to be 0 or nil")
-		}
-		impl.fn_Bounds = nil
 	default:
-		return nil, errors.New("context to draw.Image: context fn bounds: expected function or nil")
+		return nil, errors.New("context to draw.Image: context fn bounds: expected function")
 	}
 	ctxObj3, ok := wordToObj["at"]
 	if !ok {
@@ -828,13 +788,8 @@ func ctxTo_draw_Image(ps *env.ProgramState, v env.RyeCtx) (draw.Image, error) {
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.Image: context fn at: expected integer to be 0 or nil")
-		}
-		impl.fn_At = nil
 	default:
-		return nil, errors.New("context to draw.Image: context fn at: expected function or nil")
+		return nil, errors.New("context to draw.Image: context fn at: expected function")
 	}
 	return impl, nil
 }
@@ -1014,13 +969,8 @@ func ctxTo_draw_Quantizer(ps *env.ProgramState, v env.RyeCtx) (draw.Quantizer, e
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.Quantizer: context fn quantize: expected integer to be 0 or nil")
-		}
-		impl.fn_Quantize = nil
 	default:
-		return nil, errors.New("context to draw.Quantizer: context fn quantize: expected function or nil")
+		return nil, errors.New("context to draw.Quantizer: context fn quantize: expected function")
 	}
 	return impl, nil
 }
@@ -1107,13 +1057,8 @@ func ctxTo_draw_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (draw.RGBA64Imag
 			_ = actualFn
 			evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val, arg2Val)
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.RGBA64Image: context fn set: expected integer to be 0 or nil")
-		}
-		impl.fn_Set = nil
 	default:
-		return nil, errors.New("context to draw.RGBA64Image: context fn set: expected function or nil")
+		return nil, errors.New("context to draw.RGBA64Image: context fn set: expected function")
 	}
 	ctxObj1, ok := wordToObj["set-rgba-64"]
 	if !ok {
@@ -1133,13 +1078,8 @@ func ctxTo_draw_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (draw.RGBA64Imag
 			_ = actualFn
 			evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val, arg2Val)
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.RGBA64Image: context fn set-rgba-64: expected integer to be 0 or nil")
-		}
-		impl.fn_SetRGBA64 = nil
 	default:
-		return nil, errors.New("context to draw.RGBA64Image: context fn set-rgba-64: expected function or nil")
+		return nil, errors.New("context to draw.RGBA64Image: context fn set-rgba-64: expected function")
 	}
 	ctxObj2, ok := wordToObj["rgba-64-at"]
 	if !ok {
@@ -1180,13 +1120,8 @@ func ctxTo_draw_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (draw.RGBA64Imag
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.RGBA64Image: context fn rgba-64-at: expected integer to be 0 or nil")
-		}
-		impl.fn_RGBA64At = nil
 	default:
-		return nil, errors.New("context to draw.RGBA64Image: context fn rgba-64-at: expected function or nil")
+		return nil, errors.New("context to draw.RGBA64Image: context fn rgba-64-at: expected function")
 	}
 	ctxObj3, ok := wordToObj["color-model"]
 	if !ok {
@@ -1245,13 +1180,8 @@ func ctxTo_draw_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (draw.RGBA64Imag
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.RGBA64Image: context fn color-model: expected integer to be 0 or nil")
-		}
-		impl.fn_ColorModel = nil
 	default:
-		return nil, errors.New("context to draw.RGBA64Image: context fn color-model: expected function or nil")
+		return nil, errors.New("context to draw.RGBA64Image: context fn color-model: expected function")
 	}
 	ctxObj4, ok := wordToObj["bounds"]
 	if !ok {
@@ -1289,13 +1219,8 @@ func ctxTo_draw_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (draw.RGBA64Imag
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.RGBA64Image: context fn bounds: expected integer to be 0 or nil")
-		}
-		impl.fn_Bounds = nil
 	default:
-		return nil, errors.New("context to draw.RGBA64Image: context fn bounds: expected function or nil")
+		return nil, errors.New("context to draw.RGBA64Image: context fn bounds: expected function")
 	}
 	ctxObj5, ok := wordToObj["at"]
 	if !ok {
@@ -1357,13 +1282,8 @@ func ctxTo_draw_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (draw.RGBA64Imag
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to draw.RGBA64Image: context fn at: expected integer to be 0 or nil")
-		}
-		impl.fn_At = nil
 	default:
-		return nil, errors.New("context to draw.RGBA64Image: context fn at: expected function or nil")
+		return nil, errors.New("context to draw.RGBA64Image: context fn at: expected function")
 	}
 	return impl, nil
 }
@@ -1430,13 +1350,8 @@ func ctxTo_ebiten_FinalScreenDrawer(ps *env.ProgramState, v env.RyeCtx) (ebiten.
 			_ = actualFn
 			evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val, arg1Val, arg2Val)
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to ebiten.FinalScreenDrawer: context fn draw-final-screen: expected integer to be 0 or nil")
-		}
-		impl.fn_DrawFinalScreen = nil
 	default:
-		return nil, errors.New("context to ebiten.FinalScreenDrawer: context fn draw-final-screen: expected function or nil")
+		return nil, errors.New("context to ebiten.FinalScreenDrawer: context fn draw-final-screen: expected function")
 	}
 	return impl, nil
 }
@@ -1515,13 +1430,8 @@ func ctxTo_ebiten_Game(ps *env.ProgramState, v env.RyeCtx) (ebiten.Game, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to ebiten.Game: context fn update: expected integer to be 0 or nil")
-		}
-		impl.fn_Update = nil
 	default:
-		return nil, errors.New("context to ebiten.Game: context fn update: expected function or nil")
+		return nil, errors.New("context to ebiten.Game: context fn update: expected function")
 	}
 	ctxObj1, ok := wordToObj["draw"]
 	if !ok {
@@ -1539,13 +1449,8 @@ func ctxTo_ebiten_Game(ps *env.ProgramState, v env.RyeCtx) (ebiten.Game, error) 
 			_ = actualFn
 			evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to ebiten.Game: context fn draw: expected integer to be 0 or nil")
-		}
-		impl.fn_Draw = nil
 	default:
-		return nil, errors.New("context to ebiten.Game: context fn draw: expected function or nil")
+		return nil, errors.New("context to ebiten.Game: context fn draw: expected function")
 	}
 	ctxObj2, ok := wordToObj["layout"]
 	if !ok {
@@ -1604,13 +1509,8 @@ func ctxTo_ebiten_Game(ps *env.ProgramState, v env.RyeCtx) (ebiten.Game, error) 
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to ebiten.Game: context fn layout: expected integer to be 0 or nil")
-		}
-		impl.fn_Layout = nil
 	default:
-		return nil, errors.New("context to ebiten.Game: context fn layout: expected function or nil")
+		return nil, errors.New("context to ebiten.Game: context fn layout: expected function")
 	}
 	return impl, nil
 }
@@ -1699,13 +1599,8 @@ func ctxTo_ebiten_LayoutFer(ps *env.ProgramState, v env.RyeCtx) (ebiten.LayoutFe
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to ebiten.LayoutFer: context fn layout-f: expected integer to be 0 or nil")
-		}
-		impl.fn_LayoutF = nil
 	default:
-		return nil, errors.New("context to ebiten.LayoutFer: context fn layout-f: expected function or nil")
+		return nil, errors.New("context to ebiten.LayoutFer: context fn layout-f: expected function")
 	}
 	return impl, nil
 }
@@ -1837,13 +1732,8 @@ func ctxTo_fs_FS(ps *env.ProgramState, v env.RyeCtx) (fs.FS, error) {
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.FS: context fn open: expected integer to be 0 or nil")
-		}
-		impl.fn_Open = nil
 	default:
-		return nil, errors.New("context to fs.FS: context fn open: expected function or nil")
+		return nil, errors.New("context to fs.FS: context fn open: expected function")
 	}
 	return impl, nil
 }
@@ -1981,13 +1871,8 @@ func ctxTo_fs_File(ps *env.ProgramState, v env.RyeCtx) (fs.File, error) {
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.File: context fn stat: expected integer to be 0 or nil")
-		}
-		impl.fn_Stat = nil
 	default:
-		return nil, errors.New("context to fs.File: context fn stat: expected function or nil")
+		return nil, errors.New("context to fs.File: context fn stat: expected function")
 	}
 	ctxObj1, ok := wordToObj["read"]
 	if !ok {
@@ -2064,13 +1949,8 @@ func ctxTo_fs_File(ps *env.ProgramState, v env.RyeCtx) (fs.File, error) {
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.File: context fn read: expected integer to be 0 or nil")
-		}
-		impl.fn_Read = nil
 	default:
-		return nil, errors.New("context to fs.File: context fn read: expected function or nil")
+		return nil, errors.New("context to fs.File: context fn read: expected function")
 	}
 	ctxObj2, ok := wordToObj["close"]
 	if !ok {
@@ -2111,13 +1991,8 @@ func ctxTo_fs_File(ps *env.ProgramState, v env.RyeCtx) (fs.File, error) {
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.File: context fn close: expected integer to be 0 or nil")
-		}
-		impl.fn_Close = nil
 	default:
-		return nil, errors.New("context to fs.File: context fn close: expected function or nil")
+		return nil, errors.New("context to fs.File: context fn close: expected function")
 	}
 	return impl, nil
 }
@@ -2195,13 +2070,8 @@ func ctxTo_fs_FileInfo(ps *env.ProgramState, v env.RyeCtx) (fs.FileInfo, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.FileInfo: context fn name: expected integer to be 0 or nil")
-		}
-		impl.fn_Name = nil
 	default:
-		return nil, errors.New("context to fs.FileInfo: context fn name: expected function or nil")
+		return nil, errors.New("context to fs.FileInfo: context fn name: expected function")
 	}
 	ctxObj1, ok := wordToObj["size"]
 	if !ok {
@@ -2229,13 +2099,8 @@ func ctxTo_fs_FileInfo(ps *env.ProgramState, v env.RyeCtx) (fs.FileInfo, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.FileInfo: context fn size: expected integer to be 0 or nil")
-		}
-		impl.fn_Size = nil
 	default:
-		return nil, errors.New("context to fs.FileInfo: context fn size: expected function or nil")
+		return nil, errors.New("context to fs.FileInfo: context fn size: expected function")
 	}
 	ctxObj2, ok := wordToObj["mode"]
 	if !ok {
@@ -2277,13 +2142,8 @@ func ctxTo_fs_FileInfo(ps *env.ProgramState, v env.RyeCtx) (fs.FileInfo, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.FileInfo: context fn mode: expected integer to be 0 or nil")
-		}
-		impl.fn_Mode = nil
 	default:
-		return nil, errors.New("context to fs.FileInfo: context fn mode: expected function or nil")
+		return nil, errors.New("context to fs.FileInfo: context fn mode: expected function")
 	}
 	ctxObj3, ok := wordToObj["mod-time"]
 	if !ok {
@@ -2321,13 +2181,8 @@ func ctxTo_fs_FileInfo(ps *env.ProgramState, v env.RyeCtx) (fs.FileInfo, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.FileInfo: context fn mod-time: expected integer to be 0 or nil")
-		}
-		impl.fn_ModTime = nil
 	default:
-		return nil, errors.New("context to fs.FileInfo: context fn mod-time: expected function or nil")
+		return nil, errors.New("context to fs.FileInfo: context fn mod-time: expected function")
 	}
 	ctxObj4, ok := wordToObj["is-dir"]
 	if !ok {
@@ -2355,13 +2210,8 @@ func ctxTo_fs_FileInfo(ps *env.ProgramState, v env.RyeCtx) (fs.FileInfo, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.FileInfo: context fn is-dir: expected integer to be 0 or nil")
-		}
-		impl.fn_IsDir = nil
 	default:
-		return nil, errors.New("context to fs.FileInfo: context fn is-dir: expected function or nil")
+		return nil, errors.New("context to fs.FileInfo: context fn is-dir: expected function")
 	}
 	ctxObj5, ok := wordToObj["sys"]
 	if !ok {
@@ -2399,13 +2249,8 @@ func ctxTo_fs_FileInfo(ps *env.ProgramState, v env.RyeCtx) (fs.FileInfo, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to fs.FileInfo: context fn sys: expected integer to be 0 or nil")
-		}
-		impl.fn_Sys = nil
 	default:
-		return nil, errors.New("context to fs.FileInfo: context fn sys: expected function or nil")
+		return nil, errors.New("context to fs.FileInfo: context fn sys: expected function")
 	}
 	return impl, nil
 }
@@ -2502,13 +2347,8 @@ func ctxTo_image_Image(ps *env.ProgramState, v env.RyeCtx) (image.Image, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.Image: context fn color-model: expected integer to be 0 or nil")
-		}
-		impl.fn_ColorModel = nil
 	default:
-		return nil, errors.New("context to image.Image: context fn color-model: expected function or nil")
+		return nil, errors.New("context to image.Image: context fn color-model: expected function")
 	}
 	ctxObj1, ok := wordToObj["bounds"]
 	if !ok {
@@ -2546,13 +2386,8 @@ func ctxTo_image_Image(ps *env.ProgramState, v env.RyeCtx) (image.Image, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.Image: context fn bounds: expected integer to be 0 or nil")
-		}
-		impl.fn_Bounds = nil
 	default:
-		return nil, errors.New("context to image.Image: context fn bounds: expected function or nil")
+		return nil, errors.New("context to image.Image: context fn bounds: expected function")
 	}
 	ctxObj2, ok := wordToObj["at"]
 	if !ok {
@@ -2614,13 +2449,8 @@ func ctxTo_image_Image(ps *env.ProgramState, v env.RyeCtx) (image.Image, error) 
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.Image: context fn at: expected integer to be 0 or nil")
-		}
-		impl.fn_At = nil
 	default:
-		return nil, errors.New("context to image.Image: context fn at: expected function or nil")
+		return nil, errors.New("context to image.Image: context fn at: expected function")
 	}
 	return impl, nil
 }
@@ -2693,13 +2523,8 @@ func ctxTo_image_PalettedImage(ps *env.ProgramState, v env.RyeCtx) (image.Palett
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.PalettedImage: context fn color-index-at: expected integer to be 0 or nil")
-		}
-		impl.fn_ColorIndexAt = nil
 	default:
-		return nil, errors.New("context to image.PalettedImage: context fn color-index-at: expected function or nil")
+		return nil, errors.New("context to image.PalettedImage: context fn color-index-at: expected function")
 	}
 	ctxObj1, ok := wordToObj["color-model"]
 	if !ok {
@@ -2758,13 +2583,8 @@ func ctxTo_image_PalettedImage(ps *env.ProgramState, v env.RyeCtx) (image.Palett
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.PalettedImage: context fn color-model: expected integer to be 0 or nil")
-		}
-		impl.fn_ColorModel = nil
 	default:
-		return nil, errors.New("context to image.PalettedImage: context fn color-model: expected function or nil")
+		return nil, errors.New("context to image.PalettedImage: context fn color-model: expected function")
 	}
 	ctxObj2, ok := wordToObj["bounds"]
 	if !ok {
@@ -2802,13 +2622,8 @@ func ctxTo_image_PalettedImage(ps *env.ProgramState, v env.RyeCtx) (image.Palett
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.PalettedImage: context fn bounds: expected integer to be 0 or nil")
-		}
-		impl.fn_Bounds = nil
 	default:
-		return nil, errors.New("context to image.PalettedImage: context fn bounds: expected function or nil")
+		return nil, errors.New("context to image.PalettedImage: context fn bounds: expected function")
 	}
 	ctxObj3, ok := wordToObj["at"]
 	if !ok {
@@ -2870,13 +2685,8 @@ func ctxTo_image_PalettedImage(ps *env.ProgramState, v env.RyeCtx) (image.Palett
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.PalettedImage: context fn at: expected integer to be 0 or nil")
-		}
-		impl.fn_At = nil
 	default:
-		return nil, errors.New("context to image.PalettedImage: context fn at: expected function or nil")
+		return nil, errors.New("context to image.PalettedImage: context fn at: expected function")
 	}
 	return impl, nil
 }
@@ -2959,13 +2769,8 @@ func ctxTo_image_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (image.RGBA64Im
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.RGBA64Image: context fn rgba-64-at: expected integer to be 0 or nil")
-		}
-		impl.fn_RGBA64At = nil
 	default:
-		return nil, errors.New("context to image.RGBA64Image: context fn rgba-64-at: expected function or nil")
+		return nil, errors.New("context to image.RGBA64Image: context fn rgba-64-at: expected function")
 	}
 	ctxObj1, ok := wordToObj["color-model"]
 	if !ok {
@@ -3024,13 +2829,8 @@ func ctxTo_image_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (image.RGBA64Im
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.RGBA64Image: context fn color-model: expected integer to be 0 or nil")
-		}
-		impl.fn_ColorModel = nil
 	default:
-		return nil, errors.New("context to image.RGBA64Image: context fn color-model: expected function or nil")
+		return nil, errors.New("context to image.RGBA64Image: context fn color-model: expected function")
 	}
 	ctxObj2, ok := wordToObj["bounds"]
 	if !ok {
@@ -3068,13 +2868,8 @@ func ctxTo_image_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (image.RGBA64Im
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.RGBA64Image: context fn bounds: expected integer to be 0 or nil")
-		}
-		impl.fn_Bounds = nil
 	default:
-		return nil, errors.New("context to image.RGBA64Image: context fn bounds: expected function or nil")
+		return nil, errors.New("context to image.RGBA64Image: context fn bounds: expected function")
 	}
 	ctxObj3, ok := wordToObj["at"]
 	if !ok {
@@ -3136,13 +2931,8 @@ func ctxTo_image_RGBA64Image(ps *env.ProgramState, v env.RyeCtx) (image.RGBA64Im
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to image.RGBA64Image: context fn at: expected integer to be 0 or nil")
-		}
-		impl.fn_At = nil
 	default:
-		return nil, errors.New("context to image.RGBA64Image: context fn at: expected function or nil")
+		return nil, errors.New("context to image.RGBA64Image: context fn at: expected function")
 	}
 	return impl, nil
 }
@@ -3251,13 +3041,8 @@ func ctxTo_io_ByteReader(ps *env.ProgramState, v env.RyeCtx) (io.ByteReader, err
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to io.ByteReader: context fn read-byte: expected integer to be 0 or nil")
-		}
-		impl.fn_ReadByte = nil
 	default:
-		return nil, errors.New("context to io.ByteReader: context fn read-byte: expected function or nil")
+		return nil, errors.New("context to io.ByteReader: context fn read-byte: expected function")
 	}
 	return impl, nil
 }
@@ -3328,13 +3113,8 @@ func ctxTo_io_Closer(ps *env.ProgramState, v env.RyeCtx) (io.Closer, error) {
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to io.Closer: context fn close: expected integer to be 0 or nil")
-		}
-		impl.fn_Close = nil
 	default:
-		return nil, errors.New("context to io.Closer: context fn close: expected function or nil")
+		return nil, errors.New("context to io.Closer: context fn close: expected function")
 	}
 	return impl, nil
 }
@@ -3445,13 +3225,8 @@ func ctxTo_io_ReadSeeker(ps *env.ProgramState, v env.RyeCtx) (io.ReadSeeker, err
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to io.ReadSeeker: context fn read: expected integer to be 0 or nil")
-		}
-		impl.fn_Read = nil
 	default:
-		return nil, errors.New("context to io.ReadSeeker: context fn read: expected function or nil")
+		return nil, errors.New("context to io.ReadSeeker: context fn read: expected function")
 	}
 	ctxObj1, ok := wordToObj["seek"]
 	if !ok {
@@ -3523,13 +3298,8 @@ func ctxTo_io_ReadSeeker(ps *env.ProgramState, v env.RyeCtx) (io.ReadSeeker, err
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to io.ReadSeeker: context fn seek: expected integer to be 0 or nil")
-		}
-		impl.fn_Seek = nil
 	default:
-		return nil, errors.New("context to io.ReadSeeker: context fn seek: expected function or nil")
+		return nil, errors.New("context to io.ReadSeeker: context fn seek: expected function")
 	}
 	return impl, nil
 }
@@ -3636,13 +3406,8 @@ func ctxTo_io_Reader(ps *env.ProgramState, v env.RyeCtx) (io.Reader, error) {
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to io.Reader: context fn read: expected integer to be 0 or nil")
-		}
-		impl.fn_Read = nil
 	default:
-		return nil, errors.New("context to io.Reader: context fn read: expected function or nil")
+		return nil, errors.New("context to io.Reader: context fn read: expected function")
 	}
 	return impl, nil
 }
@@ -3744,13 +3509,8 @@ func ctxTo_io_Seeker(ps *env.ProgramState, v env.RyeCtx) (io.Seeker, error) {
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to io.Seeker: context fn seek: expected integer to be 0 or nil")
-		}
-		impl.fn_Seek = nil
 	default:
-		return nil, errors.New("context to io.Seeker: context fn seek: expected function or nil")
+		return nil, errors.New("context to io.Seeker: context fn seek: expected function")
 	}
 	return impl, nil
 }
@@ -3857,13 +3617,8 @@ func ctxTo_io_Writer(ps *env.ProgramState, v env.RyeCtx) (io.Writer, error) {
 			}
 			return res0, res1
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to io.Writer: context fn write: expected integer to be 0 or nil")
-		}
-		impl.fn_Write = nil
 	default:
-		return nil, errors.New("context to io.Writer: context fn write: expected function or nil")
+		return nil, errors.New("context to io.Writer: context fn write: expected function")
 	}
 	return impl, nil
 }
@@ -3945,13 +3700,8 @@ func ctxTo_png_EncoderBufferPool(ps *env.ProgramState, v env.RyeCtx) (png.Encode
 			}
 			return res
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to png.EncoderBufferPool: context fn get: expected integer to be 0 or nil")
-		}
-		impl.fn_Get = nil
 	default:
-		return nil, errors.New("context to png.EncoderBufferPool: context fn get: expected function or nil")
+		return nil, errors.New("context to png.EncoderBufferPool: context fn get: expected function")
 	}
 	ctxObj1, ok := wordToObj["put"]
 	if !ok {
@@ -3969,13 +3719,8 @@ func ctxTo_png_EncoderBufferPool(ps *env.ProgramState, v env.RyeCtx) (png.Encode
 			_ = actualFn
 			evaldo.CallFunctionArgsN(fn, ps, &ctx, arg0Val)
 		}
-	case env.Integer:
-		if fn.Value != 0 {
-			return nil, errors.New("context to png.EncoderBufferPool: context fn put: expected integer to be 0 or nil")
-		}
-		impl.fn_Put = nil
 	default:
-		return nil, errors.New("context to png.EncoderBufferPool: context fn put: expected function or nil")
+		return nil, errors.New("context to png.EncoderBufferPool: context fn put: expected function")
 	}
 	return impl, nil
 }
@@ -3985,111 +3730,6 @@ var Builtins = map[string]*env.Builtin{
 		Doc: "nil value for go types",
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			return *env.NewInteger(0)
-		},
-	},
-	"audio-1-jab-wav": {
-		Doc:   "Get audio_1.Jab_wav value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			{
-				items := make([]env.Object, len(audio_1.Jab_wav))
-				for i, it := range audio_1.Jab_wav {
-					items[i] = *env.NewNative(ps.Idx, it, "byte")
-				}
-				resObj = *env.NewBlock(*env.NewTSeries(items))
-			}
-			return resObj
-		},
-	},
-	"audio-1-jump-ogg": {
-		Doc:   "Get audio_1.Jump_ogg value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			{
-				items := make([]env.Object, len(audio_1.Jump_ogg))
-				for i, it := range audio_1.Jump_ogg {
-					items[i] = *env.NewNative(ps.Idx, it, "byte")
-				}
-				resObj = *env.NewBlock(*env.NewTSeries(items))
-			}
-			return resObj
-		},
-	},
-	"audio-1-ragtime-mp-3": {
-		Doc:   "Get audio_1.Ragtime_mp3 value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			{
-				items := make([]env.Object, len(audio_1.Ragtime_mp3))
-				for i, it := range audio_1.Ragtime_mp3 {
-					items[i] = *env.NewNative(ps.Idx, it, "byte")
-				}
-				resObj = *env.NewBlock(*env.NewTSeries(items))
-			}
-			return resObj
-		},
-	},
-	"audio-1-ragtime-ogg": {
-		Doc:   "Get audio_1.Ragtime_ogg value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			{
-				items := make([]env.Object, len(audio_1.Ragtime_ogg))
-				for i, it := range audio_1.Ragtime_ogg {
-					items[i] = *env.NewNative(ps.Idx, it, "byte")
-				}
-				resObj = *env.NewBlock(*env.NewTSeries(items))
-			}
-			return resObj
-		},
-	},
-	"audio-2-alert-png": {
-		Doc:   "Get audio_2.Alert_png value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			{
-				items := make([]env.Object, len(audio_2.Alert_png))
-				for i, it := range audio_2.Alert_png {
-					items[i] = *env.NewNative(ps.Idx, it, "byte")
-				}
-				resObj = *env.NewBlock(*env.NewTSeries(items))
-			}
-			return resObj
-		},
-	},
-	"audio-2-pause-png": {
-		Doc:   "Get audio_2.Pause_png value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			{
-				items := make([]env.Object, len(audio_2.Pause_png))
-				for i, it := range audio_2.Pause_png {
-					items[i] = *env.NewNative(ps.Idx, it, "byte")
-				}
-				resObj = *env.NewBlock(*env.NewTSeries(items))
-			}
-			return resObj
-		},
-	},
-	"audio-2-play-png": {
-		Doc:   "Get audio_2.Play_png value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			{
-				items := make([]env.Object, len(audio_2.Play_png))
-				for i, it := range audio_2.Play_png {
-					items[i] = *env.NewNative(ps.Idx, it, "byte")
-				}
-				resObj = *env.NewBlock(*env.NewTSeries(items))
-			}
-			return resObj
 		},
 	},
 	"audio-current-context": {
@@ -4261,17 +3901,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("audio-player: arg 2: expected native")
 			}
-			res0, res1 := audio.NewPlayer(arg0Val, arg1Val)
+			res0, resErr := audio.NewPlayer(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-audio-player")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"audio-player-from-bytes": {
@@ -4435,36 +4076,6 @@ var Builtins = map[string]*env.Builtin{
 			{
 				items := make([]env.Object, len(blend.Source_png))
 				for i, it := range blend.Source_png {
-					items[i] = *env.NewNative(ps.Idx, it, "byte")
-				}
-				resObj = *env.NewBlock(*env.NewTSeries(items))
-			}
-			return resObj
-		},
-	},
-	"blocks-1-background-png": {
-		Doc:   "Get blocks_1.Background_png value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			{
-				items := make([]env.Object, len(blocks_1.Background_png))
-				for i, it := range blocks_1.Background_png {
-					items[i] = *env.NewNative(ps.Idx, it, "byte")
-				}
-				resObj = *env.NewBlock(*env.NewTSeries(items))
-			}
-			return resObj
-		},
-	},
-	"blocks-1-blocks-png": {
-		Doc:   "Get blocks_1.Blocks_png value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			{
-				items := make([]env.Object, len(blocks_1.Blocks_png))
-				for i, it := range blocks_1.Blocks_png {
 					items[i] = *env.NewNative(ps.Idx, it, "byte")
 				}
 				resObj = *env.NewBlock(*env.NewTSeries(items))
@@ -4842,12 +4453,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("blocks-scene//update: arg 2: expected native")
 			}
-			res0 := arg0Val.Update(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"bytes-compare": {
@@ -5293,11 +4908,11 @@ var Builtins = map[string]*env.Builtin{
 			}
 			var res2Obj env.Object
 			res2Obj = *env.NewInteger(boolToInt64(res2))
-			return *env.NewDict(map[string]any{
-				"before": res0Obj,
-				"after":  res1Obj,
-				"found":  res2Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+			}))
 		},
 	},
 	"bytes-equal": {
@@ -8620,12 +8235,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-alpha-model": {
@@ -8686,12 +8301,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-cmyk-model": {
@@ -8759,11 +8374,11 @@ var Builtins = map[string]*env.Builtin{
 			res1Obj = *env.NewInteger(int64(res1))
 			var res2Obj env.Object
 			res2Obj = *env.NewInteger(int64(res2))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-				"3": res2Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+			}))
 		},
 	},
 	"color-cmyk//rgba": {
@@ -8798,12 +8413,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-				"3": res2Obj,
-				"4": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-color//rgba": {
@@ -8845,12 +8460,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-gray-16-model": {
@@ -8911,12 +8526,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-gray-model": {
@@ -8977,12 +8592,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-model-func": {
@@ -9343,12 +8958,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-nrgba-model": {
@@ -9409,12 +9024,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-ny-cb-cr-a-model": {
@@ -9475,12 +9090,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-				"3": res2Obj,
-				"4": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-palette//convert": {
@@ -9730,12 +9345,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-				"3": res2Obj,
-				"4": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-rgb-to-y-cb-cr": {
@@ -9770,11 +9385,11 @@ var Builtins = map[string]*env.Builtin{
 			res1Obj = *env.NewInteger(int64(res1))
 			var res2Obj env.Object
 			res2Obj = *env.NewInteger(int64(res2))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-				"3": res2Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+			}))
 		},
 	},
 	"color-rgba-64-model": {
@@ -9835,12 +9450,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-rgba-model": {
@@ -9901,12 +9516,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"color-y-cb-cr-model": {
@@ -9967,11 +9582,11 @@ var Builtins = map[string]*env.Builtin{
 			res1Obj = *env.NewInteger(int64(res1))
 			var res2Obj env.Object
 			res2Obj = *env.NewInteger(int64(res2))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-				"3": res2Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+			}))
 		},
 	},
 	"color-y-cb-cr//rgba": {
@@ -10006,12 +9621,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-				"3": res2Obj,
-				"4": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"colorm-draw-image": {
@@ -11516,10 +11131,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"x": res0Obj,
-				"y": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"cursor-shape": {
@@ -12436,10 +12051,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"screen-width":  res0Obj,
-				"screen-height": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ebiten-game//update": {
@@ -12472,12 +12087,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ebiten-game//update: arg 1: expected native")
 			}
-			res0 := arg0Val.Update()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"gamepad-axis": {
@@ -15122,7 +14741,7 @@ var Builtins = map[string]*env.Builtin{
 					arg0Val = ebiten.Key(u)
 				}
 			}
-			res0, res1 := arg0Val.MarshalText()
+			res0, resErr := arg0Val.MarshalText()
 			var res0Obj env.Object
 			{
 				items := make([]env.Object, len(res0))
@@ -15131,14 +14750,15 @@ var Builtins = map[string]*env.Builtin{
 				}
 				res0Obj = *env.NewBlock(*env.NewTSeries(items))
 			}
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ebiten-key//string": {
@@ -15221,10 +14841,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewDecimal(float64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewDecimal(float64(res1))
-			return *env.NewDict(map[string]any{
-				"screen-width":  res0Obj,
-				"screen-height": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"max-tps": {
@@ -15636,17 +15256,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("shader: arg 1: expected block, native or nil")
 			}
-			res0, res1 := ebiten.NewShader(arg0Val)
+			res0, resErr := ebiten.NewShader(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-ebiten-shader")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"vertex": {
@@ -15753,12 +15374,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("run-game: arg 1: expected native")
 			}
-			res0 := ebiten.RunGame(arg0Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := ebiten.RunGame(arg0Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return nil
 		},
 	},
 	"run-game-with-options": {
@@ -15810,12 +15435,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("run-game-with-options: arg 2: expected native")
 			}
-			res0 := ebiten.RunGameWithOptions(arg0Val, arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := ebiten.RunGameWithOptions(arg0Val, arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return nil
 		},
 	},
 	"schedule-frame": {
@@ -15835,10 +15464,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"set-cursor-mode": {
@@ -16656,6 +16285,241 @@ var Builtins = map[string]*env.Builtin{
 			return res0Obj
 		},
 	},
+	"ebiten-text-append-glyphs": {
+		Doc:   "ebiten_text.AppendGlyphs",
+		Argsn: 3,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val []ebiten_text.Glyph
+			switch v := arg0.(type) {
+			case env.Block:
+				arg0Val = make([]ebiten_text.Glyph, len(v.Series.S))
+				for i, it := range v.Series.S {
+					switch v := it.(type) {
+					case env.Native:
+						var ok bool
+						arg0Val[i], ok = v.Value.(ebiten_text.Glyph)
+						if !ok {
+							ps.FailureFlag = true
+							return env.NewError("ebiten-text-append-glyphs: arg 1: block item: expected native of type ebiten_text.Glyph")
+						}
+					default:
+						ps.FailureFlag = true
+						return env.NewError("ebiten-text-append-glyphs: arg 1: block item: expected native")
+					}
+				}
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.([]ebiten_text.Glyph)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ebiten-text-append-glyphs: arg 1: expected native of type []ebiten_text.Glyph")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ebiten-text-append-glyphs: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ebiten-text-append-glyphs: arg 1: expected block, native or nil")
+			}
+			var arg1Val font.Face
+			switch v := arg1.(type) {
+			case env.Native:
+				var ok bool
+				arg1Val, ok = v.Value.(font.Face)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ebiten-text-append-glyphs: arg 2: expected native of type font.Face")
+				}
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ebiten-text-append-glyphs: arg 2: expected native")
+			}
+			var arg2Val string
+			if v, ok := arg2.(env.String); ok {
+				arg2Val = string(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ebiten-text-append-glyphs: arg 3: expected string")
+			}
+			res0 := ebiten_text.AppendGlyphs(arg0Val, arg1Val, arg2Val)
+			var res0Obj env.Object
+			{
+				items := make([]env.Object, len(res0))
+				for i, it := range res0 {
+					items[i] = *env.NewNative(ps.Idx, it, "ebiten-text-glyph")
+				}
+				res0Obj = *env.NewBlock(*env.NewTSeries(items))
+			}
+			return res0Obj
+		},
+	},
+	"ebiten-text-bound-string": {
+		Doc:   "ebiten_text.BoundString",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val font.Face
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(font.Face)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ebiten-text-bound-string: arg 1: expected native of type font.Face")
+				}
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ebiten-text-bound-string: arg 1: expected native")
+			}
+			var arg1Val string
+			if v, ok := arg1.(env.String); ok {
+				arg1Val = string(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ebiten-text-bound-string: arg 2: expected string")
+			}
+			res0 := ebiten_text.BoundString(arg0Val, arg1Val)
+			var res0Obj env.Object
+			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-image-rectangle")
+			return res0Obj
+		},
+	},
+	"ebiten-text-cache-glyphs": {
+		Doc:   "ebiten_text.CacheGlyphs",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val font.Face
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(font.Face)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ebiten-text-cache-glyphs: arg 1: expected native of type font.Face")
+				}
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ebiten-text-cache-glyphs: arg 1: expected native")
+			}
+			var arg1Val string
+			if v, ok := arg1.(env.String); ok {
+				arg1Val = string(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ebiten-text-cache-glyphs: arg 2: expected string")
+			}
+			ebiten_text.CacheGlyphs(arg0Val, arg1Val)
+			return nil
+		},
+	},
+	"ebiten-text-draw-with-options": {
+		Doc:   "ebiten_text.DrawWithOptions",
+		Argsn: 4,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val *ebiten.Image
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(*ebiten.Image)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ebiten-text-draw-with-options: arg 1: expected native of type *ebiten.Image")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ebiten-text-draw-with-options: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ebiten-text-draw-with-options: arg 1: expected native")
+			}
+			var arg1Val string
+			if v, ok := arg1.(env.String); ok {
+				arg1Val = string(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ebiten-text-draw-with-options: arg 2: expected string")
+			}
+			var arg2Val font.Face
+			switch v := arg2.(type) {
+			case env.Native:
+				var ok bool
+				arg2Val, ok = v.Value.(font.Face)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ebiten-text-draw-with-options: arg 3: expected native of type font.Face")
+				}
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ebiten-text-draw-with-options: arg 3: expected native")
+			}
+			var arg3Val *ebiten.DrawImageOptions
+			switch v := arg3.(type) {
+			case env.Native:
+				var ok bool
+				arg3Val, ok = v.Value.(*ebiten.DrawImageOptions)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ebiten-text-draw-with-options: arg 4: expected native of type *ebiten.DrawImageOptions")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ebiten-text-draw-with-options: arg 4: expected integer to be 0 or nil")
+				}
+				arg3Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ebiten-text-draw-with-options: arg 4: expected native")
+			}
+			ebiten_text.DrawWithOptions(arg0Val, arg1Val, arg2Val, arg3Val)
+			return nil
+		},
+	},
+	"ebiten-text-face-with-line-height": {
+		Doc:   "ebiten_text.FaceWithLineHeight",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val font.Face
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(font.Face)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ebiten-text-face-with-line-height: arg 1: expected native of type font.Face")
+				}
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ebiten-text-face-with-line-height: arg 1: expected native")
+			}
+			var arg1Val float64
+			if v, ok := arg1.(env.Decimal); ok {
+				arg1Val = float64(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ebiten-text-face-with-line-height: arg 2: expected decimal")
+			}
+			res0 := ebiten_text.FaceWithLineHeight(arg0Val, arg1Val)
+			var res0Obj env.Object
+			res0Obj = *env.NewNative(ps.Idx, res0, "font-face")
+			return res0Obj
+		},
+	},
+	"ebiten-text-glyph": {
+		Doc:   "Create a new ebiten_text.Glyph struct",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			res := &ebiten_text.Glyph{}
+			var resObj env.Object
+			resObj = *env.NewNative(ps.Idx, res, "ptr-ebiten-text-glyph")
+			return resObj
+		},
+	},
 	"touch-i-ds": {
 		Doc:   "ebiten.TouchIDs",
 		Argsn: 0,
@@ -16702,10 +16566,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"tps": {
@@ -16729,17 +16593,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("update-standard-gamepad-layout-mappings: arg 1: expected string")
 			}
-			res0, res1 := ebiten.UpdateStandardGamepadLayoutMappings(arg0Val)
+			res0, resErr := ebiten.UpdateStandardGamepadLayoutMappings(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(boolToInt64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"vibrate": {
@@ -16826,10 +16691,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewDecimal(float64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewDecimal(float64(res1))
-			return *env.NewDict(map[string]any{
-				"xoff": res0Obj,
-				"yoff": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"window-position": {
@@ -16841,10 +16706,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"x": res0Obj,
-				"y": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"window-resizing-mode": {
@@ -16893,10 +16758,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"window-size-limits": {
@@ -16912,12 +16777,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"minw": res0Obj,
-				"minh": res1Obj,
-				"maxw": res2Obj,
-				"maxh": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"debug-print": {
@@ -17087,7 +16952,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("image-from-file: arg 1: expected string")
 			}
-			res0, res1, res2 := ebitenutil.NewImageFromFile(arg0Val)
+			res0, res1, resErr := ebitenutil.NewImageFromFile(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-ebiten-image")
 			var res1Obj env.Object
@@ -17109,15 +16974,18 @@ var Builtins = map[string]*env.Builtin{
 					res1Obj = *env.NewNative(ps.Idx, res1, "image-image")
 				}
 			}
-			var res2Obj env.Object
-			if res2 != nil {
-				res2Obj = *env.NewError(res2.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"2":   res1Obj,
-				"err": res2Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"image-from-file-system": {
@@ -17157,7 +17025,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("image-from-file-system: arg 2: expected string")
 			}
-			res0, res1, res2 := ebitenutil.NewImageFromFileSystem(arg0Val, arg1Val)
+			res0, res1, resErr := ebitenutil.NewImageFromFileSystem(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-ebiten-image")
 			var res1Obj env.Object
@@ -17179,15 +17047,18 @@ var Builtins = map[string]*env.Builtin{
 					res1Obj = *env.NewNative(ps.Idx, res1, "image-image")
 				}
 			}
-			var res2Obj env.Object
-			if res2 != nil {
-				res2Obj = *env.NewError(res2.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"2":   res1Obj,
-				"err": res2Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"image-from-reader": {
@@ -17220,7 +17091,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("image-from-reader: arg 1: expected native")
 			}
-			res0, res1, res2 := ebitenutil.NewImageFromReader(arg0Val)
+			res0, res1, resErr := ebitenutil.NewImageFromReader(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-ebiten-image")
 			var res1Obj env.Object
@@ -17242,15 +17113,18 @@ var Builtins = map[string]*env.Builtin{
 					res1Obj = *env.NewNative(ps.Idx, res1, "image-image")
 				}
 			}
-			var res2Obj env.Object
-			if res2 != nil {
-				res2Obj = *env.NewError(res2.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"2":   res1Obj,
-				"err": res2Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"image-from-url": {
@@ -17264,17 +17138,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("image-from-url: arg 1: expected string")
 			}
-			res0, res1 := ebitenutil.NewImageFromURL(arg0Val)
+			res0, resErr := ebitenutil.NewImageFromURL(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-ebiten-image")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"open-file": {
@@ -17288,7 +17163,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("open-file: arg 1: expected string")
 			}
-			res0, res1 := ebitenutil.OpenFile(arg0Val)
+			res0, resErr := ebitenutil.OpenFile(arg0Val)
 			var res0Obj env.Object
 			{
 				typ := reflect.TypeOf(res0)
@@ -17308,14 +17183,15 @@ var Builtins = map[string]*env.Builtin{
 					res0Obj = *env.NewNative(ps.Idx, res0, "ebitenutil-read-seek-closer")
 				}
 			}
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"flappy-gopher-png": {
@@ -17408,7 +17284,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("gif-decode: arg 1: expected native")
 			}
-			res0, res1 := gif.Decode(arg0Val)
+			res0, resErr := gif.Decode(arg0Val)
 			var res0Obj env.Object
 			{
 				typ := reflect.TypeOf(res0)
@@ -17428,14 +17304,15 @@ var Builtins = map[string]*env.Builtin{
 					res0Obj = *env.NewNative(ps.Idx, res0, "image-image")
 				}
 			}
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"gif-decode-all": {
@@ -17468,17 +17345,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("gif-decode-all: arg 1: expected native")
 			}
-			res0, res1 := gif.DecodeAll(arg0Val)
+			res0, resErr := gif.DecodeAll(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-gif-gif")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"gif-decode-config": {
@@ -17511,17 +17389,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("gif-decode-config: arg 1: expected native")
 			}
-			res0, res1 := gif.DecodeConfig(arg0Val)
+			res0, resErr := gif.DecodeConfig(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-image-config")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"gif-encode": {
@@ -17599,12 +17478,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("gif-encode: arg 3: expected native")
 			}
-			res0 := gif.Encode(arg0Val, arg1Val, arg2Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := gif.Encode(arg0Val, arg1Val, arg2Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return nil
 		},
 	},
 	"gif-encode-all": {
@@ -17656,12 +17539,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("gif-encode-all: arg 2: expected native")
 			}
-			res0 := gif.EncodeAll(arg0Val, arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := gif.EncodeAll(arg0Val, arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return nil
 		},
 	},
 	"gif-gif": {
@@ -17714,7 +17601,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("image-decode: arg 1: expected native")
 			}
-			res0, res1, res2 := image.Decode(arg0Val)
+			res0, res1, resErr := image.Decode(arg0Val)
 			var res0Obj env.Object
 			{
 				typ := reflect.TypeOf(res0)
@@ -17736,15 +17623,18 @@ var Builtins = map[string]*env.Builtin{
 			}
 			var res1Obj env.Object
 			res1Obj = *env.NewString(res1)
-			var res2Obj env.Object
-			if res2 != nil {
-				res2Obj = *env.NewError(res2.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"2":   res1Obj,
-				"err": res2Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"image-decode-config": {
@@ -17777,20 +17667,23 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("image-decode-config: arg 1: expected native")
 			}
-			res0, res1, res2 := image.DecodeConfig(arg0Val)
+			res0, res1, resErr := image.DecodeConfig(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-image-config")
 			var res1Obj env.Object
 			res1Obj = *env.NewString(res1)
-			var res2Obj env.Object
-			if res2 != nil {
-				res2Obj = *env.NewError(res2.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"2":   res1Obj,
-				"err": res2Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"image-image//at": {
@@ -20048,6 +19941,81 @@ var Builtins = map[string]*env.Builtin{
 			return resObj
 		},
 	},
+	"images-audio-alert-png": {
+		Doc:   "Get images_audio.Alert_png value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			{
+				items := make([]env.Object, len(images_audio.Alert_png))
+				for i, it := range images_audio.Alert_png {
+					items[i] = *env.NewNative(ps.Idx, it, "byte")
+				}
+				resObj = *env.NewBlock(*env.NewTSeries(items))
+			}
+			return resObj
+		},
+	},
+	"images-audio-pause-png": {
+		Doc:   "Get images_audio.Pause_png value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			{
+				items := make([]env.Object, len(images_audio.Pause_png))
+				for i, it := range images_audio.Pause_png {
+					items[i] = *env.NewNative(ps.Idx, it, "byte")
+				}
+				resObj = *env.NewBlock(*env.NewTSeries(items))
+			}
+			return resObj
+		},
+	},
+	"images-audio-play-png": {
+		Doc:   "Get images_audio.Play_png value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			{
+				items := make([]env.Object, len(images_audio.Play_png))
+				for i, it := range images_audio.Play_png {
+					items[i] = *env.NewNative(ps.Idx, it, "byte")
+				}
+				resObj = *env.NewBlock(*env.NewTSeries(items))
+			}
+			return resObj
+		},
+	},
+	"images-blocks-background-png": {
+		Doc:   "Get images_blocks.Background_png value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			{
+				items := make([]env.Object, len(images_blocks.Background_png))
+				for i, it := range images_blocks.Background_png {
+					items[i] = *env.NewNative(ps.Idx, it, "byte")
+				}
+				resObj = *env.NewBlock(*env.NewTSeries(items))
+			}
+			return resObj
+		},
+	},
+	"images-blocks-blocks-png": {
+		Doc:   "Get images_blocks.Blocks_png value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			{
+				items := make([]env.Object, len(images_blocks.Blocks_png))
+				for i, it := range images_blocks.Blocks_png {
+					items[i] = *env.NewNative(ps.Idx, it, "byte")
+				}
+				resObj = *env.NewBlock(*env.NewTSeries(items))
+			}
+			return resObj
+		},
+	},
 	"images-ebiten-png": {
 		Doc:   "Get images.Ebiten_png value",
 		Argsn: 0,
@@ -20093,6 +20061,21 @@ var Builtins = map[string]*env.Builtin{
 			return resObj
 		},
 	},
+	"images-keyboard-keyboard-png": {
+		Doc:   "Get images_keyboard.Keyboard_png value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			{
+				items := make([]env.Object, len(images_keyboard.Keyboard_png))
+				for i, it := range images_keyboard.Keyboard_png {
+					items[i] = *env.NewNative(ps.Idx, it, "byte")
+				}
+				resObj = *env.NewBlock(*env.NewTSeries(items))
+			}
+			return resObj
+		},
+	},
 	"images-runner-png": {
 		Doc:   "Get images.Runner_png value",
 		Argsn: 0,
@@ -20101,6 +20084,66 @@ var Builtins = map[string]*env.Builtin{
 			{
 				items := make([]env.Object, len(images.Runner_png))
 				for i, it := range images.Runner_png {
+					items[i] = *env.NewNative(ps.Idx, it, "byte")
+				}
+				resObj = *env.NewBlock(*env.NewTSeries(items))
+			}
+			return resObj
+		},
+	},
+	"images-shader-gopher-bg-png": {
+		Doc:   "Get images_shader.GopherBg_png value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			{
+				items := make([]env.Object, len(images_shader.GopherBg_png))
+				for i, it := range images_shader.GopherBg_png {
+					items[i] = *env.NewNative(ps.Idx, it, "byte")
+				}
+				resObj = *env.NewBlock(*env.NewTSeries(items))
+			}
+			return resObj
+		},
+	},
+	"images-shader-gopher-png": {
+		Doc:   "Get images_shader.Gopher_png value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			{
+				items := make([]env.Object, len(images_shader.Gopher_png))
+				for i, it := range images_shader.Gopher_png {
+					items[i] = *env.NewNative(ps.Idx, it, "byte")
+				}
+				resObj = *env.NewBlock(*env.NewTSeries(items))
+			}
+			return resObj
+		},
+	},
+	"images-shader-noise-png": {
+		Doc:   "Get images_shader.Noise_png value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			{
+				items := make([]env.Object, len(images_shader.Noise_png))
+				for i, it := range images_shader.Noise_png {
+					items[i] = *env.NewNative(ps.Idx, it, "byte")
+				}
+				resObj = *env.NewBlock(*env.NewTSeries(items))
+			}
+			return resObj
+		},
+	},
+	"images-shader-normal-png": {
+		Doc:   "Get images_shader.Normal_png value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			{
+				items := make([]env.Object, len(images_shader.Normal_png))
+				for i, it := range images_shader.Normal_png {
 					items[i] = *env.NewNative(ps.Idx, it, "byte")
 				}
 				resObj = *env.NewBlock(*env.NewTSeries(items))
@@ -21655,10 +21698,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"inpututil-touch-press-duration": {
@@ -21722,17 +21765,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("io-byte-reader//read-byte: arg 1: expected native")
 			}
-			res0, res1 := arg0Val.ReadByte()
+			res0, resErr := arg0Val.ReadByte()
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "byte")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"io-closer//close": {
@@ -21765,12 +21809,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("io-closer//close: arg 1: expected native")
 			}
-			res0 := arg0Val.Close()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Close()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"io-reader//read": {
@@ -21838,17 +21886,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("io-reader//read: arg 2: expected block, native or nil")
 			}
-			res0, res1 := arg0Val.Read(arg1Val)
+			res0, resErr := arg0Val.Read(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"io-seeker//seek": {
@@ -21895,17 +21944,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("io-seeker//seek: arg 3: expected integer")
 			}
-			res0, res1 := arg0Val.Seek(arg1Val, arg2Val)
+			res0, resErr := arg0Val.Seek(arg1Val, arg2Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"jpeg-decode": {
@@ -21938,7 +21988,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("jpeg-decode: arg 1: expected native")
 			}
-			res0, res1 := jpeg.Decode(arg0Val)
+			res0, resErr := jpeg.Decode(arg0Val)
 			var res0Obj env.Object
 			{
 				typ := reflect.TypeOf(res0)
@@ -21958,14 +22008,15 @@ var Builtins = map[string]*env.Builtin{
 					res0Obj = *env.NewNative(ps.Idx, res0, "image-image")
 				}
 			}
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"jpeg-decode-config": {
@@ -21998,17 +22049,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("jpeg-decode-config: arg 1: expected native")
 			}
-			res0, res1 := jpeg.DecodeConfig(arg0Val)
+			res0, resErr := jpeg.DecodeConfig(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-image-config")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"jpeg-encode": {
@@ -22086,12 +22138,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("jpeg-encode: arg 3: expected native")
 			}
-			res0 := jpeg.Encode(arg0Val, arg1Val, arg2Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := jpeg.Encode(arg0Val, arg1Val, arg2Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return nil
 		},
 	},
 	"jpeg-format-error//error": {
@@ -22166,21 +22222,6 @@ var Builtins = map[string]*env.Builtin{
 			return res0Obj
 		},
 	},
-	"keyboard-1-keyboard-png": {
-		Doc:   "Get keyboard_1.Keyboard_png value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			{
-				items := make([]env.Object, len(keyboard_1.Keyboard_png))
-				for i, it := range keyboard_1.Keyboard_png {
-					items[i] = *env.NewNative(ps.Idx, it, "byte")
-				}
-				resObj = *env.NewBlock(*env.NewTSeries(items))
-			}
-			return resObj
-		},
-	},
 	"keyboard-key-rect": {
 		Doc:   "keyboard.KeyRect",
 		Argsn: 1,
@@ -22211,10 +22252,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-image-rectangle")
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(boolToInt64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"mascot-out-01-png": {
@@ -22398,17 +22439,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("mp-3-decode: arg 2: expected native")
 			}
-			res0, res1 := mp3.Decode(arg0Val, arg1Val)
+			res0, resErr := mp3.Decode(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-mp-3-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"mp-3-decode-with-sample-rate": {
@@ -22448,17 +22490,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("mp-3-decode-with-sample-rate: arg 2: expected native")
 			}
-			res0, res1 := mp3.DecodeWithSampleRate(arg0Val, arg1Val)
+			res0, resErr := mp3.DecodeWithSampleRate(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-mp-3-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"mp-3-decode-without-resampling": {
@@ -22491,17 +22534,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("mp-3-decode-without-resampling: arg 1: expected native")
 			}
-			res0, res1 := mp3.DecodeWithoutResampling(arg0Val)
+			res0, resErr := mp3.DecodeWithoutResampling(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-mp-3-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"mp-3-stream": {
@@ -22622,7 +22666,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("png-decode: arg 1: expected native")
 			}
-			res0, res1 := png.Decode(arg0Val)
+			res0, resErr := png.Decode(arg0Val)
 			var res0Obj env.Object
 			{
 				typ := reflect.TypeOf(res0)
@@ -22642,14 +22686,15 @@ var Builtins = map[string]*env.Builtin{
 					res0Obj = *env.NewNative(ps.Idx, res0, "image-image")
 				}
 			}
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"png-decode-config": {
@@ -22682,17 +22727,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("png-decode-config: arg 1: expected native")
 			}
-			res0, res1 := png.DecodeConfig(arg0Val)
+			res0, resErr := png.DecodeConfig(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-image-config")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"png-default-compression": {
@@ -22760,12 +22806,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("png-encode: arg 2: expected native")
 			}
-			res0 := png.Encode(arg0Val, arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := png.Encode(arg0Val, arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return nil
 		},
 	},
 	"png-encoder-buffer-pool//get": {
@@ -23016,17 +23066,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-audio-context//player: arg 2: expected native")
 			}
-			res0, res1 := arg0Val.NewPlayer(arg1Val)
+			res0, resErr := arg0Val.NewPlayer(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-audio-player")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-audio-context//player-from-bytes": {
@@ -23180,17 +23231,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-audio-infinite-loop//read: arg 2: expected block, native or nil")
 			}
-			res0, res1 := arg0Val.Read(arg1Val)
+			res0, resErr := arg0Val.Read(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-audio-infinite-loop//seek": {
@@ -23230,17 +23282,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-audio-infinite-loop//seek: arg 3: expected integer")
 			}
-			res0, res1 := arg0Val.Seek(arg1Val, arg2Val)
+			res0, resErr := arg0Val.Seek(arg1Val, arg2Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-audio-player//close": {
@@ -23266,12 +23319,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-audio-player//close: arg 1: expected native")
 			}
-			res0 := arg0Val.Close()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Close()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-audio-player//current": {
@@ -23438,12 +23495,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-audio-player//rewind: arg 1: expected native")
 			}
-			res0 := arg0Val.Rewind()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Rewind()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-audio-player//seek": {
@@ -23482,12 +23543,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-audio-player//seek: arg 2: expected native")
 			}
-			res0 := arg0Val.Seek(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Seek(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-audio-player//set-buffer-size": {
@@ -23566,12 +23631,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-audio-player//set-position: arg 2: expected native")
 			}
-			res0 := arg0Val.SetPosition(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.SetPosition(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-audio-player//set-volume": {
@@ -24514,12 +24583,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-blocks-game-scene//update: arg 2: expected native")
 			}
-			res0 := arg0Val.Update(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-blocks-game-state//input!": {
@@ -24754,10 +24827,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"screen-width":  res0Obj,
-				"screen-height": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-blocks-game//update": {
@@ -24783,12 +24856,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-blocks-game//update: arg 1: expected native")
 			}
-			res0 := arg0Val.Update()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-blocks-gamepad-scene//draw": {
@@ -24879,12 +24956,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-blocks-gamepad-scene//update: arg 2: expected native")
 			}
-			res0 := arg0Val.Update(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-blocks-input//gamepad-id-button-pressed": {
@@ -25278,10 +25359,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-blocks-scene-manager//draw": {
@@ -25425,12 +25506,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-blocks-scene-manager//update: arg 2: expected native")
 			}
-			res0 := arg0Val.Update(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-blocks-title-scene//draw": {
@@ -25521,12 +25606,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-blocks-title-scene//update: arg 2: expected native")
 			}
-			res0 := arg0Val.Update(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-bytes-buffer//bytes": {
@@ -25756,17 +25845,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//read: arg 2: expected block, native or nil")
 			}
-			res0, res1 := arg0Val.Read(arg1Val)
+			res0, resErr := arg0Val.Read(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-buffer//read-byte": {
@@ -25792,17 +25882,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//read-byte: arg 1: expected native")
 			}
-			res0, res1 := arg0Val.ReadByte()
+			res0, resErr := arg0Val.ReadByte()
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "byte")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-buffer//read-bytes": {
@@ -25841,7 +25932,7 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//read-bytes: arg 2: expected native")
 			}
-			res0, res1 := arg0Val.ReadBytes(arg1Val)
+			res0, resErr := arg0Val.ReadBytes(arg1Val)
 			var res0Obj env.Object
 			{
 				items := make([]env.Object, len(res0))
@@ -25850,14 +25941,15 @@ var Builtins = map[string]*env.Builtin{
 				}
 				res0Obj = *env.NewBlock(*env.NewTSeries(items))
 			}
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"line": res0Obj,
-				"err":  res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-buffer//read-from": {
@@ -25909,17 +26001,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//read-from: arg 2: expected native")
 			}
-			res0, res1 := arg0Val.ReadFrom(arg1Val)
+			res0, resErr := arg0Val.ReadFrom(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-buffer//read-rune": {
@@ -25945,20 +26038,23 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//read-rune: arg 1: expected native")
 			}
-			res0, res1, res2 := arg0Val.ReadRune()
+			res0, res1, resErr := arg0Val.ReadRune()
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "rune")
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			var res2Obj env.Object
-			if res2 != nil {
-				res2Obj = *env.NewError(res2.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"r":    res0Obj,
-				"size": res1Obj,
-				"err":  res2Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-bytes-buffer//read-string": {
@@ -25997,17 +26093,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//read-string: arg 2: expected native")
 			}
-			res0, res1 := arg0Val.ReadString(arg1Val)
+			res0, resErr := arg0Val.ReadString(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewString(res0)
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"line": res0Obj,
-				"err":  res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-buffer//reset": {
@@ -26123,12 +26220,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//unread-byte: arg 1: expected native")
 			}
-			res0 := arg0Val.UnreadByte()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.UnreadByte()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-bytes-buffer//unread-rune": {
@@ -26154,12 +26255,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//unread-rune: arg 1: expected native")
 			}
-			res0 := arg0Val.UnreadRune()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.UnreadRune()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-bytes-buffer//write": {
@@ -26220,17 +26325,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//write: arg 2: expected block, native or nil")
 			}
-			res0, res1 := arg0Val.Write(arg1Val)
+			res0, resErr := arg0Val.Write(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-buffer//write-byte": {
@@ -26269,12 +26375,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//write-byte: arg 2: expected native")
 			}
-			res0 := arg0Val.WriteByte(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.WriteByte(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-bytes-buffer//write-rune": {
@@ -26313,17 +26423,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//write-rune: arg 2: expected native")
 			}
-			res0, res1 := arg0Val.WriteRune(arg1Val)
+			res0, resErr := arg0Val.WriteRune(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-buffer//write-string": {
@@ -26356,17 +26467,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//write-string: arg 2: expected string")
 			}
-			res0, res1 := arg0Val.WriteString(arg1Val)
+			res0, resErr := arg0Val.WriteString(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-buffer//write-to": {
@@ -26418,17 +26530,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-buffer//write-to: arg 2: expected native")
 			}
-			res0, res1 := arg0Val.WriteTo(arg1Val)
+			res0, resErr := arg0Val.WriteTo(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-reader//len": {
@@ -26518,17 +26631,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-reader//read: arg 2: expected block, native or nil")
 			}
-			res0, res1 := arg0Val.Read(arg1Val)
+			res0, resErr := arg0Val.Read(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-reader//read-at": {
@@ -26596,17 +26710,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-reader//read-at: arg 3: expected integer")
 			}
-			res0, res1 := arg0Val.ReadAt(arg1Val, arg2Val)
+			res0, resErr := arg0Val.ReadAt(arg1Val, arg2Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-reader//read-byte": {
@@ -26632,17 +26747,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-reader//read-byte: arg 1: expected native")
 			}
-			res0, res1 := arg0Val.ReadByte()
+			res0, resErr := arg0Val.ReadByte()
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "byte")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-reader//read-rune": {
@@ -26668,20 +26784,23 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-reader//read-rune: arg 1: expected native")
 			}
-			res0, res1, res2 := arg0Val.ReadRune()
+			res0, res1, resErr := arg0Val.ReadRune()
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "rune")
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			var res2Obj env.Object
-			if res2 != nil {
-				res2Obj = *env.NewError(res2.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"ch":   res0Obj,
-				"size": res1Obj,
-				"err":  res2Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-bytes-reader//reset": {
@@ -26783,17 +26902,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-reader//seek: arg 3: expected integer")
 			}
-			res0, res1 := arg0Val.Seek(arg1Val, arg2Val)
+			res0, resErr := arg0Val.Seek(arg1Val, arg2Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-bytes-reader//size": {
@@ -26848,12 +26968,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-reader//unread-byte: arg 1: expected native")
 			}
-			res0 := arg0Val.UnreadByte()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.UnreadByte()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-bytes-reader//unread-rune": {
@@ -26879,12 +27003,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-reader//unread-rune: arg 1: expected native")
 			}
-			res0 := arg0Val.UnreadRune()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.UnreadRune()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-bytes-reader//write-to": {
@@ -26936,17 +27064,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-bytes-reader//write-to: arg 2: expected native")
 			}
-			res0, res1 := arg0Val.WriteTo(arg1Val)
+			res0, resErr := arg0Val.WriteTo(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"n":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-color-alpha-16//a!": {
@@ -32708,10 +32837,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewDecimal(float64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewDecimal(float64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-ebiten-geo-m//concat": {
@@ -34053,10 +34182,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"width":  res0Obj,
-				"height": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-ebiten-image//sub-image": {
@@ -34244,12 +34373,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-ebiten-key//unmarshal-text: arg 2: expected block, native or nil")
 			}
-			res0 := arg0Val.UnmarshalText(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.UnmarshalText(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-ebiten-monitor-type//device-scale-factor": {
@@ -34338,10 +34471,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-ebiten-new-image-from-image-options//preserve-bounds!": {
@@ -35010,6 +35143,264 @@ var Builtins = map[string]*env.Builtin{
 			}
 			arg0Val.Dispose()
 			return arg0
+		},
+	},
+	"ptr-ebiten-text-glyph//image!": {
+		Doc:   "Set *ebiten_text.Glyph Image value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *ebiten_text.Glyph
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*ebiten_text.Glyph)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//image!: arg 1: expected native of type *ebiten_text.Glyph")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//image!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-ebiten-text-glyph//image!: arg 1: expected native")
+			}
+			switch v := arg1.(type) {
+			case env.Native:
+				var ok bool
+				self.Image, ok = v.Value.(*ebiten.Image)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//image!: arg 2: expected native of type *ebiten.Image")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//image!: arg 2: expected integer to be 0 or nil")
+				}
+				self.Image = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-ebiten-text-glyph//image!: arg 2: expected native")
+			}
+			return arg0
+		},
+	},
+	"ptr-ebiten-text-glyph//image?": {
+		Doc:   "Get *ebiten_text.Glyph Image value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *ebiten_text.Glyph
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*ebiten_text.Glyph)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//image?: arg 1: expected native of type *ebiten_text.Glyph")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//image?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-ebiten-text-glyph//image?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewNative(ps.Idx, self.Image, "ptr-ebiten-image")
+			return resObj
+		},
+	},
+	"ptr-ebiten-text-glyph//rune!": {
+		Doc:   "Set *ebiten_text.Glyph Rune value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *ebiten_text.Glyph
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*ebiten_text.Glyph)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//rune!: arg 1: expected native of type *ebiten_text.Glyph")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//rune!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-ebiten-text-glyph//rune!: arg 1: expected native")
+			}
+			switch v := arg1.(type) {
+			case env.Native:
+				var ok bool
+				self.Rune, ok = v.Value.(rune)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//rune!: arg 2: expected native of type rune")
+				}
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-ebiten-text-glyph//rune!: arg 2: expected native")
+			}
+			return arg0
+		},
+	},
+	"ptr-ebiten-text-glyph//rune?": {
+		Doc:   "Get *ebiten_text.Glyph Rune value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *ebiten_text.Glyph
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*ebiten_text.Glyph)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//rune?: arg 1: expected native of type *ebiten_text.Glyph")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//rune?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-ebiten-text-glyph//rune?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewNative(ps.Idx, self.Rune, "rune")
+			return resObj
+		},
+	},
+	"ptr-ebiten-text-glyph//x!": {
+		Doc:   "Set *ebiten_text.Glyph X value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *ebiten_text.Glyph
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*ebiten_text.Glyph)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//x!: arg 1: expected native of type *ebiten_text.Glyph")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//x!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-ebiten-text-glyph//x!: arg 1: expected native")
+			}
+			if v, ok := arg1.(env.Decimal); ok {
+				self.X = float64(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ptr-ebiten-text-glyph//x!: arg 2: expected decimal")
+			}
+			return arg0
+		},
+	},
+	"ptr-ebiten-text-glyph//x?": {
+		Doc:   "Get *ebiten_text.Glyph X value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *ebiten_text.Glyph
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*ebiten_text.Glyph)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//x?: arg 1: expected native of type *ebiten_text.Glyph")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//x?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-ebiten-text-glyph//x?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(self.X))
+			return resObj
+		},
+	},
+	"ptr-ebiten-text-glyph//y!": {
+		Doc:   "Set *ebiten_text.Glyph Y value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *ebiten_text.Glyph
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*ebiten_text.Glyph)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//y!: arg 1: expected native of type *ebiten_text.Glyph")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//y!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-ebiten-text-glyph//y!: arg 1: expected native")
+			}
+			if v, ok := arg1.(env.Decimal); ok {
+				self.Y = float64(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ptr-ebiten-text-glyph//y!: arg 2: expected decimal")
+			}
+			return arg0
+		},
+	},
+	"ptr-ebiten-text-glyph//y?": {
+		Doc:   "Get *ebiten_text.Glyph Y value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *ebiten_text.Glyph
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*ebiten_text.Glyph)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//y?: arg 1: expected native of type *ebiten_text.Glyph")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-ebiten-text-glyph//y?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-ebiten-text-glyph//y?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(self.Y))
+			return resObj
 		},
 	},
 	"ptr-ebiten-vertex//color-a!": {
@@ -46134,12 +46525,12 @@ var Builtins = map[string]*env.Builtin{
 			res2Obj = *env.NewInteger(int64(res2))
 			var res3Obj env.Object
 			res3Obj = *env.NewInteger(int64(res3))
-			return *env.NewDict(map[string]any{
-				"r": res0Obj,
-				"g": res1Obj,
-				"b": res2Obj,
-				"a": res3Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+				res3Obj,
+			}))
 		},
 	},
 	"ptr-image-uniform//rgba-64-at": {
@@ -47257,17 +47648,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-mp-3-stream//read: arg 2: expected block, native or nil")
 			}
-			res0, res1 := arg0Val.Read(arg1Val)
+			res0, resErr := arg0Val.Read(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-mp-3-stream//seek": {
@@ -47307,17 +47699,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-mp-3-stream//seek: arg 3: expected integer")
 			}
-			res0, res1 := arg0Val.Seek(arg1Val, arg2Val)
+			res0, resErr := arg0Val.Seek(arg1Val, arg2Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-png-encoder//buffer-pool!": {
@@ -47565,36 +47958,40 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-png-encoder//encode: arg 3: expected native")
 			}
-			res0 := arg0Val.Encode(arg1Val, arg2Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Encode(arg1Val, arg2Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
-	"ptr-text-1-draw-options//blend!": {
-		Doc:   "Set *text_1.DrawOptions Blend value",
+	"ptr-text-draw-options//blend!": {
+		Doc:   "Set *text.DrawOptions Blend value",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//blend!: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//blend!: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//blend!: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//blend!: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//blend!: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//blend!: arg 1: expected native")
 			}
 			switch v := arg1.(type) {
 			case env.Native:
@@ -47602,65 +47999,65 @@ var Builtins = map[string]*env.Builtin{
 				self.Blend, ok = v.Value.(ebiten.Blend)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//blend!: arg 2: expected native of type ebiten.Blend")
+					return env.NewError("ptr-text-draw-options//blend!: arg 2: expected native of type ebiten.Blend")
 				}
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//blend!: arg 2: expected native")
+				return env.NewError("ptr-text-draw-options//blend!: arg 2: expected native")
 			}
 			return arg0
 		},
 	},
-	"ptr-text-1-draw-options//blend?": {
-		Doc:   "Get *text_1.DrawOptions Blend value",
+	"ptr-text-draw-options//blend?": {
+		Doc:   "Get *text.DrawOptions Blend value",
 		Argsn: 1,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//blend?: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//blend?: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//blend?: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//blend?: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//blend?: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//blend?: arg 1: expected native")
 			}
 			var resObj env.Object
 			resObj = *env.NewNative(ps.Idx, &self.Blend, "ptr-ebiten-blend")
 			return resObj
 		},
 	},
-	"ptr-text-1-draw-options//color-m!": {
-		Doc:   "Set *text_1.DrawOptions ColorM value",
+	"ptr-text-draw-options//color-m!": {
+		Doc:   "Set *text.DrawOptions ColorM value",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//color-m!: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//color-m!: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//color-m!: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//color-m!: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//color-m!: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//color-m!: arg 1: expected native")
 			}
 			switch v := arg1.(type) {
 			case env.Native:
@@ -47668,65 +48065,65 @@ var Builtins = map[string]*env.Builtin{
 				self.ColorM, ok = v.Value.(ebiten.ColorM)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//color-m!: arg 2: expected native of type ebiten.ColorM")
+					return env.NewError("ptr-text-draw-options//color-m!: arg 2: expected native of type ebiten.ColorM")
 				}
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//color-m!: arg 2: expected native")
+				return env.NewError("ptr-text-draw-options//color-m!: arg 2: expected native")
 			}
 			return arg0
 		},
 	},
-	"ptr-text-1-draw-options//color-m?": {
-		Doc:   "Get *text_1.DrawOptions ColorM value",
+	"ptr-text-draw-options//color-m?": {
+		Doc:   "Get *text.DrawOptions ColorM value",
 		Argsn: 1,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//color-m?: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//color-m?: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//color-m?: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//color-m?: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//color-m?: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//color-m?: arg 1: expected native")
 			}
 			var resObj env.Object
 			resObj = *env.NewNative(ps.Idx, self.ColorM, "ebiten-color-m")
 			return resObj
 		},
 	},
-	"ptr-text-1-draw-options//color-scale!": {
-		Doc:   "Set *text_1.DrawOptions ColorScale value",
+	"ptr-text-draw-options//color-scale!": {
+		Doc:   "Set *text.DrawOptions ColorScale value",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//color-scale!: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//color-scale!: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//color-scale!: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//color-scale!: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//color-scale!: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//color-scale!: arg 1: expected native")
 			}
 			switch v := arg1.(type) {
 			case env.Native:
@@ -47734,65 +48131,65 @@ var Builtins = map[string]*env.Builtin{
 				self.ColorScale, ok = v.Value.(ebiten.ColorScale)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//color-scale!: arg 2: expected native of type ebiten.ColorScale")
+					return env.NewError("ptr-text-draw-options//color-scale!: arg 2: expected native of type ebiten.ColorScale")
 				}
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//color-scale!: arg 2: expected native")
+				return env.NewError("ptr-text-draw-options//color-scale!: arg 2: expected native")
 			}
 			return arg0
 		},
 	},
-	"ptr-text-1-draw-options//color-scale?": {
-		Doc:   "Get *text_1.DrawOptions ColorScale value",
+	"ptr-text-draw-options//color-scale?": {
+		Doc:   "Get *text.DrawOptions ColorScale value",
 		Argsn: 1,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//color-scale?: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//color-scale?: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//color-scale?: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//color-scale?: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//color-scale?: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//color-scale?: arg 1: expected native")
 			}
 			var resObj env.Object
 			resObj = *env.NewNative(ps.Idx, &self.ColorScale, "ptr-ebiten-color-scale")
 			return resObj
 		},
 	},
-	"ptr-text-1-draw-options//composite-mode!": {
-		Doc:   "Set *text_1.DrawOptions CompositeMode value",
+	"ptr-text-draw-options//composite-mode!": {
+		Doc:   "Set *text.DrawOptions CompositeMode value",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//composite-mode!: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//composite-mode!: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//composite-mode!: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//composite-mode!: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//composite-mode!: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//composite-mode!: arg 1: expected native")
 			}
 			{
 				nat, natOk := arg1.(env.Native)
@@ -47809,7 +48206,7 @@ var Builtins = map[string]*env.Builtin{
 						u = int(v.Value)
 					} else {
 						ps.FailureFlag = true
-						return env.NewError("ptr-text-1-draw-options//composite-mode!: arg 2: expected integer")
+						return env.NewError("ptr-text-draw-options//composite-mode!: arg 2: expected integer")
 					}
 					self.CompositeMode = ebiten.CompositeMode(u)
 				}
@@ -47817,56 +48214,56 @@ var Builtins = map[string]*env.Builtin{
 			return arg0
 		},
 	},
-	"ptr-text-1-draw-options//composite-mode?": {
-		Doc:   "Get *text_1.DrawOptions CompositeMode value",
+	"ptr-text-draw-options//composite-mode?": {
+		Doc:   "Get *text.DrawOptions CompositeMode value",
 		Argsn: 1,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//composite-mode?: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//composite-mode?: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//composite-mode?: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//composite-mode?: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//composite-mode?: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//composite-mode?: arg 1: expected native")
 			}
 			var resObj env.Object
 			resObj = *env.NewInteger(int64(int(self.CompositeMode)))
 			return resObj
 		},
 	},
-	"ptr-text-1-draw-options//filter!": {
-		Doc:   "Set *text_1.DrawOptions Filter value",
+	"ptr-text-draw-options//filter!": {
+		Doc:   "Set *text.DrawOptions Filter value",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//filter!: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//filter!: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//filter!: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//filter!: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//filter!: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//filter!: arg 1: expected native")
 			}
 			{
 				nat, natOk := arg1.(env.Native)
@@ -47883,7 +48280,7 @@ var Builtins = map[string]*env.Builtin{
 						u = int(v.Value)
 					} else {
 						ps.FailureFlag = true
-						return env.NewError("ptr-text-1-draw-options//filter!: arg 2: expected integer")
+						return env.NewError("ptr-text-draw-options//filter!: arg 2: expected integer")
 					}
 					self.Filter = ebiten.Filter(u)
 				}
@@ -47891,56 +48288,56 @@ var Builtins = map[string]*env.Builtin{
 			return arg0
 		},
 	},
-	"ptr-text-1-draw-options//filter?": {
-		Doc:   "Get *text_1.DrawOptions Filter value",
+	"ptr-text-draw-options//filter?": {
+		Doc:   "Get *text.DrawOptions Filter value",
 		Argsn: 1,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//filter?: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//filter?: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//filter?: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//filter?: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//filter?: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//filter?: arg 1: expected native")
 			}
 			var resObj env.Object
 			resObj = *env.NewInteger(int64(int(self.Filter)))
 			return resObj
 		},
 	},
-	"ptr-text-1-draw-options//geo-m!": {
-		Doc:   "Set *text_1.DrawOptions GeoM value",
+	"ptr-text-draw-options//geo-m!": {
+		Doc:   "Set *text.DrawOptions GeoM value",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//geo-m!: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//geo-m!: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//geo-m!: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//geo-m!: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//geo-m!: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//geo-m!: arg 1: expected native")
 			}
 			switch v := arg1.(type) {
 			case env.Native:
@@ -47948,132 +48345,132 @@ var Builtins = map[string]*env.Builtin{
 				self.GeoM, ok = v.Value.(ebiten.GeoM)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//geo-m!: arg 2: expected native of type ebiten.GeoM")
+					return env.NewError("ptr-text-draw-options//geo-m!: arg 2: expected native of type ebiten.GeoM")
 				}
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//geo-m!: arg 2: expected native")
+				return env.NewError("ptr-text-draw-options//geo-m!: arg 2: expected native")
 			}
 			return arg0
 		},
 	},
-	"ptr-text-1-draw-options//geo-m?": {
-		Doc:   "Get *text_1.DrawOptions GeoM value",
+	"ptr-text-draw-options//geo-m?": {
+		Doc:   "Get *text.DrawOptions GeoM value",
 		Argsn: 1,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//geo-m?: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//geo-m?: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//geo-m?: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//geo-m?: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//geo-m?: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//geo-m?: arg 1: expected native")
 			}
 			var resObj env.Object
 			resObj = *env.NewNative(ps.Idx, &self.GeoM, "ptr-ebiten-geo-m")
 			return resObj
 		},
 	},
-	"ptr-text-1-draw-options//line-spacing!": {
-		Doc:   "Set *text_1.DrawOptions LineSpacing value",
+	"ptr-text-draw-options//line-spacing!": {
+		Doc:   "Set *text.DrawOptions LineSpacing value",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//line-spacing!: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//line-spacing!: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//line-spacing!: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//line-spacing!: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//line-spacing!: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//line-spacing!: arg 1: expected native")
 			}
 			if v, ok := arg1.(env.Decimal); ok {
 				self.LineSpacing = float64(v.Value)
 			} else {
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//line-spacing!: arg 2: expected decimal")
+				return env.NewError("ptr-text-draw-options//line-spacing!: arg 2: expected decimal")
 			}
 			return arg0
 		},
 	},
-	"ptr-text-1-draw-options//line-spacing?": {
-		Doc:   "Get *text_1.DrawOptions LineSpacing value",
+	"ptr-text-draw-options//line-spacing?": {
+		Doc:   "Get *text.DrawOptions LineSpacing value",
 		Argsn: 1,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//line-spacing?: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//line-spacing?: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//line-spacing?: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//line-spacing?: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//line-spacing?: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//line-spacing?: arg 1: expected native")
 			}
 			var resObj env.Object
 			resObj = *env.NewDecimal(float64(self.LineSpacing))
 			return resObj
 		},
 	},
-	"ptr-text-1-draw-options//primary-align!": {
-		Doc:   "Set *text_1.DrawOptions PrimaryAlign value",
+	"ptr-text-draw-options//primary-align!": {
+		Doc:   "Set *text.DrawOptions PrimaryAlign value",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//primary-align!: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//primary-align!: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//primary-align!: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//primary-align!: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//primary-align!: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//primary-align!: arg 1: expected native")
 			}
 			{
 				nat, natOk := arg1.(env.Native)
 				var natValOk bool
-				var natVal text_1.Align
+				var natVal text.Align
 				if natOk {
-					natVal, natValOk = nat.Value.(text_1.Align)
+					natVal, natValOk = nat.Value.(text.Align)
 				}
 				if natValOk {
 					self.PrimaryAlign = natVal
@@ -48083,71 +48480,71 @@ var Builtins = map[string]*env.Builtin{
 						u = int(v.Value)
 					} else {
 						ps.FailureFlag = true
-						return env.NewError("ptr-text-1-draw-options//primary-align!: arg 2: expected integer")
+						return env.NewError("ptr-text-draw-options//primary-align!: arg 2: expected integer")
 					}
-					self.PrimaryAlign = text_1.Align(u)
+					self.PrimaryAlign = text.Align(u)
 				}
 			}
 			return arg0
 		},
 	},
-	"ptr-text-1-draw-options//primary-align?": {
-		Doc:   "Get *text_1.DrawOptions PrimaryAlign value",
+	"ptr-text-draw-options//primary-align?": {
+		Doc:   "Get *text.DrawOptions PrimaryAlign value",
 		Argsn: 1,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//primary-align?: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//primary-align?: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//primary-align?: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//primary-align?: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//primary-align?: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//primary-align?: arg 1: expected native")
 			}
 			var resObj env.Object
 			resObj = *env.NewInteger(int64(int(self.PrimaryAlign)))
 			return resObj
 		},
 	},
-	"ptr-text-1-draw-options//secondary-align!": {
-		Doc:   "Set *text_1.DrawOptions SecondaryAlign value",
+	"ptr-text-draw-options//secondary-align!": {
+		Doc:   "Set *text.DrawOptions SecondaryAlign value",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//secondary-align!: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//secondary-align!: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//secondary-align!: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//secondary-align!: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//secondary-align!: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//secondary-align!: arg 1: expected native")
 			}
 			{
 				nat, natOk := arg1.(env.Native)
 				var natValOk bool
-				var natVal text_1.Align
+				var natVal text.Align
 				if natOk {
-					natVal, natValOk = nat.Value.(text_1.Align)
+					natVal, natValOk = nat.Value.(text.Align)
 				}
 				if natValOk {
 					self.SecondaryAlign = natVal
@@ -48157,2062 +48554,160 @@ var Builtins = map[string]*env.Builtin{
 						u = int(v.Value)
 					} else {
 						ps.FailureFlag = true
-						return env.NewError("ptr-text-1-draw-options//secondary-align!: arg 2: expected integer")
+						return env.NewError("ptr-text-draw-options//secondary-align!: arg 2: expected integer")
 					}
-					self.SecondaryAlign = text_1.Align(u)
+					self.SecondaryAlign = text.Align(u)
 				}
 			}
 			return arg0
 		},
 	},
-	"ptr-text-1-draw-options//secondary-align?": {
-		Doc:   "Get *text_1.DrawOptions SecondaryAlign value",
+	"ptr-text-draw-options//secondary-align?": {
+		Doc:   "Get *text.DrawOptions SecondaryAlign value",
 		Argsn: 1,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.DrawOptions
+			var self *text.DrawOptions
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.DrawOptions)
+				self, ok = v.Value.(*text.DrawOptions)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//secondary-align?: arg 1: expected native of type *text_1.DrawOptions")
+					return env.NewError("ptr-text-draw-options//secondary-align?: arg 1: expected native of type *text.DrawOptions")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-draw-options//secondary-align?: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-draw-options//secondary-align?: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-draw-options//secondary-align?: arg 1: expected native")
+				return env.NewError("ptr-text-draw-options//secondary-align?: arg 1: expected native")
 			}
 			var resObj env.Object
 			resObj = *env.NewInteger(int64(int(self.SecondaryAlign)))
 			return resObj
 		},
 	},
-	"ptr-text-1-glyph//end-index-in-bytes!": {
-		Doc:   "Set *text_1.Glyph EndIndexInBytes value",
+	"ptr-text-glyph//end-index-in-bytes!": {
+		Doc:   "Set *text.Glyph EndIndexInBytes value",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Glyph
+			var self *text.Glyph
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.Glyph)
+				self, ok = v.Value.(*text.Glyph)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//end-index-in-bytes!: arg 1: expected native of type *text_1.Glyph")
+					return env.NewError("ptr-text-glyph//end-index-in-bytes!: arg 1: expected native of type *text.Glyph")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//end-index-in-bytes!: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-glyph//end-index-in-bytes!: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//end-index-in-bytes!: arg 1: expected native")
+				return env.NewError("ptr-text-glyph//end-index-in-bytes!: arg 1: expected native")
 			}
 			if v, ok := arg1.(env.Integer); ok {
 				self.EndIndexInBytes = int(v.Value)
 			} else {
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//end-index-in-bytes!: arg 2: expected integer")
+				return env.NewError("ptr-text-glyph//end-index-in-bytes!: arg 2: expected integer")
 			}
 			return arg0
 		},
 	},
-	"ptr-text-1-glyph//end-index-in-bytes?": {
-		Doc:   "Get *text_1.Glyph EndIndexInBytes value",
+	"ptr-text-glyph//end-index-in-bytes?": {
+		Doc:   "Get *text.Glyph EndIndexInBytes value",
 		Argsn: 1,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Glyph
+			var self *text.Glyph
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.Glyph)
+				self, ok = v.Value.(*text.Glyph)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//end-index-in-bytes?: arg 1: expected native of type *text_1.Glyph")
+					return env.NewError("ptr-text-glyph//end-index-in-bytes?: arg 1: expected native of type *text.Glyph")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//end-index-in-bytes?: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-glyph//end-index-in-bytes?: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//end-index-in-bytes?: arg 1: expected native")
+				return env.NewError("ptr-text-glyph//end-index-in-bytes?: arg 1: expected native")
 			}
 			var resObj env.Object
 			resObj = *env.NewInteger(int64(self.EndIndexInBytes))
 			return resObj
 		},
 	},
-	"ptr-text-1-glyph//gid!": {
-		Doc:   "Set *text_1.Glyph GID value",
+	"ptr-text-glyph//gid!": {
+		Doc:   "Set *text.Glyph GID value",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Glyph
+			var self *text.Glyph
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.Glyph)
+				self, ok = v.Value.(*text.Glyph)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//gid!: arg 1: expected native of type *text_1.Glyph")
+					return env.NewError("ptr-text-glyph//gid!: arg 1: expected native of type *text.Glyph")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//gid!: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-glyph//gid!: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//gid!: arg 1: expected native")
+				return env.NewError("ptr-text-glyph//gid!: arg 1: expected native")
 			}
 			if v, ok := arg1.(env.Integer); ok {
 				self.GID = uint32(v.Value)
 			} else {
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//gid!: arg 2: expected integer")
+				return env.NewError("ptr-text-glyph//gid!: arg 2: expected integer")
 			}
 			return arg0
 		},
 	},
-	"ptr-text-1-glyph//gid?": {
-		Doc:   "Get *text_1.Glyph GID value",
+	"ptr-text-glyph//gid?": {
+		Doc:   "Get *text.Glyph GID value",
 		Argsn: 1,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Glyph
+			var self *text.Glyph
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				self, ok = v.Value.(*text_1.Glyph)
+				self, ok = v.Value.(*text.Glyph)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//gid?: arg 1: expected native of type *text_1.Glyph")
+					return env.NewError("ptr-text-glyph//gid?: arg 1: expected native of type *text.Glyph")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//gid?: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-glyph//gid?: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//gid?: arg 1: expected native")
+				return env.NewError("ptr-text-glyph//gid?: arg 1: expected native")
 			}
 			var resObj env.Object
 			resObj = *env.NewInteger(int64(self.GID))
 			return resObj
-		},
-	},
-	"ptr-text-1-glyph//image!": {
-		Doc:   "Set *text_1.Glyph Image value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Glyph
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Glyph)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//image!: arg 1: expected native of type *text_1.Glyph")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//image!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//image!: arg 1: expected native")
-			}
-			switch v := arg1.(type) {
-			case env.Native:
-				var ok bool
-				self.Image, ok = v.Value.(*ebiten.Image)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//image!: arg 2: expected native of type *ebiten.Image")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//image!: arg 2: expected integer to be 0 or nil")
-				}
-				self.Image = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//image!: arg 2: expected native")
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-glyph//image?": {
-		Doc:   "Get *text_1.Glyph Image value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Glyph
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Glyph)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//image?: arg 1: expected native of type *text_1.Glyph")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//image?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//image?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewNative(ps.Idx, self.Image, "ptr-ebiten-image")
-			return resObj
-		},
-	},
-	"ptr-text-1-glyph//start-index-in-bytes!": {
-		Doc:   "Set *text_1.Glyph StartIndexInBytes value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Glyph
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Glyph)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//start-index-in-bytes!: arg 1: expected native of type *text_1.Glyph")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//start-index-in-bytes!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//start-index-in-bytes!: arg 1: expected native")
-			}
-			if v, ok := arg1.(env.Integer); ok {
-				self.StartIndexInBytes = int(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//start-index-in-bytes!: arg 2: expected integer")
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-glyph//start-index-in-bytes?": {
-		Doc:   "Get *text_1.Glyph StartIndexInBytes value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Glyph
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Glyph)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//start-index-in-bytes?: arg 1: expected native of type *text_1.Glyph")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//start-index-in-bytes?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//start-index-in-bytes?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewInteger(int64(self.StartIndexInBytes))
-			return resObj
-		},
-	},
-	"ptr-text-1-glyph//x!": {
-		Doc:   "Set *text_1.Glyph X value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Glyph
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Glyph)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//x!: arg 1: expected native of type *text_1.Glyph")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//x!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//x!: arg 1: expected native")
-			}
-			if v, ok := arg1.(env.Decimal); ok {
-				self.X = float64(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//x!: arg 2: expected decimal")
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-glyph//x?": {
-		Doc:   "Get *text_1.Glyph X value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Glyph
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Glyph)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//x?: arg 1: expected native of type *text_1.Glyph")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//x?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//x?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(self.X))
-			return resObj
-		},
-	},
-	"ptr-text-1-glyph//y!": {
-		Doc:   "Set *text_1.Glyph Y value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Glyph
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Glyph)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//y!: arg 1: expected native of type *text_1.Glyph")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//y!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//y!: arg 1: expected native")
-			}
-			if v, ok := arg1.(env.Decimal); ok {
-				self.Y = float64(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//y!: arg 2: expected decimal")
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-glyph//y?": {
-		Doc:   "Get *text_1.Glyph Y value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Glyph
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Glyph)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//y?: arg 1: expected native of type *text_1.Glyph")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-glyph//y?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-glyph//y?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(self.Y))
-			return resObj
-		},
-	},
-	"ptr-text-1-go-text-face-source//metadata": {
-		Doc:   "(*text_1.GoTextFaceSource).Metadata",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val *text_1.GoTextFaceSource
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(*text_1.GoTextFaceSource)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face-source//metadata: arg 1: expected native of type *text_1.GoTextFaceSource")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face-source//metadata: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face-source//metadata: arg 1: expected native")
-			}
-			res0 := arg0Val.Metadata()
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-text-1-metadata")
-			return res0Obj
-		},
-	},
-	"ptr-text-1-go-text-face-source//unsafe-internal": {
-		Doc:   "(*text_1.GoTextFaceSource).UnsafeInternal",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val *text_1.GoTextFaceSource
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(*text_1.GoTextFaceSource)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face-source//unsafe-internal: arg 1: expected native of type *text_1.GoTextFaceSource")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face-source//unsafe-internal: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face-source//unsafe-internal: arg 1: expected native")
-			}
-			res0 := arg0Val.UnsafeInternal()
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "font-1-face")
-			return res0Obj
-		},
-	},
-	"ptr-text-1-go-text-face//direction!": {
-		Doc:   "Set *text_1.GoTextFace Direction value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.GoTextFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.GoTextFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//direction!: arg 1: expected native of type *text_1.GoTextFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//direction!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//direction!: arg 1: expected native")
-			}
-			{
-				nat, natOk := arg1.(env.Native)
-				var natValOk bool
-				var natVal text_1.Direction
-				if natOk {
-					natVal, natValOk = nat.Value.(text_1.Direction)
-				}
-				if natValOk {
-					self.Direction = natVal
-				} else {
-					var u int
-					if v, ok := arg1.(env.Integer); ok {
-						u = int(v.Value)
-					} else {
-						ps.FailureFlag = true
-						return env.NewError("ptr-text-1-go-text-face//direction!: arg 2: expected integer")
-					}
-					self.Direction = text_1.Direction(u)
-				}
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-go-text-face//direction?": {
-		Doc:   "Get *text_1.GoTextFace Direction value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.GoTextFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.GoTextFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//direction?: arg 1: expected native of type *text_1.GoTextFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//direction?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//direction?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewInteger(int64(int(self.Direction)))
-			return resObj
-		},
-	},
-	"ptr-text-1-go-text-face//language!": {
-		Doc:   "Set *text_1.GoTextFace Language value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.GoTextFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.GoTextFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//language!: arg 1: expected native of type *text_1.GoTextFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//language!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//language!: arg 1: expected native")
-			}
-			switch v := arg1.(type) {
-			case env.Native:
-				var ok bool
-				self.Language, ok = v.Value.(language.Tag)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//language!: arg 2: expected native of type language.Tag")
-				}
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//language!: arg 2: expected native")
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-go-text-face//language?": {
-		Doc:   "Get *text_1.GoTextFace Language value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.GoTextFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.GoTextFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//language?: arg 1: expected native of type *text_1.GoTextFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//language?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//language?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewNative(ps.Idx, self.Language, "language-tag")
-			return resObj
-		},
-	},
-	"ptr-text-1-go-text-face//metrics": {
-		Doc:   "(*text_1.GoTextFace).Metrics",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val *text_1.GoTextFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(*text_1.GoTextFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//metrics: arg 1: expected native of type *text_1.GoTextFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//metrics: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//metrics: arg 1: expected native")
-			}
-			res0 := arg0Val.Metrics()
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-text-1-metrics")
-			return res0Obj
-		},
-	},
-	"ptr-text-1-go-text-face//remove-feature": {
-		Doc:   "(*text_1.GoTextFace).RemoveFeature",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val *text_1.GoTextFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(*text_1.GoTextFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//remove-feature: arg 1: expected native of type *text_1.GoTextFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//remove-feature: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//remove-feature: arg 1: expected native")
-			}
-			var arg1Val text_1.Tag
-			{
-				nat, natOk := arg1.(env.Native)
-				var natValOk bool
-				var natVal text_1.Tag
-				if natOk {
-					natVal, natValOk = nat.Value.(text_1.Tag)
-				}
-				if natValOk {
-					arg1Val = natVal
-				} else {
-					var u uint32
-					if v, ok := arg1.(env.Integer); ok {
-						u = uint32(v.Value)
-					} else {
-						ps.FailureFlag = true
-						return env.NewError("ptr-text-1-go-text-face//remove-feature: arg 2: expected integer")
-					}
-					arg1Val = text_1.Tag(u)
-				}
-			}
-			arg0Val.RemoveFeature(arg1Val)
-			return arg0
-		},
-	},
-	"ptr-text-1-go-text-face//remove-variation": {
-		Doc:   "(*text_1.GoTextFace).RemoveVariation",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val *text_1.GoTextFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(*text_1.GoTextFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//remove-variation: arg 1: expected native of type *text_1.GoTextFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//remove-variation: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//remove-variation: arg 1: expected native")
-			}
-			var arg1Val text_1.Tag
-			{
-				nat, natOk := arg1.(env.Native)
-				var natValOk bool
-				var natVal text_1.Tag
-				if natOk {
-					natVal, natValOk = nat.Value.(text_1.Tag)
-				}
-				if natValOk {
-					arg1Val = natVal
-				} else {
-					var u uint32
-					if v, ok := arg1.(env.Integer); ok {
-						u = uint32(v.Value)
-					} else {
-						ps.FailureFlag = true
-						return env.NewError("ptr-text-1-go-text-face//remove-variation: arg 2: expected integer")
-					}
-					arg1Val = text_1.Tag(u)
-				}
-			}
-			arg0Val.RemoveVariation(arg1Val)
-			return arg0
-		},
-	},
-	"ptr-text-1-go-text-face//script!": {
-		Doc:   "Set *text_1.GoTextFace Script value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.GoTextFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.GoTextFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//script!: arg 1: expected native of type *text_1.GoTextFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//script!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//script!: arg 1: expected native")
-			}
-			switch v := arg1.(type) {
-			case env.Native:
-				var ok bool
-				self.Script, ok = v.Value.(language.Script)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//script!: arg 2: expected native of type language.Script")
-				}
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//script!: arg 2: expected native")
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-go-text-face//script?": {
-		Doc:   "Get *text_1.GoTextFace Script value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.GoTextFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.GoTextFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//script?: arg 1: expected native of type *text_1.GoTextFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//script?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//script?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewNative(ps.Idx, self.Script, "language-script")
-			return resObj
-		},
-	},
-	"ptr-text-1-go-text-face//set-feature": {
-		Doc:   "(*text_1.GoTextFace).SetFeature",
-		Argsn: 3,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val *text_1.GoTextFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(*text_1.GoTextFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//set-feature: arg 1: expected native of type *text_1.GoTextFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//set-feature: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//set-feature: arg 1: expected native")
-			}
-			var arg1Val text_1.Tag
-			{
-				nat, natOk := arg1.(env.Native)
-				var natValOk bool
-				var natVal text_1.Tag
-				if natOk {
-					natVal, natValOk = nat.Value.(text_1.Tag)
-				}
-				if natValOk {
-					arg1Val = natVal
-				} else {
-					var u uint32
-					if v, ok := arg1.(env.Integer); ok {
-						u = uint32(v.Value)
-					} else {
-						ps.FailureFlag = true
-						return env.NewError("ptr-text-1-go-text-face//set-feature: arg 2: expected integer")
-					}
-					arg1Val = text_1.Tag(u)
-				}
-			}
-			var arg2Val uint32
-			if v, ok := arg2.(env.Integer); ok {
-				arg2Val = uint32(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//set-feature: arg 3: expected integer")
-			}
-			arg0Val.SetFeature(arg1Val, arg2Val)
-			return arg0
-		},
-	},
-	"ptr-text-1-go-text-face//set-variation": {
-		Doc:   "(*text_1.GoTextFace).SetVariation",
-		Argsn: 3,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val *text_1.GoTextFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(*text_1.GoTextFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//set-variation: arg 1: expected native of type *text_1.GoTextFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//set-variation: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//set-variation: arg 1: expected native")
-			}
-			var arg1Val text_1.Tag
-			{
-				nat, natOk := arg1.(env.Native)
-				var natValOk bool
-				var natVal text_1.Tag
-				if natOk {
-					natVal, natValOk = nat.Value.(text_1.Tag)
-				}
-				if natValOk {
-					arg1Val = natVal
-				} else {
-					var u uint32
-					if v, ok := arg1.(env.Integer); ok {
-						u = uint32(v.Value)
-					} else {
-						ps.FailureFlag = true
-						return env.NewError("ptr-text-1-go-text-face//set-variation: arg 2: expected integer")
-					}
-					arg1Val = text_1.Tag(u)
-				}
-			}
-			var arg2Val float32
-			if v, ok := arg2.(env.Decimal); ok {
-				arg2Val = float32(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//set-variation: arg 3: expected decimal")
-			}
-			arg0Val.SetVariation(arg1Val, arg2Val)
-			return arg0
-		},
-	},
-	"ptr-text-1-go-text-face//size!": {
-		Doc:   "Set *text_1.GoTextFace Size value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.GoTextFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.GoTextFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//size!: arg 1: expected native of type *text_1.GoTextFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//size!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//size!: arg 1: expected native")
-			}
-			if v, ok := arg1.(env.Decimal); ok {
-				self.Size = float64(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//size!: arg 2: expected decimal")
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-go-text-face//size?": {
-		Doc:   "Get *text_1.GoTextFace Size value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.GoTextFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.GoTextFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//size?: arg 1: expected native of type *text_1.GoTextFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//size?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//size?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(self.Size))
-			return resObj
-		},
-	},
-	"ptr-text-1-go-text-face//source!": {
-		Doc:   "Set *text_1.GoTextFace Source value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.GoTextFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.GoTextFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//source!: arg 1: expected native of type *text_1.GoTextFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//source!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//source!: arg 1: expected native")
-			}
-			switch v := arg1.(type) {
-			case env.Native:
-				var ok bool
-				self.Source, ok = v.Value.(*text_1.GoTextFaceSource)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//source!: arg 2: expected native of type *text_1.GoTextFaceSource")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//source!: arg 2: expected integer to be 0 or nil")
-				}
-				self.Source = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//source!: arg 2: expected native")
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-go-text-face//source?": {
-		Doc:   "Get *text_1.GoTextFace Source value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.GoTextFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.GoTextFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//source?: arg 1: expected native of type *text_1.GoTextFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-text-face//source?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-text-face//source?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewNative(ps.Idx, self.Source, "ptr-text-1-go-text-face-source")
-			return resObj
-		},
-	},
-	"ptr-text-1-go-x-face//metrics": {
-		Doc:   "(*text_1.GoXFace).Metrics",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val *text_1.GoXFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(*text_1.GoXFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-x-face//metrics: arg 1: expected native of type *text_1.GoXFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-x-face//metrics: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-x-face//metrics: arg 1: expected native")
-			}
-			res0 := arg0Val.Metrics()
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-text-1-metrics")
-			return res0Obj
-		},
-	},
-	"ptr-text-1-go-x-face//unsafe-internal": {
-		Doc:   "(*text_1.GoXFace).UnsafeInternal",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val *text_1.GoXFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(*text_1.GoXFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-x-face//unsafe-internal: arg 1: expected native of type *text_1.GoXFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-go-x-face//unsafe-internal: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-go-x-face//unsafe-internal: arg 1: expected native")
-			}
-			res0 := arg0Val.UnsafeInternal()
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "font-face")
-			return res0Obj
-		},
-	},
-	"ptr-text-1-layout-options//line-spacing!": {
-		Doc:   "Set *text_1.LayoutOptions LineSpacing value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.LayoutOptions
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.LayoutOptions)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-layout-options//line-spacing!: arg 1: expected native of type *text_1.LayoutOptions")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-layout-options//line-spacing!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-layout-options//line-spacing!: arg 1: expected native")
-			}
-			if v, ok := arg1.(env.Decimal); ok {
-				self.LineSpacing = float64(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-layout-options//line-spacing!: arg 2: expected decimal")
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-layout-options//line-spacing?": {
-		Doc:   "Get *text_1.LayoutOptions LineSpacing value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.LayoutOptions
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.LayoutOptions)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-layout-options//line-spacing?: arg 1: expected native of type *text_1.LayoutOptions")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-layout-options//line-spacing?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-layout-options//line-spacing?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(self.LineSpacing))
-			return resObj
-		},
-	},
-	"ptr-text-1-layout-options//primary-align!": {
-		Doc:   "Set *text_1.LayoutOptions PrimaryAlign value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.LayoutOptions
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.LayoutOptions)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-layout-options//primary-align!: arg 1: expected native of type *text_1.LayoutOptions")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-layout-options//primary-align!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-layout-options//primary-align!: arg 1: expected native")
-			}
-			{
-				nat, natOk := arg1.(env.Native)
-				var natValOk bool
-				var natVal text_1.Align
-				if natOk {
-					natVal, natValOk = nat.Value.(text_1.Align)
-				}
-				if natValOk {
-					self.PrimaryAlign = natVal
-				} else {
-					var u int
-					if v, ok := arg1.(env.Integer); ok {
-						u = int(v.Value)
-					} else {
-						ps.FailureFlag = true
-						return env.NewError("ptr-text-1-layout-options//primary-align!: arg 2: expected integer")
-					}
-					self.PrimaryAlign = text_1.Align(u)
-				}
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-layout-options//primary-align?": {
-		Doc:   "Get *text_1.LayoutOptions PrimaryAlign value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.LayoutOptions
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.LayoutOptions)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-layout-options//primary-align?: arg 1: expected native of type *text_1.LayoutOptions")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-layout-options//primary-align?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-layout-options//primary-align?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewInteger(int64(int(self.PrimaryAlign)))
-			return resObj
-		},
-	},
-	"ptr-text-1-layout-options//secondary-align!": {
-		Doc:   "Set *text_1.LayoutOptions SecondaryAlign value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.LayoutOptions
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.LayoutOptions)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-layout-options//secondary-align!: arg 1: expected native of type *text_1.LayoutOptions")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-layout-options//secondary-align!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-layout-options//secondary-align!: arg 1: expected native")
-			}
-			{
-				nat, natOk := arg1.(env.Native)
-				var natValOk bool
-				var natVal text_1.Align
-				if natOk {
-					natVal, natValOk = nat.Value.(text_1.Align)
-				}
-				if natValOk {
-					self.SecondaryAlign = natVal
-				} else {
-					var u int
-					if v, ok := arg1.(env.Integer); ok {
-						u = int(v.Value)
-					} else {
-						ps.FailureFlag = true
-						return env.NewError("ptr-text-1-layout-options//secondary-align!: arg 2: expected integer")
-					}
-					self.SecondaryAlign = text_1.Align(u)
-				}
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-layout-options//secondary-align?": {
-		Doc:   "Get *text_1.LayoutOptions SecondaryAlign value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.LayoutOptions
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.LayoutOptions)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-layout-options//secondary-align?: arg 1: expected native of type *text_1.LayoutOptions")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-layout-options//secondary-align?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-layout-options//secondary-align?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewInteger(int64(int(self.SecondaryAlign)))
-			return resObj
-		},
-	},
-	"ptr-text-1-limited-face//add-unicode-range": {
-		Doc:   "(*text_1.LimitedFace).AddUnicodeRange",
-		Argsn: 3,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val *text_1.LimitedFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(*text_1.LimitedFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-limited-face//add-unicode-range: arg 1: expected native of type *text_1.LimitedFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-limited-face//add-unicode-range: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-limited-face//add-unicode-range: arg 1: expected native")
-			}
-			var arg1Val rune
-			switch v := arg1.(type) {
-			case env.Native:
-				var ok bool
-				arg1Val, ok = v.Value.(rune)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-limited-face//add-unicode-range: arg 2: expected native of type rune")
-				}
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-limited-face//add-unicode-range: arg 2: expected native")
-			}
-			var arg2Val rune
-			switch v := arg2.(type) {
-			case env.Native:
-				var ok bool
-				arg2Val, ok = v.Value.(rune)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-limited-face//add-unicode-range: arg 3: expected native of type rune")
-				}
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-limited-face//add-unicode-range: arg 3: expected native")
-			}
-			arg0Val.AddUnicodeRange(arg1Val, arg2Val)
-			return arg0
-		},
-	},
-	"ptr-text-1-limited-face//metrics": {
-		Doc:   "(*text_1.LimitedFace).Metrics",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val *text_1.LimitedFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(*text_1.LimitedFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-limited-face//metrics: arg 1: expected native of type *text_1.LimitedFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-limited-face//metrics: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-limited-face//metrics: arg 1: expected native")
-			}
-			res0 := arg0Val.Metrics()
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-text-1-metrics")
-			return res0Obj
-		},
-	},
-	"ptr-text-1-metadata//family!": {
-		Doc:   "Set *text_1.Metadata Family value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metadata
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metadata)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metadata//family!: arg 1: expected native of type *text_1.Metadata")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metadata//family!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metadata//family!: arg 1: expected native")
-			}
-			if v, ok := arg1.(env.String); ok {
-				self.Family = string(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metadata//family!: arg 2: expected string")
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-metadata//family?": {
-		Doc:   "Get *text_1.Metadata Family value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metadata
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metadata)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metadata//family?: arg 1: expected native of type *text_1.Metadata")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metadata//family?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metadata//family?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewString(self.Family)
-			return resObj
-		},
-	},
-	"ptr-text-1-metadata//stretch!": {
-		Doc:   "Set *text_1.Metadata Stretch value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metadata
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metadata)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metadata//stretch!: arg 1: expected native of type *text_1.Metadata")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metadata//stretch!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metadata//stretch!: arg 1: expected native")
-			}
-			{
-				nat, natOk := arg1.(env.Native)
-				var natValOk bool
-				var natVal text_1.Stretch
-				if natOk {
-					natVal, natValOk = nat.Value.(text_1.Stretch)
-				}
-				if natValOk {
-					self.Stretch = natVal
-				} else {
-					var u float32
-					if v, ok := arg1.(env.Decimal); ok {
-						u = float32(v.Value)
-					} else {
-						ps.FailureFlag = true
-						return env.NewError("ptr-text-1-metadata//stretch!: arg 2: expected decimal")
-					}
-					self.Stretch = text_1.Stretch(u)
-				}
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-metadata//stretch?": {
-		Doc:   "Get *text_1.Metadata Stretch value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metadata
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metadata)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metadata//stretch?: arg 1: expected native of type *text_1.Metadata")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metadata//stretch?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metadata//stretch?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(self.Stretch)))
-			return resObj
-		},
-	},
-	"ptr-text-1-metadata//style!": {
-		Doc:   "Set *text_1.Metadata Style value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metadata
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metadata)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metadata//style!: arg 1: expected native of type *text_1.Metadata")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metadata//style!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metadata//style!: arg 1: expected native")
-			}
-			{
-				nat, natOk := arg1.(env.Native)
-				var natValOk bool
-				var natVal text_1.Style
-				if natOk {
-					natVal, natValOk = nat.Value.(text_1.Style)
-				}
-				if natValOk {
-					self.Style = natVal
-				} else {
-					var u uint8
-					if v, ok := arg1.(env.Integer); ok {
-						u = uint8(v.Value)
-					} else {
-						ps.FailureFlag = true
-						return env.NewError("ptr-text-1-metadata//style!: arg 2: expected integer")
-					}
-					self.Style = text_1.Style(u)
-				}
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-metadata//style?": {
-		Doc:   "Get *text_1.Metadata Style value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metadata
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metadata)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metadata//style?: arg 1: expected native of type *text_1.Metadata")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metadata//style?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metadata//style?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewInteger(int64(uint8(self.Style)))
-			return resObj
-		},
-	},
-	"ptr-text-1-metadata//weight!": {
-		Doc:   "Set *text_1.Metadata Weight value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metadata
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metadata)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metadata//weight!: arg 1: expected native of type *text_1.Metadata")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metadata//weight!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metadata//weight!: arg 1: expected native")
-			}
-			{
-				nat, natOk := arg1.(env.Native)
-				var natValOk bool
-				var natVal text_1.Weight
-				if natOk {
-					natVal, natValOk = nat.Value.(text_1.Weight)
-				}
-				if natValOk {
-					self.Weight = natVal
-				} else {
-					var u float32
-					if v, ok := arg1.(env.Decimal); ok {
-						u = float32(v.Value)
-					} else {
-						ps.FailureFlag = true
-						return env.NewError("ptr-text-1-metadata//weight!: arg 2: expected decimal")
-					}
-					self.Weight = text_1.Weight(u)
-				}
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-metadata//weight?": {
-		Doc:   "Get *text_1.Metadata Weight value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metadata
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metadata)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metadata//weight?: arg 1: expected native of type *text_1.Metadata")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metadata//weight?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metadata//weight?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(self.Weight)))
-			return resObj
-		},
-	},
-	"ptr-text-1-metrics//h-ascent!": {
-		Doc:   "Set *text_1.Metrics HAscent value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metrics
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metrics)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//h-ascent!: arg 1: expected native of type *text_1.Metrics")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//h-ascent!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//h-ascent!: arg 1: expected native")
-			}
-			if v, ok := arg1.(env.Decimal); ok {
-				self.HAscent = float64(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//h-ascent!: arg 2: expected decimal")
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-metrics//h-ascent?": {
-		Doc:   "Get *text_1.Metrics HAscent value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metrics
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metrics)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//h-ascent?: arg 1: expected native of type *text_1.Metrics")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//h-ascent?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//h-ascent?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(self.HAscent))
-			return resObj
-		},
-	},
-	"ptr-text-1-metrics//h-descent!": {
-		Doc:   "Set *text_1.Metrics HDescent value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metrics
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metrics)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//h-descent!: arg 1: expected native of type *text_1.Metrics")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//h-descent!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//h-descent!: arg 1: expected native")
-			}
-			if v, ok := arg1.(env.Decimal); ok {
-				self.HDescent = float64(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//h-descent!: arg 2: expected decimal")
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-metrics//h-descent?": {
-		Doc:   "Get *text_1.Metrics HDescent value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metrics
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metrics)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//h-descent?: arg 1: expected native of type *text_1.Metrics")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//h-descent?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//h-descent?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(self.HDescent))
-			return resObj
-		},
-	},
-	"ptr-text-1-metrics//h-line-gap!": {
-		Doc:   "Set *text_1.Metrics HLineGap value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metrics
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metrics)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//h-line-gap!: arg 1: expected native of type *text_1.Metrics")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//h-line-gap!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//h-line-gap!: arg 1: expected native")
-			}
-			if v, ok := arg1.(env.Decimal); ok {
-				self.HLineGap = float64(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//h-line-gap!: arg 2: expected decimal")
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-metrics//h-line-gap?": {
-		Doc:   "Get *text_1.Metrics HLineGap value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metrics
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metrics)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//h-line-gap?: arg 1: expected native of type *text_1.Metrics")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//h-line-gap?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//h-line-gap?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(self.HLineGap))
-			return resObj
-		},
-	},
-	"ptr-text-1-metrics//v-ascent!": {
-		Doc:   "Set *text_1.Metrics VAscent value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metrics
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metrics)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//v-ascent!: arg 1: expected native of type *text_1.Metrics")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//v-ascent!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//v-ascent!: arg 1: expected native")
-			}
-			if v, ok := arg1.(env.Decimal); ok {
-				self.VAscent = float64(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//v-ascent!: arg 2: expected decimal")
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-metrics//v-ascent?": {
-		Doc:   "Get *text_1.Metrics VAscent value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metrics
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metrics)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//v-ascent?: arg 1: expected native of type *text_1.Metrics")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//v-ascent?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//v-ascent?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(self.VAscent))
-			return resObj
-		},
-	},
-	"ptr-text-1-metrics//v-descent!": {
-		Doc:   "Set *text_1.Metrics VDescent value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metrics
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metrics)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//v-descent!: arg 1: expected native of type *text_1.Metrics")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//v-descent!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//v-descent!: arg 1: expected native")
-			}
-			if v, ok := arg1.(env.Decimal); ok {
-				self.VDescent = float64(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//v-descent!: arg 2: expected decimal")
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-metrics//v-descent?": {
-		Doc:   "Get *text_1.Metrics VDescent value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metrics
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metrics)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//v-descent?: arg 1: expected native of type *text_1.Metrics")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//v-descent?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//v-descent?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(self.VDescent))
-			return resObj
-		},
-	},
-	"ptr-text-1-metrics//v-line-gap!": {
-		Doc:   "Set *text_1.Metrics VLineGap value",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metrics
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metrics)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//v-line-gap!: arg 1: expected native of type *text_1.Metrics")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//v-line-gap!: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//v-line-gap!: arg 1: expected native")
-			}
-			if v, ok := arg1.(env.Decimal); ok {
-				self.VLineGap = float64(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//v-line-gap!: arg 2: expected decimal")
-			}
-			return arg0
-		},
-	},
-	"ptr-text-1-metrics//v-line-gap?": {
-		Doc:   "Get *text_1.Metrics VLineGap value",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var self *text_1.Metrics
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				self, ok = v.Value.(*text_1.Metrics)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//v-line-gap?: arg 1: expected native of type *text_1.Metrics")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-metrics//v-line-gap?: arg 1: expected integer to be 0 or nil")
-				}
-				self = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-metrics//v-line-gap?: arg 1: expected native")
-			}
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(self.VLineGap))
-			return resObj
-		},
-	},
-	"ptr-text-1-multi-face//metrics": {
-		Doc:   "(*text_1.MultiFace).Metrics",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val *text_1.MultiFace
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(*text_1.MultiFace)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-multi-face//metrics: arg 1: expected native of type *text_1.MultiFace")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-1-multi-face//metrics: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("ptr-text-1-multi-face//metrics: arg 1: expected native")
-			}
-			res0 := arg0Val.Metrics()
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-text-1-metrics")
-			return res0Obj
 		},
 	},
 	"ptr-text-glyph//image!": {
@@ -50287,8 +48782,8 @@ var Builtins = map[string]*env.Builtin{
 			return resObj
 		},
 	},
-	"ptr-text-glyph//rune!": {
-		Doc:   "Set *text.Glyph Rune value",
+	"ptr-text-glyph//start-index-in-bytes!": {
+		Doc:   "Set *text.Glyph StartIndexInBytes value",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var self *text.Glyph
@@ -50298,35 +48793,29 @@ var Builtins = map[string]*env.Builtin{
 				self, ok = v.Value.(*text.Glyph)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-glyph//rune!: arg 1: expected native of type *text.Glyph")
+					return env.NewError("ptr-text-glyph//start-index-in-bytes!: arg 1: expected native of type *text.Glyph")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-glyph//rune!: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-glyph//start-index-in-bytes!: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-glyph//rune!: arg 1: expected native")
+				return env.NewError("ptr-text-glyph//start-index-in-bytes!: arg 1: expected native")
 			}
-			switch v := arg1.(type) {
-			case env.Native:
-				var ok bool
-				self.Rune, ok = v.Value.(rune)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("ptr-text-glyph//rune!: arg 2: expected native of type rune")
-				}
-			default:
+			if v, ok := arg1.(env.Integer); ok {
+				self.StartIndexInBytes = int(v.Value)
+			} else {
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-glyph//rune!: arg 2: expected native")
+				return env.NewError("ptr-text-glyph//start-index-in-bytes!: arg 2: expected integer")
 			}
 			return arg0
 		},
 	},
-	"ptr-text-glyph//rune?": {
-		Doc:   "Get *text.Glyph Rune value",
+	"ptr-text-glyph//start-index-in-bytes?": {
+		Doc:   "Get *text.Glyph StartIndexInBytes value",
 		Argsn: 1,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var self *text.Glyph
@@ -50336,20 +48825,20 @@ var Builtins = map[string]*env.Builtin{
 				self, ok = v.Value.(*text.Glyph)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-glyph//rune?: arg 1: expected native of type *text.Glyph")
+					return env.NewError("ptr-text-glyph//start-index-in-bytes?: arg 1: expected native of type *text.Glyph")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("ptr-text-glyph//rune?: arg 1: expected integer to be 0 or nil")
+					return env.NewError("ptr-text-glyph//start-index-in-bytes?: arg 1: expected integer to be 0 or nil")
 				}
 				self = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("ptr-text-glyph//rune?: arg 1: expected native")
+				return env.NewError("ptr-text-glyph//start-index-in-bytes?: arg 1: expected native")
 			}
 			var resObj env.Object
-			resObj = *env.NewNative(ps.Idx, self.Rune, "rune")
+			resObj = *env.NewInteger(int64(self.StartIndexInBytes))
 			return resObj
 		},
 	},
@@ -50473,6 +48962,1656 @@ var Builtins = map[string]*env.Builtin{
 			return resObj
 		},
 	},
+	"ptr-text-go-text-face-source//metadata": {
+		Doc:   "(*text.GoTextFaceSource).Metadata",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val *text.GoTextFaceSource
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(*text.GoTextFaceSource)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face-source//metadata: arg 1: expected native of type *text.GoTextFaceSource")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face-source//metadata: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face-source//metadata: arg 1: expected native")
+			}
+			res0 := arg0Val.Metadata()
+			var res0Obj env.Object
+			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-text-metadata")
+			return res0Obj
+		},
+	},
+	"ptr-text-go-text-face-source//unsafe-internal": {
+		Doc:   "(*text.GoTextFaceSource).UnsafeInternal",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val *text.GoTextFaceSource
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(*text.GoTextFaceSource)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face-source//unsafe-internal: arg 1: expected native of type *text.GoTextFaceSource")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face-source//unsafe-internal: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face-source//unsafe-internal: arg 1: expected native")
+			}
+			res0 := arg0Val.UnsafeInternal()
+			var res0Obj env.Object
+			res0Obj = *env.NewNative(ps.Idx, res0, "typesetting-font-face")
+			return res0Obj
+		},
+	},
+	"ptr-text-go-text-face//direction!": {
+		Doc:   "Set *text.GoTextFace Direction value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.GoTextFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.GoTextFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//direction!: arg 1: expected native of type *text.GoTextFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//direction!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//direction!: arg 1: expected native")
+			}
+			{
+				nat, natOk := arg1.(env.Native)
+				var natValOk bool
+				var natVal text.Direction
+				if natOk {
+					natVal, natValOk = nat.Value.(text.Direction)
+				}
+				if natValOk {
+					self.Direction = natVal
+				} else {
+					var u int
+					if v, ok := arg1.(env.Integer); ok {
+						u = int(v.Value)
+					} else {
+						ps.FailureFlag = true
+						return env.NewError("ptr-text-go-text-face//direction!: arg 2: expected integer")
+					}
+					self.Direction = text.Direction(u)
+				}
+			}
+			return arg0
+		},
+	},
+	"ptr-text-go-text-face//direction?": {
+		Doc:   "Get *text.GoTextFace Direction value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.GoTextFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.GoTextFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//direction?: arg 1: expected native of type *text.GoTextFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//direction?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//direction?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewInteger(int64(int(self.Direction)))
+			return resObj
+		},
+	},
+	"ptr-text-go-text-face//language!": {
+		Doc:   "Set *text.GoTextFace Language value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.GoTextFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.GoTextFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//language!: arg 1: expected native of type *text.GoTextFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//language!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//language!: arg 1: expected native")
+			}
+			switch v := arg1.(type) {
+			case env.Native:
+				var ok bool
+				self.Language, ok = v.Value.(language.Tag)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//language!: arg 2: expected native of type language.Tag")
+				}
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//language!: arg 2: expected native")
+			}
+			return arg0
+		},
+	},
+	"ptr-text-go-text-face//language?": {
+		Doc:   "Get *text.GoTextFace Language value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.GoTextFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.GoTextFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//language?: arg 1: expected native of type *text.GoTextFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//language?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//language?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewNative(ps.Idx, self.Language, "language-tag")
+			return resObj
+		},
+	},
+	"ptr-text-go-text-face//metrics": {
+		Doc:   "(*text.GoTextFace).Metrics",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val *text.GoTextFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(*text.GoTextFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//metrics: arg 1: expected native of type *text.GoTextFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//metrics: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//metrics: arg 1: expected native")
+			}
+			res0 := arg0Val.Metrics()
+			var res0Obj env.Object
+			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-text-metrics")
+			return res0Obj
+		},
+	},
+	"ptr-text-go-text-face//remove-feature": {
+		Doc:   "(*text.GoTextFace).RemoveFeature",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val *text.GoTextFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(*text.GoTextFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//remove-feature: arg 1: expected native of type *text.GoTextFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//remove-feature: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//remove-feature: arg 1: expected native")
+			}
+			var arg1Val text.Tag
+			{
+				nat, natOk := arg1.(env.Native)
+				var natValOk bool
+				var natVal text.Tag
+				if natOk {
+					natVal, natValOk = nat.Value.(text.Tag)
+				}
+				if natValOk {
+					arg1Val = natVal
+				} else {
+					var u uint32
+					if v, ok := arg1.(env.Integer); ok {
+						u = uint32(v.Value)
+					} else {
+						ps.FailureFlag = true
+						return env.NewError("ptr-text-go-text-face//remove-feature: arg 2: expected integer")
+					}
+					arg1Val = text.Tag(u)
+				}
+			}
+			arg0Val.RemoveFeature(arg1Val)
+			return arg0
+		},
+	},
+	"ptr-text-go-text-face//remove-variation": {
+		Doc:   "(*text.GoTextFace).RemoveVariation",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val *text.GoTextFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(*text.GoTextFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//remove-variation: arg 1: expected native of type *text.GoTextFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//remove-variation: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//remove-variation: arg 1: expected native")
+			}
+			var arg1Val text.Tag
+			{
+				nat, natOk := arg1.(env.Native)
+				var natValOk bool
+				var natVal text.Tag
+				if natOk {
+					natVal, natValOk = nat.Value.(text.Tag)
+				}
+				if natValOk {
+					arg1Val = natVal
+				} else {
+					var u uint32
+					if v, ok := arg1.(env.Integer); ok {
+						u = uint32(v.Value)
+					} else {
+						ps.FailureFlag = true
+						return env.NewError("ptr-text-go-text-face//remove-variation: arg 2: expected integer")
+					}
+					arg1Val = text.Tag(u)
+				}
+			}
+			arg0Val.RemoveVariation(arg1Val)
+			return arg0
+		},
+	},
+	"ptr-text-go-text-face//script!": {
+		Doc:   "Set *text.GoTextFace Script value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.GoTextFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.GoTextFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//script!: arg 1: expected native of type *text.GoTextFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//script!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//script!: arg 1: expected native")
+			}
+			switch v := arg1.(type) {
+			case env.Native:
+				var ok bool
+				self.Script, ok = v.Value.(language.Script)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//script!: arg 2: expected native of type language.Script")
+				}
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//script!: arg 2: expected native")
+			}
+			return arg0
+		},
+	},
+	"ptr-text-go-text-face//script?": {
+		Doc:   "Get *text.GoTextFace Script value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.GoTextFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.GoTextFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//script?: arg 1: expected native of type *text.GoTextFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//script?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//script?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewNative(ps.Idx, self.Script, "language-script")
+			return resObj
+		},
+	},
+	"ptr-text-go-text-face//set-feature": {
+		Doc:   "(*text.GoTextFace).SetFeature",
+		Argsn: 3,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val *text.GoTextFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(*text.GoTextFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//set-feature: arg 1: expected native of type *text.GoTextFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//set-feature: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//set-feature: arg 1: expected native")
+			}
+			var arg1Val text.Tag
+			{
+				nat, natOk := arg1.(env.Native)
+				var natValOk bool
+				var natVal text.Tag
+				if natOk {
+					natVal, natValOk = nat.Value.(text.Tag)
+				}
+				if natValOk {
+					arg1Val = natVal
+				} else {
+					var u uint32
+					if v, ok := arg1.(env.Integer); ok {
+						u = uint32(v.Value)
+					} else {
+						ps.FailureFlag = true
+						return env.NewError("ptr-text-go-text-face//set-feature: arg 2: expected integer")
+					}
+					arg1Val = text.Tag(u)
+				}
+			}
+			var arg2Val uint32
+			if v, ok := arg2.(env.Integer); ok {
+				arg2Val = uint32(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//set-feature: arg 3: expected integer")
+			}
+			arg0Val.SetFeature(arg1Val, arg2Val)
+			return arg0
+		},
+	},
+	"ptr-text-go-text-face//set-variation": {
+		Doc:   "(*text.GoTextFace).SetVariation",
+		Argsn: 3,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val *text.GoTextFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(*text.GoTextFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//set-variation: arg 1: expected native of type *text.GoTextFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//set-variation: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//set-variation: arg 1: expected native")
+			}
+			var arg1Val text.Tag
+			{
+				nat, natOk := arg1.(env.Native)
+				var natValOk bool
+				var natVal text.Tag
+				if natOk {
+					natVal, natValOk = nat.Value.(text.Tag)
+				}
+				if natValOk {
+					arg1Val = natVal
+				} else {
+					var u uint32
+					if v, ok := arg1.(env.Integer); ok {
+						u = uint32(v.Value)
+					} else {
+						ps.FailureFlag = true
+						return env.NewError("ptr-text-go-text-face//set-variation: arg 2: expected integer")
+					}
+					arg1Val = text.Tag(u)
+				}
+			}
+			var arg2Val float32
+			if v, ok := arg2.(env.Decimal); ok {
+				arg2Val = float32(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//set-variation: arg 3: expected decimal")
+			}
+			arg0Val.SetVariation(arg1Val, arg2Val)
+			return arg0
+		},
+	},
+	"ptr-text-go-text-face//size!": {
+		Doc:   "Set *text.GoTextFace Size value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.GoTextFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.GoTextFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//size!: arg 1: expected native of type *text.GoTextFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//size!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//size!: arg 1: expected native")
+			}
+			if v, ok := arg1.(env.Decimal); ok {
+				self.Size = float64(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//size!: arg 2: expected decimal")
+			}
+			return arg0
+		},
+	},
+	"ptr-text-go-text-face//size?": {
+		Doc:   "Get *text.GoTextFace Size value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.GoTextFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.GoTextFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//size?: arg 1: expected native of type *text.GoTextFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//size?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//size?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(self.Size))
+			return resObj
+		},
+	},
+	"ptr-text-go-text-face//source!": {
+		Doc:   "Set *text.GoTextFace Source value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.GoTextFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.GoTextFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//source!: arg 1: expected native of type *text.GoTextFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//source!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//source!: arg 1: expected native")
+			}
+			switch v := arg1.(type) {
+			case env.Native:
+				var ok bool
+				self.Source, ok = v.Value.(*text.GoTextFaceSource)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//source!: arg 2: expected native of type *text.GoTextFaceSource")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//source!: arg 2: expected integer to be 0 or nil")
+				}
+				self.Source = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//source!: arg 2: expected native")
+			}
+			return arg0
+		},
+	},
+	"ptr-text-go-text-face//source?": {
+		Doc:   "Get *text.GoTextFace Source value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.GoTextFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.GoTextFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//source?: arg 1: expected native of type *text.GoTextFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-text-face//source?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-text-face//source?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewNative(ps.Idx, self.Source, "ptr-text-go-text-face-source")
+			return resObj
+		},
+	},
+	"ptr-text-go-x-face//metrics": {
+		Doc:   "(*text.GoXFace).Metrics",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val *text.GoXFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(*text.GoXFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-x-face//metrics: arg 1: expected native of type *text.GoXFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-x-face//metrics: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-x-face//metrics: arg 1: expected native")
+			}
+			res0 := arg0Val.Metrics()
+			var res0Obj env.Object
+			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-text-metrics")
+			return res0Obj
+		},
+	},
+	"ptr-text-go-x-face//unsafe-internal": {
+		Doc:   "(*text.GoXFace).UnsafeInternal",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val *text.GoXFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(*text.GoXFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-x-face//unsafe-internal: arg 1: expected native of type *text.GoXFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-go-x-face//unsafe-internal: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-go-x-face//unsafe-internal: arg 1: expected native")
+			}
+			res0 := arg0Val.UnsafeInternal()
+			var res0Obj env.Object
+			res0Obj = *env.NewNative(ps.Idx, res0, "font-face")
+			return res0Obj
+		},
+	},
+	"ptr-text-layout-options//line-spacing!": {
+		Doc:   "Set *text.LayoutOptions LineSpacing value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.LayoutOptions
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.LayoutOptions)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-layout-options//line-spacing!: arg 1: expected native of type *text.LayoutOptions")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-layout-options//line-spacing!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-layout-options//line-spacing!: arg 1: expected native")
+			}
+			if v, ok := arg1.(env.Decimal); ok {
+				self.LineSpacing = float64(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-layout-options//line-spacing!: arg 2: expected decimal")
+			}
+			return arg0
+		},
+	},
+	"ptr-text-layout-options//line-spacing?": {
+		Doc:   "Get *text.LayoutOptions LineSpacing value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.LayoutOptions
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.LayoutOptions)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-layout-options//line-spacing?: arg 1: expected native of type *text.LayoutOptions")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-layout-options//line-spacing?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-layout-options//line-spacing?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(self.LineSpacing))
+			return resObj
+		},
+	},
+	"ptr-text-layout-options//primary-align!": {
+		Doc:   "Set *text.LayoutOptions PrimaryAlign value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.LayoutOptions
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.LayoutOptions)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-layout-options//primary-align!: arg 1: expected native of type *text.LayoutOptions")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-layout-options//primary-align!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-layout-options//primary-align!: arg 1: expected native")
+			}
+			{
+				nat, natOk := arg1.(env.Native)
+				var natValOk bool
+				var natVal text.Align
+				if natOk {
+					natVal, natValOk = nat.Value.(text.Align)
+				}
+				if natValOk {
+					self.PrimaryAlign = natVal
+				} else {
+					var u int
+					if v, ok := arg1.(env.Integer); ok {
+						u = int(v.Value)
+					} else {
+						ps.FailureFlag = true
+						return env.NewError("ptr-text-layout-options//primary-align!: arg 2: expected integer")
+					}
+					self.PrimaryAlign = text.Align(u)
+				}
+			}
+			return arg0
+		},
+	},
+	"ptr-text-layout-options//primary-align?": {
+		Doc:   "Get *text.LayoutOptions PrimaryAlign value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.LayoutOptions
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.LayoutOptions)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-layout-options//primary-align?: arg 1: expected native of type *text.LayoutOptions")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-layout-options//primary-align?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-layout-options//primary-align?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewInteger(int64(int(self.PrimaryAlign)))
+			return resObj
+		},
+	},
+	"ptr-text-layout-options//secondary-align!": {
+		Doc:   "Set *text.LayoutOptions SecondaryAlign value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.LayoutOptions
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.LayoutOptions)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-layout-options//secondary-align!: arg 1: expected native of type *text.LayoutOptions")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-layout-options//secondary-align!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-layout-options//secondary-align!: arg 1: expected native")
+			}
+			{
+				nat, natOk := arg1.(env.Native)
+				var natValOk bool
+				var natVal text.Align
+				if natOk {
+					natVal, natValOk = nat.Value.(text.Align)
+				}
+				if natValOk {
+					self.SecondaryAlign = natVal
+				} else {
+					var u int
+					if v, ok := arg1.(env.Integer); ok {
+						u = int(v.Value)
+					} else {
+						ps.FailureFlag = true
+						return env.NewError("ptr-text-layout-options//secondary-align!: arg 2: expected integer")
+					}
+					self.SecondaryAlign = text.Align(u)
+				}
+			}
+			return arg0
+		},
+	},
+	"ptr-text-layout-options//secondary-align?": {
+		Doc:   "Get *text.LayoutOptions SecondaryAlign value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.LayoutOptions
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.LayoutOptions)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-layout-options//secondary-align?: arg 1: expected native of type *text.LayoutOptions")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-layout-options//secondary-align?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-layout-options//secondary-align?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewInteger(int64(int(self.SecondaryAlign)))
+			return resObj
+		},
+	},
+	"ptr-text-limited-face//add-unicode-range": {
+		Doc:   "(*text.LimitedFace).AddUnicodeRange",
+		Argsn: 3,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val *text.LimitedFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(*text.LimitedFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-limited-face//add-unicode-range: arg 1: expected native of type *text.LimitedFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-limited-face//add-unicode-range: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-limited-face//add-unicode-range: arg 1: expected native")
+			}
+			var arg1Val rune
+			switch v := arg1.(type) {
+			case env.Native:
+				var ok bool
+				arg1Val, ok = v.Value.(rune)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-limited-face//add-unicode-range: arg 2: expected native of type rune")
+				}
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-limited-face//add-unicode-range: arg 2: expected native")
+			}
+			var arg2Val rune
+			switch v := arg2.(type) {
+			case env.Native:
+				var ok bool
+				arg2Val, ok = v.Value.(rune)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-limited-face//add-unicode-range: arg 3: expected native of type rune")
+				}
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-limited-face//add-unicode-range: arg 3: expected native")
+			}
+			arg0Val.AddUnicodeRange(arg1Val, arg2Val)
+			return arg0
+		},
+	},
+	"ptr-text-limited-face//metrics": {
+		Doc:   "(*text.LimitedFace).Metrics",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val *text.LimitedFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(*text.LimitedFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-limited-face//metrics: arg 1: expected native of type *text.LimitedFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-limited-face//metrics: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-limited-face//metrics: arg 1: expected native")
+			}
+			res0 := arg0Val.Metrics()
+			var res0Obj env.Object
+			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-text-metrics")
+			return res0Obj
+		},
+	},
+	"ptr-text-metadata//family!": {
+		Doc:   "Set *text.Metadata Family value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metadata
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metadata)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metadata//family!: arg 1: expected native of type *text.Metadata")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metadata//family!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metadata//family!: arg 1: expected native")
+			}
+			if v, ok := arg1.(env.String); ok {
+				self.Family = string(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metadata//family!: arg 2: expected string")
+			}
+			return arg0
+		},
+	},
+	"ptr-text-metadata//family?": {
+		Doc:   "Get *text.Metadata Family value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metadata
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metadata)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metadata//family?: arg 1: expected native of type *text.Metadata")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metadata//family?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metadata//family?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewString(self.Family)
+			return resObj
+		},
+	},
+	"ptr-text-metadata//stretch!": {
+		Doc:   "Set *text.Metadata Stretch value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metadata
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metadata)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metadata//stretch!: arg 1: expected native of type *text.Metadata")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metadata//stretch!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metadata//stretch!: arg 1: expected native")
+			}
+			{
+				nat, natOk := arg1.(env.Native)
+				var natValOk bool
+				var natVal text.Stretch
+				if natOk {
+					natVal, natValOk = nat.Value.(text.Stretch)
+				}
+				if natValOk {
+					self.Stretch = natVal
+				} else {
+					var u float32
+					if v, ok := arg1.(env.Decimal); ok {
+						u = float32(v.Value)
+					} else {
+						ps.FailureFlag = true
+						return env.NewError("ptr-text-metadata//stretch!: arg 2: expected decimal")
+					}
+					self.Stretch = text.Stretch(u)
+				}
+			}
+			return arg0
+		},
+	},
+	"ptr-text-metadata//stretch?": {
+		Doc:   "Get *text.Metadata Stretch value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metadata
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metadata)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metadata//stretch?: arg 1: expected native of type *text.Metadata")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metadata//stretch?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metadata//stretch?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(self.Stretch)))
+			return resObj
+		},
+	},
+	"ptr-text-metadata//style!": {
+		Doc:   "Set *text.Metadata Style value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metadata
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metadata)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metadata//style!: arg 1: expected native of type *text.Metadata")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metadata//style!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metadata//style!: arg 1: expected native")
+			}
+			{
+				nat, natOk := arg1.(env.Native)
+				var natValOk bool
+				var natVal text.Style
+				if natOk {
+					natVal, natValOk = nat.Value.(text.Style)
+				}
+				if natValOk {
+					self.Style = natVal
+				} else {
+					var u uint8
+					if v, ok := arg1.(env.Integer); ok {
+						u = uint8(v.Value)
+					} else {
+						ps.FailureFlag = true
+						return env.NewError("ptr-text-metadata//style!: arg 2: expected integer")
+					}
+					self.Style = text.Style(u)
+				}
+			}
+			return arg0
+		},
+	},
+	"ptr-text-metadata//style?": {
+		Doc:   "Get *text.Metadata Style value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metadata
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metadata)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metadata//style?: arg 1: expected native of type *text.Metadata")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metadata//style?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metadata//style?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewInteger(int64(uint8(self.Style)))
+			return resObj
+		},
+	},
+	"ptr-text-metadata//weight!": {
+		Doc:   "Set *text.Metadata Weight value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metadata
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metadata)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metadata//weight!: arg 1: expected native of type *text.Metadata")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metadata//weight!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metadata//weight!: arg 1: expected native")
+			}
+			{
+				nat, natOk := arg1.(env.Native)
+				var natValOk bool
+				var natVal text.Weight
+				if natOk {
+					natVal, natValOk = nat.Value.(text.Weight)
+				}
+				if natValOk {
+					self.Weight = natVal
+				} else {
+					var u float32
+					if v, ok := arg1.(env.Decimal); ok {
+						u = float32(v.Value)
+					} else {
+						ps.FailureFlag = true
+						return env.NewError("ptr-text-metadata//weight!: arg 2: expected decimal")
+					}
+					self.Weight = text.Weight(u)
+				}
+			}
+			return arg0
+		},
+	},
+	"ptr-text-metadata//weight?": {
+		Doc:   "Get *text.Metadata Weight value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metadata
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metadata)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metadata//weight?: arg 1: expected native of type *text.Metadata")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metadata//weight?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metadata//weight?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(self.Weight)))
+			return resObj
+		},
+	},
+	"ptr-text-metrics//h-ascent!": {
+		Doc:   "Set *text.Metrics HAscent value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metrics
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metrics)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//h-ascent!: arg 1: expected native of type *text.Metrics")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//h-ascent!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//h-ascent!: arg 1: expected native")
+			}
+			if v, ok := arg1.(env.Decimal); ok {
+				self.HAscent = float64(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//h-ascent!: arg 2: expected decimal")
+			}
+			return arg0
+		},
+	},
+	"ptr-text-metrics//h-ascent?": {
+		Doc:   "Get *text.Metrics HAscent value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metrics
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metrics)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//h-ascent?: arg 1: expected native of type *text.Metrics")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//h-ascent?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//h-ascent?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(self.HAscent))
+			return resObj
+		},
+	},
+	"ptr-text-metrics//h-descent!": {
+		Doc:   "Set *text.Metrics HDescent value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metrics
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metrics)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//h-descent!: arg 1: expected native of type *text.Metrics")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//h-descent!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//h-descent!: arg 1: expected native")
+			}
+			if v, ok := arg1.(env.Decimal); ok {
+				self.HDescent = float64(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//h-descent!: arg 2: expected decimal")
+			}
+			return arg0
+		},
+	},
+	"ptr-text-metrics//h-descent?": {
+		Doc:   "Get *text.Metrics HDescent value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metrics
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metrics)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//h-descent?: arg 1: expected native of type *text.Metrics")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//h-descent?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//h-descent?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(self.HDescent))
+			return resObj
+		},
+	},
+	"ptr-text-metrics//h-line-gap!": {
+		Doc:   "Set *text.Metrics HLineGap value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metrics
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metrics)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//h-line-gap!: arg 1: expected native of type *text.Metrics")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//h-line-gap!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//h-line-gap!: arg 1: expected native")
+			}
+			if v, ok := arg1.(env.Decimal); ok {
+				self.HLineGap = float64(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//h-line-gap!: arg 2: expected decimal")
+			}
+			return arg0
+		},
+	},
+	"ptr-text-metrics//h-line-gap?": {
+		Doc:   "Get *text.Metrics HLineGap value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metrics
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metrics)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//h-line-gap?: arg 1: expected native of type *text.Metrics")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//h-line-gap?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//h-line-gap?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(self.HLineGap))
+			return resObj
+		},
+	},
+	"ptr-text-metrics//v-ascent!": {
+		Doc:   "Set *text.Metrics VAscent value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metrics
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metrics)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//v-ascent!: arg 1: expected native of type *text.Metrics")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//v-ascent!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//v-ascent!: arg 1: expected native")
+			}
+			if v, ok := arg1.(env.Decimal); ok {
+				self.VAscent = float64(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//v-ascent!: arg 2: expected decimal")
+			}
+			return arg0
+		},
+	},
+	"ptr-text-metrics//v-ascent?": {
+		Doc:   "Get *text.Metrics VAscent value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metrics
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metrics)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//v-ascent?: arg 1: expected native of type *text.Metrics")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//v-ascent?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//v-ascent?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(self.VAscent))
+			return resObj
+		},
+	},
+	"ptr-text-metrics//v-descent!": {
+		Doc:   "Set *text.Metrics VDescent value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metrics
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metrics)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//v-descent!: arg 1: expected native of type *text.Metrics")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//v-descent!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//v-descent!: arg 1: expected native")
+			}
+			if v, ok := arg1.(env.Decimal); ok {
+				self.VDescent = float64(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//v-descent!: arg 2: expected decimal")
+			}
+			return arg0
+		},
+	},
+	"ptr-text-metrics//v-descent?": {
+		Doc:   "Get *text.Metrics VDescent value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metrics
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metrics)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//v-descent?: arg 1: expected native of type *text.Metrics")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//v-descent?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//v-descent?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(self.VDescent))
+			return resObj
+		},
+	},
+	"ptr-text-metrics//v-line-gap!": {
+		Doc:   "Set *text.Metrics VLineGap value",
+		Argsn: 2,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metrics
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metrics)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//v-line-gap!: arg 1: expected native of type *text.Metrics")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//v-line-gap!: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//v-line-gap!: arg 1: expected native")
+			}
+			if v, ok := arg1.(env.Decimal); ok {
+				self.VLineGap = float64(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//v-line-gap!: arg 2: expected decimal")
+			}
+			return arg0
+		},
+	},
+	"ptr-text-metrics//v-line-gap?": {
+		Doc:   "Get *text.Metrics VLineGap value",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var self *text.Metrics
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				self, ok = v.Value.(*text.Metrics)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//v-line-gap?: arg 1: expected native of type *text.Metrics")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-metrics//v-line-gap?: arg 1: expected integer to be 0 or nil")
+				}
+				self = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-metrics//v-line-gap?: arg 1: expected native")
+			}
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(self.VLineGap))
+			return resObj
+		},
+	},
+	"ptr-text-multi-face//metrics": {
+		Doc:   "(*text.MultiFace).Metrics",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val *text.MultiFace
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(*text.MultiFace)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-multi-face//metrics: arg 1: expected native of type *text.MultiFace")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("ptr-text-multi-face//metrics: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("ptr-text-multi-face//metrics: arg 1: expected native")
+			}
+			res0 := arg0Val.Metrics()
+			var res0Obj env.Object
+			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-text-metrics")
+			return res0Obj
+		},
+	},
 	"ptr-textinput-field//blur": {
 		Doc:   "(*textinput.Field).Blur",
 		Argsn: 1,
@@ -50530,11 +50669,11 @@ var Builtins = map[string]*env.Builtin{
 			res1Obj = *env.NewInteger(int64(res1))
 			var res2Obj env.Object
 			res2Obj = *env.NewInteger(boolToInt64(res2))
-			return *env.NewDict(map[string]any{
-				"start": res0Obj,
-				"end":   res1Obj,
-				"ok":    res2Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+				res2Obj,
+			}))
 		},
 	},
 	"ptr-textinput-field//focus": {
@@ -50601,17 +50740,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-textinput-field//handle-input: arg 3: expected integer")
 			}
-			res0, res1 := arg0Val.HandleInput(arg1Val, arg2Val)
+			res0, resErr := arg0Val.HandleInput(arg1Val, arg2Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(boolToInt64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"handled": res0Obj,
-				"err":     res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-textinput-field//is-focused": {
@@ -50671,10 +50811,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"start": res0Obj,
-				"end":   res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-textinput-field//set-selection": {
@@ -51070,7 +51210,7 @@ var Builtins = map[string]*env.Builtin{
 			}
 			var resObj env.Object
 			if self.Error != nil {
-				resObj = *env.NewError(self.Error.Error())
+				resObj = env.NewError(self.Error.Error())
 			}
 			return resObj
 		},
@@ -51225,12 +51365,16 @@ var Builtins = map[string]*env.Builtin{
 					arg1Val = twenty48.Dir(u)
 				}
 			}
-			res0 := arg0Val.Move(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Move(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-twenty-48-board//size": {
@@ -51261,10 +51405,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-twenty-48-board//update": {
@@ -51309,12 +51453,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-twenty-48-board//update: arg 2: expected native")
 			}
-			res0 := arg0Val.Update(arg1Val)
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update(arg1Val)
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-twenty-48-game//draw": {
@@ -51405,10 +51553,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"screen-width":  res0Obj,
-				"screen-height": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-twenty-48-game//update": {
@@ -51434,12 +51582,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-twenty-48-game//update: arg 1: expected native")
 			}
-			res0 := arg0Val.Update()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-twenty-48-input//dir": {
@@ -51470,10 +51622,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(int(res0)))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(boolToInt64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-twenty-48-input//update": {
@@ -51606,10 +51758,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-twenty-48-tile//next-value": {
@@ -51669,10 +51821,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-twenty-48-tile//update": {
@@ -51698,12 +51850,16 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-twenty-48-tile//update: arg 1: expected native")
 			}
-			res0 := arg0Val.Update()
-			var res0Obj env.Object
-			if res0 != nil {
-				res0Obj = *env.NewError(res0.Error())
+			resErr := arg0Val.Update()
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return res0Obj
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return arg0
 		},
 	},
 	"ptr-twenty-48-tile//value": {
@@ -51839,10 +51995,10 @@ var Builtins = map[string]*env.Builtin{
 				}
 				res1Obj = *env.NewBlock(*env.NewTSeries(items))
 			}
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-vector-path//append-vertices-and-indices-for-stroke": {
@@ -51968,10 +52124,10 @@ var Builtins = map[string]*env.Builtin{
 				}
 				res1Obj = *env.NewBlock(*env.NewTSeries(items))
 			}
-			return *env.NewDict(map[string]any{
-				"1": res0Obj,
-				"2": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"ptr-vector-path//close": {
@@ -52493,17 +52649,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-vorbis-stream//read: arg 2: expected block, native or nil")
 			}
-			res0, res1 := arg0Val.Read(arg1Val)
+			res0, resErr := arg0Val.Read(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-vorbis-stream//seek": {
@@ -52543,17 +52700,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-vorbis-stream//seek: arg 3: expected integer")
 			}
-			res0, res1 := arg0Val.Seek(arg1Val, arg2Val)
+			res0, resErr := arg0Val.Seek(arg1Val, arg2Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-wav-stream//length": {
@@ -52643,17 +52801,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-wav-stream//read: arg 2: expected block, native or nil")
 			}
-			res0, res1 := arg0Val.Read(arg1Val)
+			res0, resErr := arg0Val.Read(arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"ptr-wav-stream//seek": {
@@ -52693,27 +52852,28 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("ptr-wav-stream//seek: arg 3: expected integer")
 			}
-			res0, res1 := arg0Val.Seek(arg1Val, arg2Val)
+			res0, resErr := arg0Val.Seek(arg1Val, arg2Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewInteger(int64(res0))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
-	"shader-1-gopher-bg-png": {
-		Doc:   "Get shader_1.GopherBg_png value",
+	"resources-audio-jab-wav": {
+		Doc:   "Get resources_audio.Jab_wav value",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var resObj env.Object
 			{
-				items := make([]env.Object, len(shader_1.GopherBg_png))
-				for i, it := range shader_1.GopherBg_png {
+				items := make([]env.Object, len(resources_audio.Jab_wav))
+				for i, it := range resources_audio.Jab_wav {
 					items[i] = *env.NewNative(ps.Idx, it, "byte")
 				}
 				resObj = *env.NewBlock(*env.NewTSeries(items))
@@ -52721,14 +52881,14 @@ var Builtins = map[string]*env.Builtin{
 			return resObj
 		},
 	},
-	"shader-1-gopher-png": {
-		Doc:   "Get shader_1.Gopher_png value",
+	"resources-audio-jump-ogg": {
+		Doc:   "Get resources_audio.Jump_ogg value",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var resObj env.Object
 			{
-				items := make([]env.Object, len(shader_1.Gopher_png))
-				for i, it := range shader_1.Gopher_png {
+				items := make([]env.Object, len(resources_audio.Jump_ogg))
+				for i, it := range resources_audio.Jump_ogg {
 					items[i] = *env.NewNative(ps.Idx, it, "byte")
 				}
 				resObj = *env.NewBlock(*env.NewTSeries(items))
@@ -52736,14 +52896,14 @@ var Builtins = map[string]*env.Builtin{
 			return resObj
 		},
 	},
-	"shader-1-noise-png": {
-		Doc:   "Get shader_1.Noise_png value",
+	"resources-audio-ragtime-mp-3": {
+		Doc:   "Get resources_audio.Ragtime_mp3 value",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var resObj env.Object
 			{
-				items := make([]env.Object, len(shader_1.Noise_png))
-				for i, it := range shader_1.Noise_png {
+				items := make([]env.Object, len(resources_audio.Ragtime_mp3))
+				for i, it := range resources_audio.Ragtime_mp3 {
 					items[i] = *env.NewNative(ps.Idx, it, "byte")
 				}
 				resObj = *env.NewBlock(*env.NewTSeries(items))
@@ -52751,14 +52911,14 @@ var Builtins = map[string]*env.Builtin{
 			return resObj
 		},
 	},
-	"shader-1-normal-png": {
-		Doc:   "Get shader_1.Normal_png value",
+	"resources-audio-ragtime-ogg": {
+		Doc:   "Get resources_audio.Ragtime_ogg value",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var resObj env.Object
 			{
-				items := make([]env.Object, len(shader_1.Normal_png))
-				for i, it := range shader_1.Normal_png {
+				items := make([]env.Object, len(resources_audio.Ragtime_ogg))
+				for i, it := range resources_audio.Ragtime_ogg {
 					items[i] = *env.NewNative(ps.Idx, it, "byte")
 				}
 				resObj = *env.NewBlock(*env.NewTSeries(items))
@@ -52766,8 +52926,8 @@ var Builtins = map[string]*env.Builtin{
 			return resObj
 		},
 	},
-	"text-1-advance": {
-		Doc:   "text_1.Advance",
+	"text-advance": {
+		Doc:   "text.Advance",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var arg0Val string
@@ -52775,964 +52935,63 @@ var Builtins = map[string]*env.Builtin{
 				arg0Val = string(v.Value)
 			} else {
 				ps.FailureFlag = true
-				return env.NewError("text-1-advance: arg 1: expected string")
+				return env.NewError("text-advance: arg 1: expected string")
 			}
-			var arg1Val text_1.Face
+			var arg1Val text.Face
 			switch v := arg1.(type) {
 			case env.Native:
 				var ok bool
-				arg1Val, ok = v.Value.(text_1.Face)
+				arg1Val, ok = v.Value.(text.Face)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("text-1-advance: arg 2: expected native of type text_1.Face")
+					return env.NewError("text-advance: arg 2: expected native of type text.Face")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("text-1-advance: arg 2: expected integer to be 0 or nil")
+					return env.NewError("text-advance: arg 2: expected integer to be 0 or nil")
 				}
 				arg1Val = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("text-1-advance: arg 2: expected native")
+				return env.NewError("text-advance: arg 2: expected native")
 			}
-			res0 := text_1.Advance(arg0Val, arg1Val)
+			res0 := text.Advance(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewDecimal(float64(res0))
 			return res0Obj
 		},
 	},
-	"text-1-align-center": {
-		Doc:   "Get text_1.AlignCenter value",
+	"text-align-center": {
+		Doc:   "Get text.AlignCenter value",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var resObj env.Object
-			resObj = *env.NewInteger(int64(int(text_1.AlignCenter)))
+			resObj = *env.NewInteger(int64(int(text.AlignCenter)))
 			return resObj
 		},
 	},
-	"text-1-align-end": {
-		Doc:   "Get text_1.AlignEnd value",
+	"text-align-end": {
+		Doc:   "Get text.AlignEnd value",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var resObj env.Object
-			resObj = *env.NewInteger(int64(int(text_1.AlignEnd)))
+			resObj = *env.NewInteger(int64(int(text.AlignEnd)))
 			return resObj
 		},
 	},
-	"text-1-align-start": {
-		Doc:   "Get text_1.AlignStart value",
+	"text-align-start": {
+		Doc:   "Get text.AlignStart value",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var resObj env.Object
-			resObj = *env.NewInteger(int64(int(text_1.AlignStart)))
-			return resObj
-		},
-	},
-	"text-1-append-glyphs": {
-		Doc:   "text_1.AppendGlyphs",
-		Argsn: 4,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val []text_1.Glyph
-			switch v := arg0.(type) {
-			case env.Block:
-				arg0Val = make([]text_1.Glyph, len(v.Series.S))
-				for i, it := range v.Series.S {
-					switch v := it.(type) {
-					case env.Native:
-						var ok bool
-						arg0Val[i], ok = v.Value.(text_1.Glyph)
-						if !ok {
-							ps.FailureFlag = true
-							return env.NewError("text-1-append-glyphs: arg 1: block item: expected native of type text_1.Glyph")
-						}
-					default:
-						ps.FailureFlag = true
-						return env.NewError("text-1-append-glyphs: arg 1: block item: expected native")
-					}
-				}
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.([]text_1.Glyph)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-append-glyphs: arg 1: expected native of type []text_1.Glyph")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("text-1-append-glyphs: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-append-glyphs: arg 1: expected block, native or nil")
-			}
-			var arg1Val string
-			if v, ok := arg1.(env.String); ok {
-				arg1Val = string(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("text-1-append-glyphs: arg 2: expected string")
-			}
-			var arg2Val text_1.Face
-			switch v := arg2.(type) {
-			case env.Native:
-				var ok bool
-				arg2Val, ok = v.Value.(text_1.Face)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-append-glyphs: arg 3: expected native of type text_1.Face")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("text-1-append-glyphs: arg 3: expected integer to be 0 or nil")
-				}
-				arg2Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-append-glyphs: arg 3: expected native")
-			}
-			var arg3Val *text_1.LayoutOptions
-			switch v := arg3.(type) {
-			case env.Native:
-				var ok bool
-				arg3Val, ok = v.Value.(*text_1.LayoutOptions)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-append-glyphs: arg 4: expected native of type *text_1.LayoutOptions")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("text-1-append-glyphs: arg 4: expected integer to be 0 or nil")
-				}
-				arg3Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-append-glyphs: arg 4: expected native")
-			}
-			res0 := text_1.AppendGlyphs(arg0Val, arg1Val, arg2Val, arg3Val)
-			var res0Obj env.Object
-			{
-				items := make([]env.Object, len(res0))
-				for i, it := range res0 {
-					items[i] = *env.NewNative(ps.Idx, it, "text-1-glyph")
-				}
-				res0Obj = *env.NewBlock(*env.NewTSeries(items))
-			}
-			return res0Obj
-		},
-	},
-	"text-1-append-vector-path": {
-		Doc:   "text_1.AppendVectorPath",
-		Argsn: 4,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val *vector.Path
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(*vector.Path)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-append-vector-path: arg 1: expected native of type *vector.Path")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("text-1-append-vector-path: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-append-vector-path: arg 1: expected native")
-			}
-			var arg1Val string
-			if v, ok := arg1.(env.String); ok {
-				arg1Val = string(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("text-1-append-vector-path: arg 2: expected string")
-			}
-			var arg2Val text_1.Face
-			switch v := arg2.(type) {
-			case env.Native:
-				var ok bool
-				arg2Val, ok = v.Value.(text_1.Face)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-append-vector-path: arg 3: expected native of type text_1.Face")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("text-1-append-vector-path: arg 3: expected integer to be 0 or nil")
-				}
-				arg2Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-append-vector-path: arg 3: expected native")
-			}
-			var arg3Val *text_1.LayoutOptions
-			switch v := arg3.(type) {
-			case env.Native:
-				var ok bool
-				arg3Val, ok = v.Value.(*text_1.LayoutOptions)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-append-vector-path: arg 4: expected native of type *text_1.LayoutOptions")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("text-1-append-vector-path: arg 4: expected integer to be 0 or nil")
-				}
-				arg3Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-append-vector-path: arg 4: expected native")
-			}
-			text_1.AppendVectorPath(arg0Val, arg1Val, arg2Val, arg3Val)
-			return nil
-		},
-	},
-	"text-1-cache-glyphs": {
-		Doc:   "text_1.CacheGlyphs",
-		Argsn: 2,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val string
-			if v, ok := arg0.(env.String); ok {
-				arg0Val = string(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("text-1-cache-glyphs: arg 1: expected string")
-			}
-			var arg1Val text_1.Face
-			switch v := arg1.(type) {
-			case env.Native:
-				var ok bool
-				arg1Val, ok = v.Value.(text_1.Face)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-cache-glyphs: arg 2: expected native of type text_1.Face")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("text-1-cache-glyphs: arg 2: expected integer to be 0 or nil")
-				}
-				arg1Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-cache-glyphs: arg 2: expected native")
-			}
-			text_1.CacheGlyphs(arg0Val, arg1Val)
-			return nil
-		},
-	},
-	"text-1-direction-left-to-right": {
-		Doc:   "Get text_1.DirectionLeftToRight value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewInteger(int64(int(text_1.DirectionLeftToRight)))
-			return resObj
-		},
-	},
-	"text-1-direction-right-to-left": {
-		Doc:   "Get text_1.DirectionRightToLeft value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewInteger(int64(int(text_1.DirectionRightToLeft)))
-			return resObj
-		},
-	},
-	"text-1-direction-top-to-bottom-and-left-to-right": {
-		Doc:   "Get text_1.DirectionTopToBottomAndLeftToRight value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewInteger(int64(int(text_1.DirectionTopToBottomAndLeftToRight)))
-			return resObj
-		},
-	},
-	"text-1-direction-top-to-bottom-and-right-to-left": {
-		Doc:   "Get text_1.DirectionTopToBottomAndRightToLeft value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewInteger(int64(int(text_1.DirectionTopToBottomAndRightToLeft)))
-			return resObj
-		},
-	},
-	"text-1-draw": {
-		Doc:   "text_1.Draw",
-		Argsn: 4,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val *ebiten.Image
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(*ebiten.Image)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-draw: arg 1: expected native of type *ebiten.Image")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("text-1-draw: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-draw: arg 1: expected native")
-			}
-			var arg1Val string
-			if v, ok := arg1.(env.String); ok {
-				arg1Val = string(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("text-1-draw: arg 2: expected string")
-			}
-			var arg2Val text_1.Face
-			switch v := arg2.(type) {
-			case env.Native:
-				var ok bool
-				arg2Val, ok = v.Value.(text_1.Face)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-draw: arg 3: expected native of type text_1.Face")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("text-1-draw: arg 3: expected integer to be 0 or nil")
-				}
-				arg2Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-draw: arg 3: expected native")
-			}
-			var arg3Val *text_1.DrawOptions
-			switch v := arg3.(type) {
-			case env.Native:
-				var ok bool
-				arg3Val, ok = v.Value.(*text_1.DrawOptions)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-draw: arg 4: expected native of type *text_1.DrawOptions")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("text-1-draw: arg 4: expected integer to be 0 or nil")
-				}
-				arg3Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-draw: arg 4: expected native")
-			}
-			text_1.Draw(arg0Val, arg1Val, arg2Val, arg3Val)
-			return nil
-		},
-	},
-	"text-1-face//metrics": {
-		Doc:   "text_1.Face.Metrics",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val text_1.Face
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(text_1.Face)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-face//metrics: arg 1: expected native of type text_1.Face")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("text-1-face//metrics: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-face//metrics: arg 1: expected native")
-			}
-			res0 := arg0Val.Metrics()
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-text-1-metrics")
-			return res0Obj
-		},
-	},
-	"text-1-measure": {
-		Doc:   "text_1.Measure",
-		Argsn: 3,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val string
-			if v, ok := arg0.(env.String); ok {
-				arg0Val = string(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("text-1-measure: arg 1: expected string")
-			}
-			var arg1Val text_1.Face
-			switch v := arg1.(type) {
-			case env.Native:
-				var ok bool
-				arg1Val, ok = v.Value.(text_1.Face)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-measure: arg 2: expected native of type text_1.Face")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("text-1-measure: arg 2: expected integer to be 0 or nil")
-				}
-				arg1Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-measure: arg 2: expected native")
-			}
-			var arg2Val float64
-			if v, ok := arg2.(env.Decimal); ok {
-				arg2Val = float64(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("text-1-measure: arg 3: expected decimal")
-			}
-			res0, res1 := text_1.Measure(arg0Val, arg1Val, arg2Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewDecimal(float64(res0))
-			var res1Obj env.Object
-			res1Obj = *env.NewDecimal(float64(res1))
-			return *env.NewDict(map[string]any{
-				"width":  res0Obj,
-				"height": res1Obj,
-			})
-		},
-	},
-	"text-1-must-parse-tag": {
-		Doc:   "text_1.MustParseTag",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val string
-			if v, ok := arg0.(env.String); ok {
-				arg0Val = string(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("text-1-must-parse-tag: arg 1: expected string")
-			}
-			res0 := text_1.MustParseTag(arg0Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewInteger(int64(uint32(res0)))
-			return res0Obj
-		},
-	},
-	"text-1-draw-options": {
-		Doc:   "Create a new text_1.DrawOptions struct",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			res := &text_1.DrawOptions{}
-			var resObj env.Object
-			resObj = *env.NewNative(ps.Idx, res, "ptr-text-1-draw-options")
-			return resObj
-		},
-	},
-	"text-1-glyph": {
-		Doc:   "Create a new text_1.Glyph struct",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			res := &text_1.Glyph{}
-			var resObj env.Object
-			resObj = *env.NewNative(ps.Idx, res, "ptr-text-1-glyph")
-			return resObj
-		},
-	},
-	"text-1-go-text-face": {
-		Doc:   "Create a new text_1.GoTextFace struct",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			res := &text_1.GoTextFace{}
-			var resObj env.Object
-			resObj = *env.NewNative(ps.Idx, res, "ptr-text-1-go-text-face")
-			return resObj
-		},
-	},
-	"text-1-go-text-face-source": {
-		Doc:   "text_1.NewGoTextFaceSource",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val io.Reader
-			switch v := arg0.(type) {
-			case env.RyeCtx:
-				var err error
-				arg0Val, err = ctxTo_io_Reader(ps, v)
-				if err != nil {
-					ps.FailureFlag = true
-					return env.NewError("text-1-go-text-face-source: arg 1: " + err.Error() + "")
-				}
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(io.Reader)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-go-text-face-source: arg 1: expected native of type io.Reader")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("text-1-go-text-face-source: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-go-text-face-source: arg 1: expected native")
-			}
-			res0, res1 := text_1.NewGoTextFaceSource(arg0Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-text-1-go-text-face-source")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
-			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
-		},
-	},
-	"text-1-go-text-face-sources-from-collection": {
-		Doc:   "text_1.NewGoTextFaceSourcesFromCollection",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val io.Reader
-			switch v := arg0.(type) {
-			case env.RyeCtx:
-				var err error
-				arg0Val, err = ctxTo_io_Reader(ps, v)
-				if err != nil {
-					ps.FailureFlag = true
-					return env.NewError("text-1-go-text-face-sources-from-collection: arg 1: " + err.Error() + "")
-				}
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(io.Reader)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-go-text-face-sources-from-collection: arg 1: expected native of type io.Reader")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("text-1-go-text-face-sources-from-collection: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-go-text-face-sources-from-collection: arg 1: expected native")
-			}
-			res0, res1 := text_1.NewGoTextFaceSourcesFromCollection(arg0Val)
-			var res0Obj env.Object
-			{
-				items := make([]env.Object, len(res0))
-				for i, it := range res0 {
-					items[i] = *env.NewNative(ps.Idx, it, "ptr-text-1-go-text-face-source")
-				}
-				res0Obj = *env.NewBlock(*env.NewTSeries(items))
-			}
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
-			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
-		},
-	},
-	"text-1-go-x-face": {
-		Doc:   "text_1.NewGoXFace",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val font.Face
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(font.Face)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-go-x-face: arg 1: expected native of type font.Face")
-				}
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-go-x-face: arg 1: expected native")
-			}
-			res0 := text_1.NewGoXFace(arg0Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-text-1-go-x-face")
-			return res0Obj
-		},
-	},
-	"text-1-layout-options": {
-		Doc:   "Create a new text_1.LayoutOptions struct",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			res := &text_1.LayoutOptions{}
-			var resObj env.Object
-			resObj = *env.NewNative(ps.Idx, res, "ptr-text-1-layout-options")
-			return resObj
-		},
-	},
-	"text-1-limited-face": {
-		Doc:   "text_1.NewLimitedFace",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val text_1.Face
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(text_1.Face)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-limited-face: arg 1: expected native of type text_1.Face")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("text-1-limited-face: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-limited-face: arg 1: expected native")
-			}
-			res0 := text_1.NewLimitedFace(arg0Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-text-1-limited-face")
-			return res0Obj
-		},
-	},
-	"text-1-metadata": {
-		Doc:   "Create a new text_1.Metadata struct",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			res := &text_1.Metadata{}
-			var resObj env.Object
-			resObj = *env.NewNative(ps.Idx, res, "ptr-text-1-metadata")
-			return resObj
-		},
-	},
-	"text-1-metrics": {
-		Doc:   "Create a new text_1.Metrics struct",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			res := &text_1.Metrics{}
-			var resObj env.Object
-			resObj = *env.NewNative(ps.Idx, res, "ptr-text-1-metrics")
-			return resObj
-		},
-	},
-	"text-1-multi-face": {
-		Doc:   "text_1.NewMultiFace",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val []text_1.Face
-			switch v := arg0.(type) {
-			case env.Block:
-				arg0Val = make([]text_1.Face, len(v.Series.S))
-				for i, it := range v.Series.S {
-					switch v := it.(type) {
-					case env.Native:
-						var ok bool
-						arg0Val[i], ok = v.Value.(text_1.Face)
-						if !ok {
-							ps.FailureFlag = true
-							return env.NewError("text-1-multi-face: arg 1: block item: expected native of type text_1.Face")
-						}
-					case env.Integer:
-						if v.Value != 0 {
-							ps.FailureFlag = true
-							return env.NewError("text-1-multi-face: arg 1: block item: expected integer to be 0 or nil")
-						}
-						arg0Val[i] = nil
-					default:
-						ps.FailureFlag = true
-						return env.NewError("text-1-multi-face: arg 1: block item: expected native")
-					}
-				}
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.([]text_1.Face)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-1-multi-face: arg 1: expected native of type []text_1.Face")
-				}
-			case env.Integer:
-				if v.Value != 0 {
-					ps.FailureFlag = true
-					return env.NewError("text-1-multi-face: arg 1: expected integer to be 0 or nil")
-				}
-				arg0Val = nil
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-1-multi-face: arg 1: expected block, native or nil")
-			}
-			res0, res1 := text_1.NewMultiFace(arg0Val...)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-text-1-multi-face")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
-			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
-		},
-	},
-	"text-1-parse-tag": {
-		Doc:   "text_1.ParseTag",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val string
-			if v, ok := arg0.(env.String); ok {
-				arg0Val = string(v.Value)
-			} else {
-				ps.FailureFlag = true
-				return env.NewError("text-1-parse-tag: arg 1: expected string")
-			}
-			res0, res1 := text_1.ParseTag(arg0Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewInteger(int64(uint32(res0)))
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
-			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
-		},
-	},
-	"text-1-stretch-condensed": {
-		Doc:   "Get text_1.StretchCondensed value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.StretchCondensed)))
-			return resObj
-		},
-	},
-	"text-1-stretch-expanded": {
-		Doc:   "Get text_1.StretchExpanded value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.StretchExpanded)))
-			return resObj
-		},
-	},
-	"text-1-stretch-extra-condensed": {
-		Doc:   "Get text_1.StretchExtraCondensed value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.StretchExtraCondensed)))
-			return resObj
-		},
-	},
-	"text-1-stretch-extra-expanded": {
-		Doc:   "Get text_1.StretchExtraExpanded value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.StretchExtraExpanded)))
-			return resObj
-		},
-	},
-	"text-1-stretch-normal": {
-		Doc:   "Get text_1.StretchNormal value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.StretchNormal)))
-			return resObj
-		},
-	},
-	"text-1-stretch-semi-condensed": {
-		Doc:   "Get text_1.StretchSemiCondensed value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.StretchSemiCondensed)))
-			return resObj
-		},
-	},
-	"text-1-stretch-semi-expanded": {
-		Doc:   "Get text_1.StretchSemiExpanded value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.StretchSemiExpanded)))
-			return resObj
-		},
-	},
-	"text-1-stretch-ultra-condensed": {
-		Doc:   "Get text_1.StretchUltraCondensed value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.StretchUltraCondensed)))
-			return resObj
-		},
-	},
-	"text-1-stretch-ultra-expanded": {
-		Doc:   "Get text_1.StretchUltraExpanded value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.StretchUltraExpanded)))
-			return resObj
-		},
-	},
-	"text-1-style-italic": {
-		Doc:   "Get text_1.StyleItalic value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewInteger(int64(uint8(text_1.StyleItalic)))
-			return resObj
-		},
-	},
-	"text-1-style-normal": {
-		Doc:   "Get text_1.StyleNormal value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewInteger(int64(uint8(text_1.StyleNormal)))
-			return resObj
-		},
-	},
-	"text-1-tag//string": {
-		Doc:   "text_1.Tag.String",
-		Argsn: 1,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val text_1.Tag
-			{
-				nat, natOk := arg0.(env.Native)
-				var natValOk bool
-				var natVal text_1.Tag
-				if natOk {
-					natVal, natValOk = nat.Value.(text_1.Tag)
-				}
-				if natValOk {
-					arg0Val = natVal
-				} else {
-					var u uint32
-					if v, ok := arg0.(env.Integer); ok {
-						u = uint32(v.Value)
-					} else {
-						ps.FailureFlag = true
-						return env.NewError("text-1-tag//string: arg 1: expected integer")
-					}
-					arg0Val = text_1.Tag(u)
-				}
-			}
-			res0 := arg0Val.String()
-			var res0Obj env.Object
-			res0Obj = *env.NewString(res0)
-			return res0Obj
-		},
-	},
-	"text-1-weight-black": {
-		Doc:   "Get text_1.WeightBlack value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.WeightBlack)))
-			return resObj
-		},
-	},
-	"text-1-weight-bold": {
-		Doc:   "Get text_1.WeightBold value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.WeightBold)))
-			return resObj
-		},
-	},
-	"text-1-weight-extra-bold": {
-		Doc:   "Get text_1.WeightExtraBold value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.WeightExtraBold)))
-			return resObj
-		},
-	},
-	"text-1-weight-extra-light": {
-		Doc:   "Get text_1.WeightExtraLight value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.WeightExtraLight)))
-			return resObj
-		},
-	},
-	"text-1-weight-light": {
-		Doc:   "Get text_1.WeightLight value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.WeightLight)))
-			return resObj
-		},
-	},
-	"text-1-weight-medium": {
-		Doc:   "Get text_1.WeightMedium value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.WeightMedium)))
-			return resObj
-		},
-	},
-	"text-1-weight-normal": {
-		Doc:   "Get text_1.WeightNormal value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.WeightNormal)))
-			return resObj
-		},
-	},
-	"text-1-weight-semibold": {
-		Doc:   "Get text_1.WeightSemibold value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.WeightSemibold)))
-			return resObj
-		},
-	},
-	"text-1-weight-thin": {
-		Doc:   "Get text_1.WeightThin value",
-		Argsn: 0,
-		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var resObj env.Object
-			resObj = *env.NewDecimal(float64(float32(text_1.WeightThin)))
+			resObj = *env.NewInteger(int64(int(text.AlignStart)))
 			return resObj
 		},
 	},
 	"text-append-glyphs": {
 		Doc:   "text.AppendGlyphs",
-		Argsn: 3,
+		Argsn: 4,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var arg0Val []text.Glyph
 			switch v := arg0.(type) {
@@ -53769,27 +53028,52 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("text-append-glyphs: arg 1: expected block, native or nil")
 			}
-			var arg1Val font.Face
-			switch v := arg1.(type) {
-			case env.Native:
-				var ok bool
-				arg1Val, ok = v.Value.(font.Face)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-append-glyphs: arg 2: expected native of type font.Face")
-				}
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-append-glyphs: arg 2: expected native")
-			}
-			var arg2Val string
-			if v, ok := arg2.(env.String); ok {
-				arg2Val = string(v.Value)
+			var arg1Val string
+			if v, ok := arg1.(env.String); ok {
+				arg1Val = string(v.Value)
 			} else {
 				ps.FailureFlag = true
-				return env.NewError("text-append-glyphs: arg 3: expected string")
+				return env.NewError("text-append-glyphs: arg 2: expected string")
 			}
-			res0 := text.AppendGlyphs(arg0Val, arg1Val, arg2Val)
+			var arg2Val text.Face
+			switch v := arg2.(type) {
+			case env.Native:
+				var ok bool
+				arg2Val, ok = v.Value.(text.Face)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("text-append-glyphs: arg 3: expected native of type text.Face")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("text-append-glyphs: arg 3: expected integer to be 0 or nil")
+				}
+				arg2Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("text-append-glyphs: arg 3: expected native")
+			}
+			var arg3Val *text.LayoutOptions
+			switch v := arg3.(type) {
+			case env.Native:
+				var ok bool
+				arg3Val, ok = v.Value.(*text.LayoutOptions)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("text-append-glyphs: arg 4: expected native of type *text.LayoutOptions")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("text-append-glyphs: arg 4: expected integer to be 0 or nil")
+				}
+				arg3Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("text-append-glyphs: arg 4: expected native")
+			}
+			res0 := text.AppendGlyphs(arg0Val, arg1Val, arg2Val, arg3Val)
 			var res0Obj env.Object
 			{
 				items := make([]env.Object, len(res0))
@@ -53801,66 +53085,150 @@ var Builtins = map[string]*env.Builtin{
 			return res0Obj
 		},
 	},
-	"text-bound-string": {
-		Doc:   "text.BoundString",
-		Argsn: 2,
+	"text-append-vector-path": {
+		Doc:   "text.AppendVectorPath",
+		Argsn: 4,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val font.Face
+			var arg0Val *vector.Path
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				arg0Val, ok = v.Value.(font.Face)
+				arg0Val, ok = v.Value.(*vector.Path)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("text-bound-string: arg 1: expected native of type font.Face")
+					return env.NewError("text-append-vector-path: arg 1: expected native of type *vector.Path")
 				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("text-append-vector-path: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("text-bound-string: arg 1: expected native")
+				return env.NewError("text-append-vector-path: arg 1: expected native")
 			}
 			var arg1Val string
 			if v, ok := arg1.(env.String); ok {
 				arg1Val = string(v.Value)
 			} else {
 				ps.FailureFlag = true
-				return env.NewError("text-bound-string: arg 2: expected string")
+				return env.NewError("text-append-vector-path: arg 2: expected string")
 			}
-			res0 := text.BoundString(arg0Val, arg1Val)
-			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-image-rectangle")
-			return res0Obj
+			var arg2Val text.Face
+			switch v := arg2.(type) {
+			case env.Native:
+				var ok bool
+				arg2Val, ok = v.Value.(text.Face)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("text-append-vector-path: arg 3: expected native of type text.Face")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("text-append-vector-path: arg 3: expected integer to be 0 or nil")
+				}
+				arg2Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("text-append-vector-path: arg 3: expected native")
+			}
+			var arg3Val *text.LayoutOptions
+			switch v := arg3.(type) {
+			case env.Native:
+				var ok bool
+				arg3Val, ok = v.Value.(*text.LayoutOptions)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("text-append-vector-path: arg 4: expected native of type *text.LayoutOptions")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("text-append-vector-path: arg 4: expected integer to be 0 or nil")
+				}
+				arg3Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("text-append-vector-path: arg 4: expected native")
+			}
+			text.AppendVectorPath(arg0Val, arg1Val, arg2Val, arg3Val)
+			return nil
 		},
 	},
 	"text-cache-glyphs": {
 		Doc:   "text.CacheGlyphs",
 		Argsn: 2,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val font.Face
-			switch v := arg0.(type) {
-			case env.Native:
-				var ok bool
-				arg0Val, ok = v.Value.(font.Face)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-cache-glyphs: arg 1: expected native of type font.Face")
-				}
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-cache-glyphs: arg 1: expected native")
-			}
-			var arg1Val string
-			if v, ok := arg1.(env.String); ok {
-				arg1Val = string(v.Value)
+			var arg0Val string
+			if v, ok := arg0.(env.String); ok {
+				arg0Val = string(v.Value)
 			} else {
 				ps.FailureFlag = true
-				return env.NewError("text-cache-glyphs: arg 2: expected string")
+				return env.NewError("text-cache-glyphs: arg 1: expected string")
+			}
+			var arg1Val text.Face
+			switch v := arg1.(type) {
+			case env.Native:
+				var ok bool
+				arg1Val, ok = v.Value.(text.Face)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("text-cache-glyphs: arg 2: expected native of type text.Face")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("text-cache-glyphs: arg 2: expected integer to be 0 or nil")
+				}
+				arg1Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("text-cache-glyphs: arg 2: expected native")
 			}
 			text.CacheGlyphs(arg0Val, arg1Val)
 			return nil
 		},
 	},
-	"text-draw-with-options": {
-		Doc:   "text.DrawWithOptions",
+	"text-direction-left-to-right": {
+		Doc:   "Get text.DirectionLeftToRight value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewInteger(int64(int(text.DirectionLeftToRight)))
+			return resObj
+		},
+	},
+	"text-direction-right-to-left": {
+		Doc:   "Get text.DirectionRightToLeft value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewInteger(int64(int(text.DirectionRightToLeft)))
+			return resObj
+		},
+	},
+	"text-direction-top-to-bottom-and-left-to-right": {
+		Doc:   "Get text.DirectionTopToBottomAndLeftToRight value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewInteger(int64(int(text.DirectionTopToBottomAndLeftToRight)))
+			return resObj
+		},
+	},
+	"text-direction-top-to-bottom-and-right-to-left": {
+		Doc:   "Get text.DirectionTopToBottomAndRightToLeft value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewInteger(int64(int(text.DirectionTopToBottomAndRightToLeft)))
+			return resObj
+		},
+	},
+	"text-draw": {
+		Doc:   "text.Draw",
 		Argsn: 4,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
 			var arg0Val *ebiten.Image
@@ -53870,89 +53238,169 @@ var Builtins = map[string]*env.Builtin{
 				arg0Val, ok = v.Value.(*ebiten.Image)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("text-draw-with-options: arg 1: expected native of type *ebiten.Image")
+					return env.NewError("text-draw: arg 1: expected native of type *ebiten.Image")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("text-draw-with-options: arg 1: expected integer to be 0 or nil")
+					return env.NewError("text-draw: arg 1: expected integer to be 0 or nil")
 				}
 				arg0Val = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("text-draw-with-options: arg 1: expected native")
+				return env.NewError("text-draw: arg 1: expected native")
 			}
 			var arg1Val string
 			if v, ok := arg1.(env.String); ok {
 				arg1Val = string(v.Value)
 			} else {
 				ps.FailureFlag = true
-				return env.NewError("text-draw-with-options: arg 2: expected string")
+				return env.NewError("text-draw: arg 2: expected string")
 			}
-			var arg2Val font.Face
+			var arg2Val text.Face
 			switch v := arg2.(type) {
 			case env.Native:
 				var ok bool
-				arg2Val, ok = v.Value.(font.Face)
+				arg2Val, ok = v.Value.(text.Face)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("text-draw-with-options: arg 3: expected native of type font.Face")
-				}
-			default:
-				ps.FailureFlag = true
-				return env.NewError("text-draw-with-options: arg 3: expected native")
-			}
-			var arg3Val *ebiten.DrawImageOptions
-			switch v := arg3.(type) {
-			case env.Native:
-				var ok bool
-				arg3Val, ok = v.Value.(*ebiten.DrawImageOptions)
-				if !ok {
-					ps.FailureFlag = true
-					return env.NewError("text-draw-with-options: arg 4: expected native of type *ebiten.DrawImageOptions")
+					return env.NewError("text-draw: arg 3: expected native of type text.Face")
 				}
 			case env.Integer:
 				if v.Value != 0 {
 					ps.FailureFlag = true
-					return env.NewError("text-draw-with-options: arg 4: expected integer to be 0 or nil")
+					return env.NewError("text-draw: arg 3: expected integer to be 0 or nil")
+				}
+				arg2Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("text-draw: arg 3: expected native")
+			}
+			var arg3Val *text.DrawOptions
+			switch v := arg3.(type) {
+			case env.Native:
+				var ok bool
+				arg3Val, ok = v.Value.(*text.DrawOptions)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("text-draw: arg 4: expected native of type *text.DrawOptions")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("text-draw: arg 4: expected integer to be 0 or nil")
 				}
 				arg3Val = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("text-draw-with-options: arg 4: expected native")
+				return env.NewError("text-draw: arg 4: expected native")
 			}
-			text.DrawWithOptions(arg0Val, arg1Val, arg2Val, arg3Val)
+			text.Draw(arg0Val, arg1Val, arg2Val, arg3Val)
 			return nil
 		},
 	},
-	"text-face-with-line-height": {
-		Doc:   "text.FaceWithLineHeight",
-		Argsn: 2,
+	"text-face//metrics": {
+		Doc:   "text.Face.Metrics",
+		Argsn: 1,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			var arg0Val font.Face
+			var arg0Val text.Face
 			switch v := arg0.(type) {
 			case env.Native:
 				var ok bool
-				arg0Val, ok = v.Value.(font.Face)
+				arg0Val, ok = v.Value.(text.Face)
 				if !ok {
 					ps.FailureFlag = true
-					return env.NewError("text-face-with-line-height: arg 1: expected native of type font.Face")
+					return env.NewError("text-face//metrics: arg 1: expected native of type text.Face")
 				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("text-face//metrics: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
 			default:
 				ps.FailureFlag = true
-				return env.NewError("text-face-with-line-height: arg 1: expected native")
+				return env.NewError("text-face//metrics: arg 1: expected native")
 			}
-			var arg1Val float64
-			if v, ok := arg1.(env.Decimal); ok {
-				arg1Val = float64(v.Value)
+			res0 := arg0Val.Metrics()
+			var res0Obj env.Object
+			res0Obj = *env.NewNative(ps.Idx, &res0, "ptr-text-metrics")
+			return res0Obj
+		},
+	},
+	"text-measure": {
+		Doc:   "text.Measure",
+		Argsn: 3,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val string
+			if v, ok := arg0.(env.String); ok {
+				arg0Val = string(v.Value)
 			} else {
 				ps.FailureFlag = true
-				return env.NewError("text-face-with-line-height: arg 2: expected decimal")
+				return env.NewError("text-measure: arg 1: expected string")
 			}
-			res0 := text.FaceWithLineHeight(arg0Val, arg1Val)
+			var arg1Val text.Face
+			switch v := arg1.(type) {
+			case env.Native:
+				var ok bool
+				arg1Val, ok = v.Value.(text.Face)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("text-measure: arg 2: expected native of type text.Face")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("text-measure: arg 2: expected integer to be 0 or nil")
+				}
+				arg1Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("text-measure: arg 2: expected native")
+			}
+			var arg2Val float64
+			if v, ok := arg2.(env.Decimal); ok {
+				arg2Val = float64(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("text-measure: arg 3: expected decimal")
+			}
+			res0, res1 := text.Measure(arg0Val, arg1Val, arg2Val)
 			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "font-face")
+			res0Obj = *env.NewDecimal(float64(res0))
+			var res1Obj env.Object
+			res1Obj = *env.NewDecimal(float64(res1))
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
+		},
+	},
+	"text-must-parse-tag": {
+		Doc:   "text.MustParseTag",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val string
+			if v, ok := arg0.(env.String); ok {
+				arg0Val = string(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("text-must-parse-tag: arg 1: expected string")
+			}
+			res0 := text.MustParseTag(arg0Val)
+			var res0Obj env.Object
+			res0Obj = *env.NewInteger(int64(uint32(res0)))
 			return res0Obj
+		},
+	},
+	"text-draw-options": {
+		Doc:   "Create a new text.DrawOptions struct",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			res := &text.DrawOptions{}
+			var resObj env.Object
+			resObj = *env.NewNative(ps.Idx, res, "ptr-text-draw-options")
+			return resObj
 		},
 	},
 	"text-glyph": {
@@ -53962,6 +53410,487 @@ var Builtins = map[string]*env.Builtin{
 			res := &text.Glyph{}
 			var resObj env.Object
 			resObj = *env.NewNative(ps.Idx, res, "ptr-text-glyph")
+			return resObj
+		},
+	},
+	"text-go-text-face": {
+		Doc:   "Create a new text.GoTextFace struct",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			res := &text.GoTextFace{}
+			var resObj env.Object
+			resObj = *env.NewNative(ps.Idx, res, "ptr-text-go-text-face")
+			return resObj
+		},
+	},
+	"text-go-text-face-source": {
+		Doc:   "text.NewGoTextFaceSource",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val io.Reader
+			switch v := arg0.(type) {
+			case env.RyeCtx:
+				var err error
+				arg0Val, err = ctxTo_io_Reader(ps, v)
+				if err != nil {
+					ps.FailureFlag = true
+					return env.NewError("text-go-text-face-source: arg 1: " + err.Error() + "")
+				}
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(io.Reader)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("text-go-text-face-source: arg 1: expected native of type io.Reader")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("text-go-text-face-source: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("text-go-text-face-source: arg 1: expected native")
+			}
+			res0, resErr := text.NewGoTextFaceSource(arg0Val)
+			var res0Obj env.Object
+			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-text-go-text-face-source")
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
+			}
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
+		},
+	},
+	"text-go-text-face-sources-from-collection": {
+		Doc:   "text.NewGoTextFaceSourcesFromCollection",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val io.Reader
+			switch v := arg0.(type) {
+			case env.RyeCtx:
+				var err error
+				arg0Val, err = ctxTo_io_Reader(ps, v)
+				if err != nil {
+					ps.FailureFlag = true
+					return env.NewError("text-go-text-face-sources-from-collection: arg 1: " + err.Error() + "")
+				}
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(io.Reader)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("text-go-text-face-sources-from-collection: arg 1: expected native of type io.Reader")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("text-go-text-face-sources-from-collection: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("text-go-text-face-sources-from-collection: arg 1: expected native")
+			}
+			res0, resErr := text.NewGoTextFaceSourcesFromCollection(arg0Val)
+			var res0Obj env.Object
+			{
+				items := make([]env.Object, len(res0))
+				for i, it := range res0 {
+					items[i] = *env.NewNative(ps.Idx, it, "ptr-text-go-text-face-source")
+				}
+				res0Obj = *env.NewBlock(*env.NewTSeries(items))
+			}
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
+			}
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
+		},
+	},
+	"text-go-x-face": {
+		Doc:   "text.NewGoXFace",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val font.Face
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(font.Face)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("text-go-x-face: arg 1: expected native of type font.Face")
+				}
+			default:
+				ps.FailureFlag = true
+				return env.NewError("text-go-x-face: arg 1: expected native")
+			}
+			res0 := text.NewGoXFace(arg0Val)
+			var res0Obj env.Object
+			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-text-go-x-face")
+			return res0Obj
+		},
+	},
+	"text-layout-options": {
+		Doc:   "Create a new text.LayoutOptions struct",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			res := &text.LayoutOptions{}
+			var resObj env.Object
+			resObj = *env.NewNative(ps.Idx, res, "ptr-text-layout-options")
+			return resObj
+		},
+	},
+	"text-limited-face": {
+		Doc:   "text.NewLimitedFace",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val text.Face
+			switch v := arg0.(type) {
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.(text.Face)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("text-limited-face: arg 1: expected native of type text.Face")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("text-limited-face: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("text-limited-face: arg 1: expected native")
+			}
+			res0 := text.NewLimitedFace(arg0Val)
+			var res0Obj env.Object
+			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-text-limited-face")
+			return res0Obj
+		},
+	},
+	"text-metadata": {
+		Doc:   "Create a new text.Metadata struct",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			res := &text.Metadata{}
+			var resObj env.Object
+			resObj = *env.NewNative(ps.Idx, res, "ptr-text-metadata")
+			return resObj
+		},
+	},
+	"text-metrics": {
+		Doc:   "Create a new text.Metrics struct",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			res := &text.Metrics{}
+			var resObj env.Object
+			resObj = *env.NewNative(ps.Idx, res, "ptr-text-metrics")
+			return resObj
+		},
+	},
+	"text-multi-face": {
+		Doc:   "text.NewMultiFace",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val []text.Face
+			switch v := arg0.(type) {
+			case env.Block:
+				arg0Val = make([]text.Face, len(v.Series.S))
+				for i, it := range v.Series.S {
+					switch v := it.(type) {
+					case env.Native:
+						var ok bool
+						arg0Val[i], ok = v.Value.(text.Face)
+						if !ok {
+							ps.FailureFlag = true
+							return env.NewError("text-multi-face: arg 1: block item: expected native of type text.Face")
+						}
+					case env.Integer:
+						if v.Value != 0 {
+							ps.FailureFlag = true
+							return env.NewError("text-multi-face: arg 1: block item: expected integer to be 0 or nil")
+						}
+						arg0Val[i] = nil
+					default:
+						ps.FailureFlag = true
+						return env.NewError("text-multi-face: arg 1: block item: expected native")
+					}
+				}
+			case env.Native:
+				var ok bool
+				arg0Val, ok = v.Value.([]text.Face)
+				if !ok {
+					ps.FailureFlag = true
+					return env.NewError("text-multi-face: arg 1: expected native of type []text.Face")
+				}
+			case env.Integer:
+				if v.Value != 0 {
+					ps.FailureFlag = true
+					return env.NewError("text-multi-face: arg 1: expected integer to be 0 or nil")
+				}
+				arg0Val = nil
+			default:
+				ps.FailureFlag = true
+				return env.NewError("text-multi-face: arg 1: expected block, native or nil")
+			}
+			res0, resErr := text.NewMultiFace(arg0Val...)
+			var res0Obj env.Object
+			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-text-multi-face")
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
+			}
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
+		},
+	},
+	"text-parse-tag": {
+		Doc:   "text.ParseTag",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val string
+			if v, ok := arg0.(env.String); ok {
+				arg0Val = string(v.Value)
+			} else {
+				ps.FailureFlag = true
+				return env.NewError("text-parse-tag: arg 1: expected string")
+			}
+			res0, resErr := text.ParseTag(arg0Val)
+			var res0Obj env.Object
+			res0Obj = *env.NewInteger(int64(uint32(res0)))
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
+			}
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
+		},
+	},
+	"text-stretch-condensed": {
+		Doc:   "Get text.StretchCondensed value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.StretchCondensed)))
+			return resObj
+		},
+	},
+	"text-stretch-expanded": {
+		Doc:   "Get text.StretchExpanded value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.StretchExpanded)))
+			return resObj
+		},
+	},
+	"text-stretch-extra-condensed": {
+		Doc:   "Get text.StretchExtraCondensed value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.StretchExtraCondensed)))
+			return resObj
+		},
+	},
+	"text-stretch-extra-expanded": {
+		Doc:   "Get text.StretchExtraExpanded value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.StretchExtraExpanded)))
+			return resObj
+		},
+	},
+	"text-stretch-normal": {
+		Doc:   "Get text.StretchNormal value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.StretchNormal)))
+			return resObj
+		},
+	},
+	"text-stretch-semi-condensed": {
+		Doc:   "Get text.StretchSemiCondensed value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.StretchSemiCondensed)))
+			return resObj
+		},
+	},
+	"text-stretch-semi-expanded": {
+		Doc:   "Get text.StretchSemiExpanded value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.StretchSemiExpanded)))
+			return resObj
+		},
+	},
+	"text-stretch-ultra-condensed": {
+		Doc:   "Get text.StretchUltraCondensed value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.StretchUltraCondensed)))
+			return resObj
+		},
+	},
+	"text-stretch-ultra-expanded": {
+		Doc:   "Get text.StretchUltraExpanded value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.StretchUltraExpanded)))
+			return resObj
+		},
+	},
+	"text-style-italic": {
+		Doc:   "Get text.StyleItalic value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewInteger(int64(uint8(text.StyleItalic)))
+			return resObj
+		},
+	},
+	"text-style-normal": {
+		Doc:   "Get text.StyleNormal value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewInteger(int64(uint8(text.StyleNormal)))
+			return resObj
+		},
+	},
+	"text-tag//string": {
+		Doc:   "text.Tag.String",
+		Argsn: 1,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var arg0Val text.Tag
+			{
+				nat, natOk := arg0.(env.Native)
+				var natValOk bool
+				var natVal text.Tag
+				if natOk {
+					natVal, natValOk = nat.Value.(text.Tag)
+				}
+				if natValOk {
+					arg0Val = natVal
+				} else {
+					var u uint32
+					if v, ok := arg0.(env.Integer); ok {
+						u = uint32(v.Value)
+					} else {
+						ps.FailureFlag = true
+						return env.NewError("text-tag//string: arg 1: expected integer")
+					}
+					arg0Val = text.Tag(u)
+				}
+			}
+			res0 := arg0Val.String()
+			var res0Obj env.Object
+			res0Obj = *env.NewString(res0)
+			return res0Obj
+		},
+	},
+	"text-weight-black": {
+		Doc:   "Get text.WeightBlack value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.WeightBlack)))
+			return resObj
+		},
+	},
+	"text-weight-bold": {
+		Doc:   "Get text.WeightBold value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.WeightBold)))
+			return resObj
+		},
+	},
+	"text-weight-extra-bold": {
+		Doc:   "Get text.WeightExtraBold value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.WeightExtraBold)))
+			return resObj
+		},
+	},
+	"text-weight-extra-light": {
+		Doc:   "Get text.WeightExtraLight value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.WeightExtraLight)))
+			return resObj
+		},
+	},
+	"text-weight-light": {
+		Doc:   "Get text.WeightLight value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.WeightLight)))
+			return resObj
+		},
+	},
+	"text-weight-medium": {
+		Doc:   "Get text.WeightMedium value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.WeightMedium)))
+			return resObj
+		},
+	},
+	"text-weight-normal": {
+		Doc:   "Get text.WeightNormal value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.WeightNormal)))
+			return resObj
+		},
+	},
+	"text-weight-semibold": {
+		Doc:   "Get text.WeightSemibold value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.WeightSemibold)))
+			return resObj
+		},
+	},
+	"text-weight-thin": {
+		Doc:   "Get text.WeightThin value",
+		Argsn: 0,
+		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
+			var resObj env.Object
+			resObj = *env.NewDecimal(float64(float32(text.WeightThin)))
 			return resObj
 		},
 	},
@@ -54005,13 +53934,13 @@ var Builtins = map[string]*env.Builtin{
 			}
 			res0, res1 := textinput.Start(arg0Val, arg1Val)
 			var res0Obj env.Object
-			res0Obj = *env.NewNative(ps.Idx, res0, "chan_srtextinput-state")
+			res0Obj = *env.NewNative(ps.Idx, res0, "chan_sr_textinput-state")
 			var res1Obj env.Object
 			res1Obj = *env.NewNative(ps.Idx, res1, "func()")
-			return *env.NewDict(map[string]any{
-				"states": res0Obj,
-				"close":  res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"twenty-48-dir-down": {
@@ -54111,10 +54040,10 @@ var Builtins = map[string]*env.Builtin{
 			res0Obj = *env.NewInteger(int64(res0))
 			var res1Obj env.Object
 			res1Obj = *env.NewInteger(int64(res1))
-			return *env.NewDict(map[string]any{
-				"x": res0Obj,
-				"y": res1Obj,
-			})
+			return *env.NewBlock(*env.NewTSeries([]env.Object{
+				res0Obj,
+				res1Obj,
+			}))
 		},
 	},
 	"twenty-48-board": {
@@ -54128,34 +54057,36 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("twenty-48-board: arg 1: expected integer")
 			}
-			res0, res1 := twenty48.NewBoard(arg0Val)
+			res0, resErr := twenty48.NewBoard(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-twenty-48-board")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"twenty-48-game": {
 		Doc:   "twenty48.NewGame",
 		Argsn: 0,
 		Fn: func(ps *env.ProgramState, arg0, arg1, arg2, arg3, arg4 env.Object) env.Object {
-			res0, res1 := twenty48.NewGame()
+			res0, resErr := twenty48.NewGame()
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-twenty-48-game")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"twenty-48-input": {
@@ -54350,17 +54281,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("vorbis-decode: arg 2: expected native")
 			}
-			res0, res1 := vorbis.Decode(arg0Val, arg1Val)
+			res0, resErr := vorbis.Decode(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-vorbis-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"vorbis-decode-with-sample-rate": {
@@ -54400,17 +54332,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("vorbis-decode-with-sample-rate: arg 2: expected native")
 			}
-			res0, res1 := vorbis.DecodeWithSampleRate(arg0Val, arg1Val)
+			res0, resErr := vorbis.DecodeWithSampleRate(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-vorbis-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"vorbis-decode-without-resampling": {
@@ -54443,17 +54376,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("vorbis-decode-without-resampling: arg 1: expected native")
 			}
-			res0, res1 := vorbis.DecodeWithoutResampling(arg0Val)
+			res0, resErr := vorbis.DecodeWithoutResampling(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-vorbis-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"vorbis-stream": {
@@ -54515,17 +54449,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("wav-decode: arg 2: expected native")
 			}
-			res0, res1 := wav.Decode(arg0Val, arg1Val)
+			res0, resErr := wav.Decode(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-wav-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"wav-decode-with-sample-rate": {
@@ -54565,17 +54500,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("wav-decode-with-sample-rate: arg 2: expected native")
 			}
-			res0, res1 := wav.DecodeWithSampleRate(arg0Val, arg1Val)
+			res0, resErr := wav.DecodeWithSampleRate(arg0Val, arg1Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-wav-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"wav-decode-without-resampling": {
@@ -54608,17 +54544,18 @@ var Builtins = map[string]*env.Builtin{
 				ps.FailureFlag = true
 				return env.NewError("wav-decode-without-resampling: arg 1: expected native")
 			}
-			res0, res1 := wav.DecodeWithoutResampling(arg0Val)
+			res0, resErr := wav.DecodeWithoutResampling(arg0Val)
 			var res0Obj env.Object
 			res0Obj = *env.NewNative(ps.Idx, res0, "ptr-wav-stream")
-			var res1Obj env.Object
-			if res1 != nil {
-				res1Obj = *env.NewError(res1.Error())
+			var resErrObj env.Object
+			if resErr != nil {
+				resErrObj = env.NewError(resErr.Error())
 			}
-			return *env.NewDict(map[string]any{
-				"1":   res0Obj,
-				"err": res1Obj,
-			})
+			if resErrObj != nil {
+				ps.FailureFlag = true
+				return resErrObj
+			}
+			return res0Obj
 		},
 	},
 	"wav-stream": {
