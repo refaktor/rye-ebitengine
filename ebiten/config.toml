@@ -1,13 +1,14 @@
 # Output directory (relative).
-out-dir = "../current"
+out-dir = "../ryegen_bindings"
 # Go name of package.
 package = "github.com/hajimehoshi/ebiten/v2"
 # Go semantic version of package.
 version = "v2.7.8"
 # Auto-remove "New" part of functions (e.g. widget.NewLabel => widget-label, app.New => app).
 cut-new = true
-# Build flag used to enable binding. * is replaced by package name.
-build-flag = "b_*"
+
+# Add a build flag to exclude the binding (optional).
+dont-build-flag = "b_no_ebiten"
 
 # Descending priority. Packages not listed will always be prefixed.
 # In case of conflicting function names, only the function from the

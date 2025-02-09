@@ -9,9 +9,9 @@ replace github.com/refaktor/rye => ../rye
 replace github.com/refaktor/ryegen => ../ryegen
 
 require (
-	github.com/hajimehoshi/ebiten/v2 v2.7.7
-	github.com/refaktor/rye v0.0.21-0.20240613091039-01d356399f23
-	github.com/refaktor/ryegen v0.0.0-20240723150247-8b3d7738fb2a
+	github.com/hajimehoshi/ebiten/v2 v2.7.8
+	github.com/refaktor/rye v0.0.25-0.20241008135859-3e401118b002
+	github.com/refaktor/ryegen v0.1.1-0.20241009014844-8c047bebf475
 	golang.org/x/image v0.18.0
 	golang.org/x/text v0.21.0
 )
@@ -100,7 +100,11 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
+<<<<<<< HEAD
 	github.com/mattn/go-sqlite3 v1.14.24 // indirect
+=======
+	github.com/mattn/go-sqlite3 v1.14.23 // indirect
+>>>>>>> 9ecf8f1fef0533349790285505267b408c1ff7dd
 	github.com/mhale/smtpd v0.8.3 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421 // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
